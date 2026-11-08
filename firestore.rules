@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+    function noSecretFields() {
+      return !request.resource.data.keys().hasAny(['apiKey', 'api_key', 'encryptedKey', 'cipher', 'geminiKey', 'key']);
+    }
+    match /users/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+    match /users/{uid}/{document=**} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && noSecretFields()
+        && request.resource.data.keys().size() < 60;
+    }
+  }
+}
