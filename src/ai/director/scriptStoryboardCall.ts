@@ -16,7 +16,7 @@ import type {
 import { serializeBrief } from './briefSerializer';
 import { buildSystemPrompt } from './systemPrompts';
 
-export function buildScriptStoryboardCall(brief: Brief, concept: Concept, brand?: Brand | null) {
+export function buildScriptStoryboardCall(brief: Brief, concept: Concept, brand?: Brand | null, imageCount = 0) {
   const p = brief.project;
   const count = targetSceneCount(p.durationSec, p.sceneCountMode, p.sceneCount, concept.recommendedSceneCount);
   const outro = brief.audio.outroLogo ? `${brief.audio.outroSec ?? 2} seconds of logo outro` : 'no logo outro';
@@ -55,6 +55,12 @@ export function buildScriptStoryboardCall(brief: Brief, concept: Concept, brand?
     '  styleLineEn is ONE English sentence describing the visual style applied to every prompt.',
     '- script: hook, problem, productIntro, mainBenefit, closing, cta, full voiceOver, estimatedDurationSec, wordCount.',
     '- assumptions: list in Indonesian.',
+    ...(imageCount > 0
+      ? [
+          `- ${imageCount} labeled reference image(s) are attached above. Base productAppearanceEn and each masterDescriptionEn on what you SEE in them`,
+          '  (exact colors, shapes, logo placement, hair/hijab, clothing). If the text brief conflicts with an image, follow the image and note it in assumptions.',
+        ]
+      : []),
   ].join('\n');
   return {
     task: 'script_storyboard' as const,

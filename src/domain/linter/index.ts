@@ -6,6 +6,7 @@ import { L02, L03 } from './rules/consistency';
 import { L05, L07, L08, L09, L12 } from './rules/content';
 
 export type { LintIssue, LintContext, LintRule, LintSeverity } from './types';
+export { applyLintFixes, FIX_LABEL, FIXABLE_RULES, isFixable, type FixableRule } from './fixes';
 
 export const LINT_RULES: LintRule[] = [L01, L02, L03, L04, L05, L06, L07, L08, L09, L10, L11, L12, L13];
 

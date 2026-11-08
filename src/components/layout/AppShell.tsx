@@ -10,7 +10,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { useUiStore } from '@/stores/uiStore';
 import { useVaultStore } from '@/vault/vaultStore';
-import { isDemoMode } from '@/config/firebase';
+import { isDemoMode } from '@/config/env';
 import { MSG } from '@/ai/messages';
 import { cn } from '@/lib/utils';
 

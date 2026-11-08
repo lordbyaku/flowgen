@@ -1,5 +1,5 @@
 import type { z, ZodTypeAny } from 'zod';
-import type { AIRequest } from '@/ai/providers/aiProvider';
+import type { AIImage, AIRequest } from '@/ai/providers/aiProvider';
 import type { AIRouter } from '@/ai/router/aiRouter';
 import { InvalidJsonError } from '@/ai/router/errors';
 import { MSG } from '@/ai/messages';
@@ -16,6 +16,7 @@ export interface StructuredOptions<S extends ZodTypeAny> {
   maxOutputTokens: number;
   signal?: AbortSignal;
   onProgress?: ProgressFn;
+  images?: AIImage[];
 }
 
 function issuesOf(error: z.ZodError): string[] {
@@ -39,6 +40,7 @@ export async function structuredCall<S extends ZodTypeAny>(
     temperature: opts.temperature,
     maxOutputTokens: opts.maxOutputTokens,
     signal: opts.signal,
+    images: opts.images?.length ? opts.images : undefined,
   };
   const first = await router.run(req, opts.onProgress);
   const attempt = (raw: string) => {
@@ -66,7 +68,7 @@ export async function structuredCall<S extends ZodTypeAny>(
     '',
     'Return ONLY the corrected JSON object that matches the schema. No markdown, no commentary.',
   ].join('\n');
-  const second = await router.run({ ...req, userPrompt: repairPrompt }, opts.onProgress);
+  const second = await router.run({ ...req, images: undefined, userPrompt: repairPrompt }, opts.onProgress);
   const r2 = attempt(second.text);
   if (r2.ok) return { data: r2.data, raw: second.text, keyLabel: second.keyLabel };
   throw new InvalidJsonError(MSG.invalidJson, second.text || first.text);

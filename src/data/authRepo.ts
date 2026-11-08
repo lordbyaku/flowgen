@@ -1,12 +1,7 @@
-import {
-  createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-} from 'firebase/auth';
-import { getFirebaseAuth, isDemoMode } from '@/config/firebase';
+import { isDemoMode } from '@/config/env';
+
+const fb = () => import('./firebaseAuth');
+
 
 export interface AppUser {
   uid: string;
@@ -35,9 +30,16 @@ export function watchAuth(cb: (u: AppUser | null) => void): () => void {
       demoListener = null;
     };
   }
-  return onAuthStateChanged(getFirebaseAuth(), (u) =>
-    cb(u ? { uid: u.uid, email: u.email, displayName: u.displayName, demo: false } : null),
-  );
+  let unsub: (() => void) | null = null;
+  let cancelled = false;
+  void fb().then((m) => {
+    if (cancelled) return;
+    unsub = m.watch((u) => cb(u ? { uid: u.uid, email: u.email, displayName: u.displayName, demo: false } : null));
+  });
+  return () => {
+    cancelled = true;
+    unsub?.();
+  };
 }
 
 const AUTH_MESSAGES: Record<string, string> = {
@@ -59,17 +61,17 @@ export function authErrorMessage(err: unknown): string {
 
 export async function signInEmail(email: string, password: string): Promise<void> {
   if (isDemoMode) return demoSignIn();
-  await signInWithEmailAndPassword(getFirebaseAuth(), email, password);
+  await (await fb()).signInEmail(email, password);
 }
 
 export async function registerEmail(email: string, password: string): Promise<void> {
   if (isDemoMode) return demoSignIn();
-  await createUserWithEmailAndPassword(getFirebaseAuth(), email, password);
+  await (await fb()).register(email, password);
 }
 
 export async function signInGoogle(): Promise<void> {
   if (isDemoMode) return demoSignIn();
-  await signInWithPopup(getFirebaseAuth(), new GoogleAuthProvider());
+  await (await fb()).signInGoogle();
 }
 
 export async function demoSignIn(): Promise<void> {
@@ -92,5 +94,5 @@ export async function logout(): Promise<void> {
     demoListener?.(null);
     return;
   }
-  await signOut(getFirebaseAuth());
+  await (await fb()).logout();
 }

@@ -1,5 +1,5 @@
 // Semua nilai yang bergantung pada layanan eksternal ditandai [VERIFIKASI] — lihat docs/VERIFY.md.
-export const APP_VERSION = '1.0.0';
+export const APP_VERSION = '1.1.0';
 
 export const MAX_KEYS = 5;
 export const MAX_SCENE_SEC = 8; // [VERIFIKASI] batas klip Google Flow
@@ -27,7 +27,15 @@ export const REQUEST_TIMEOUT_MS = 90_000;
 export const COMPLETENESS_WARN_BELOW = 70; // persen
 export const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
 export const DEFAULT_MODEL_HINT = 'gemini-2.5-flash'; // [VERIFIKASI] hanya fallback; utamakan models.list
-export const MAX_OUTPUT_TOKENS = { concepts: 4096, script: 8192, prompts: 8192, regen: 2048, assist: 1024 };
+// Dinaikkan dari 19.7 (v1.1): model 2.5 menghitung token berpikir ke dalam batas ini. [VERIFIKASI]
+export const MAX_OUTPUT_TOKENS = { concepts: 8192, script: 16384, prompts: 16384, regen: 4096, assist: 2048, schemaTest: 1024 };
+/** Budget berpikir minimal untuk tugas JSON. 2.5 Pro tidak bisa 0 (min 128). [VERIFIKASI] */
+export const THINKING_BUDGET = { flash: 0, pro: 128, gemini3Level: 'low' } as const;
+/** Gambar referensi lokal yang dikirim ke AI (multimodal). */
+export const MAX_AI_IMAGES = 6;
+export const AI_IMAGE_MAX_DIM = 1024;
+/** Perkiraan token per gambar untuk estimasi biaya. [VERIFIKASI] */
+export const TOKENS_PER_IMAGE = 258;
 export const TEMPERATURE = { concepts: 0.9, script: 0.7, prompts: 0.5, regen: 0.6, assist: 0.3 };
 export const KEY_TEST_MAX_OUTPUT_TOKENS = 8;
 export const SCENE_PROMPT_BATCH = 6;

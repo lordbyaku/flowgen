@@ -2,6 +2,25 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.1.0] - 2026-11-08
+
+### Ditambahkan
+- **Gambar referensi multimodal**: gambar produk/karakter yang diunggah sebagai file ikut dikirim ke Gemini pada Panggilan 2 (maks 6, diperkecil ke 1024 px, berlabel per produk/karakter) agar Visual Bible dan Character Master Description sesuai gambar. Opsi "Kirim gambar referensi lokal ke AI" di Langkah 8 (default aktif).
+- **Mode Flow berbasis gambar**: pada mode "Gambar ke video" dan "Frame awal-akhir", Panggilan 3 dan regenerasi juga membuat prompt gambar frame awal (dan frame akhir), sementara prompt Flow difokuskan pada gerakan. Frame tampil di kartu prompt dengan tombol salin dan ikut diekspor ke Markdown/TXT.
+- **Perbaikan otomatis Prompt Linter** (tanpa AI) untuk L02, L03, L04, L07, L10: tombol "Perbaiki" per peringatan dan "Perbaiki semua"; hasil disimpan sebagai versi baru.
+- **Estimasi biaya** sebelum generate (jumlah panggilan, token input, maks token output, jumlah gambar) di halaman Konsep, Naskah, dan Prompt.
+- **Uji skema JSON** per key di AI Provider: satu panggilan kecil dengan `responseSchema` untuk membuktikan format JSON + konfigurasi thinking diterima model.
+- **Cadangan perubahan saat tab ditutup**: perubahan yang belum tersimpan ditulis ke localStorage secara sinkron lalu dipulihkan dan disimpan saat project dibuka lagi.
+- Konfirmasi browser sebelum reload/menutup tab saat vault mode sesi memiliki key.
+- Skrip `pnpm test:rules:emu` (menjalankan emulator + tes rules dalam satu perintah).
+
+### Diubah
+- `thinkingConfig` per keluarga model (2.5 Flash: 0, 2.5 Pro: 128, Gemini 3: level low); bila model menolak, request diulang sekali tanpa konfigurasi tersebut.
+- `MAX_OUTPUT_TOKENS` dinaikkan (konsep 8192, naskah/prompt 16384, regen 4096, asisten 2048).
+- SDK Firebase dimuat secara lazy: Mode Demo tidak lagi mengunduh ±595 KB Firebase.
+- CSP: `https://accounts.google.com` ditambahkan ke `frame-src` untuk Google Sign-in.
+- Lokasi "Kustom" di Langkah 7 memakai state UI, bukan nilai spasi palsu di data.
+
 ## [1.0.0] - 2026-11-08
 
 ### Ditambahkan

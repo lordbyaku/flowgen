@@ -22,3 +22,11 @@ Dicatat sesuai aturan 18.1 (spesifikasi ambigu → pilih opsi paling sederhana y
 | D16 | Character Bible tersimpan | Diambil dari dokumen `bibles` project terbaru (≤20) saat pengguna membuka dialog. | Tidak ada koleksi global Character Bible di skema Firestore 13/25.2. |
 | D17 | Audit Firestore (P3-04) | Penghitung read/write per hari lokal di `localStorage` (hanya angka). | Tanpa backend; cukup sebagai indikator kuota Spark. |
 | D18 | CSP | Tambah `https://content-firebaseappcheck.googleapis.com` ke `connect-src`. | Endpoint token App Check reCAPTCHA v3. |
+| D19 | Gambar ke AI | Hanya gambar **lokal** yang dikirim (URL tidak bisa diambil: `fetch` hanya boleh di provider dan dibatasi CSP/CORS). Hanya Panggilan 2 yang menerima gambar; panggilan perbaikan JSON tidak mengirim ulang gambar. | Bible adalah sumber konsistensi; menghemat token di panggilan lain. |
+| D20 | Prompt frame | Disimpan di `scene.framePrompts` (opsional) dan hanya untuk mode berbasis gambar; tidak di-lint. | Linter dirancang untuk prompt video. |
+| D21 | Auto-fix linter | Hanya aturan yang aman secara deterministik (L02, L03, L04, L07, L10). L01/L08/L09/L11 butuh keputusan pengguna karena mengubah durasi atau naskah. | Tidak mengubah isi kreatif tanpa persetujuan. |
+| D22 | Thinking | Konfigurasi per keluarga model + satu kali ulang tanpa `thinkingConfig` bila model menolak (400 berisi "thinking"). | Nama/parameter model berubah; tidak boleh memblokir pipeline. |
+| D23 | Cadangan saat tab ditutup | Hanya field/dokumen yang dirty ditulis ke `localStorage` (`avps-pending-{pid}`); dibersihkan setelah tersimpan. Tidak pernah memuat key. | `beforeunload` tidak bisa menunggu penyimpanan async. |
+| D24 | Lazy Firebase | `config/env.ts` tanpa SDK; `firestoreBackend` dan `firebaseAuth` diimpor dinamis. `manualChunks` untuk Firebase dihapus karena menarik `idb` (dipakai vault) ke chunk Firebase sehingga dimuat di awal. | Mode Demo lebih ringan. |
+| D25 | CSP Google Sign-in | `https://accounts.google.com` ditambahkan ke `frame-src`. | Popup Google Sign-in. |
+

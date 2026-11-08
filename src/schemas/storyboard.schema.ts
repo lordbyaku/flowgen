@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ScriptAiSchema } from './script.schema';
-import { SceneDraftSchema, FlowPromptsSchema } from './scene.schema';
+import { SceneDraftSchema, FlowPromptsSchema, FramePromptsSchema } from './scene.schema';
 import { CharacterBibleAiSchema, VisualBibleSchema } from './bible.schema';
 import { CapcutGuideSchema } from './capcut.schema';
 
@@ -18,6 +18,8 @@ export const ScenePromptItemSchema = z.object({
   standard: z.string(),
   cinematic: z.string().optional(),
   premium: z.string().optional(),
+  startFrame: z.string().optional(),
+  endFrame: z.string().optional(),
   negativePrompt: z.string(),
 });
 
@@ -36,6 +38,7 @@ export const ScenePromptsFinalSchema = z.object({
 export const SceneRegenOutputSchema = z.object({
   scene: SceneDraftSchema,
   flowPrompts: FlowPromptsSchema,
+  framePrompts: FramePromptsSchema.optional(),
   negativePrompt: z.string(),
 });
 
@@ -50,4 +53,13 @@ export const BriefAssistOutputSchema = z.object({
       }),
     )
     .max(5),
+});
+
+/** Skema kecil untuk tombol "Uji skema JSON" (meniru fitur skema yang dipakai panggilan asli). */
+export const SchemaTestSchema = z.object({
+  title: z.string(),
+  angle: z.enum(['demo', 'pov', 'problem_solution']),
+  sceneCount: z.number().int(),
+  scenes: z.array(z.object({ order: z.number().int(), summary: z.string() })).min(1),
+  note: z.string().optional(),
 });

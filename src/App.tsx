@@ -6,6 +6,7 @@ import { router } from './routes';
 import { useAuthStore } from './stores/authStore';
 import { useUiStore } from './stores/uiStore';
 import { useProjectStore } from './stores/projectStore';
+import { useVaultStore } from './vault/vaultStore';
 
 export default function App() {
   const initAuth = useAuthStore((s) => s.init);
@@ -22,9 +23,14 @@ export default function App() {
     const beforeUnload = (e: BeforeUnloadEvent) => {
       const s = useProjectStore.getState();
       if (s.dirtyFields.size || s.dirtyDocs.size) {
+        // Cadangan sinkron dulu (flush async tidak dijamin selesai), lalu coba simpan.
+        s.backupPending();
         void s.flush();
         e.preventDefault();
       }
+      // Mode sesi: key hilang saat reload/tutup tab — minta konfirmasi browser.
+      const v = useVaultStore.getState();
+      if (v.meta?.mode === 'session' && v.keys.length > 0) e.preventDefault();
     };
     window.addEventListener('beforeunload', beforeUnload);
     return () => {

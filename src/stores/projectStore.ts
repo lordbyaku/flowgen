@@ -32,6 +32,35 @@ interface ProjectState {
   flush(): Promise<boolean>;
   reloadFromRemote(): Promise<void>;
   dismissRemoteChange(): void;
+  /** Tulis perubahan yang belum tersimpan ke localStorage secara sinkron (dipanggil saat tab ditutup). */
+  backupPending(): void;
+  /** true bila perubahan dari sesi sebelumnya dipulihkan saat memuat project. */
+  restoredBackup: boolean;
+}
+
+const BACKUP_PREFIX = 'avps-pending-';
+
+interface PendingBackup {
+  ts: number;
+  fields: Partial<Project>;
+  docs: Partial<ProjectDocs>;
+}
+
+function readBackup(pid: string): PendingBackup | null {
+  try {
+    const raw = localStorage.getItem(BACKUP_PREFIX + pid);
+    return raw ? (JSON.parse(raw) as PendingBackup) : null;
+  } catch {
+    return null;
+  }
+}
+
+function clearBackup(pid: string) {
+  try {
+    localStorage.removeItem(BACKUP_PREFIX + pid);
+  } catch {
+    /* abaikan */
+  }
 }
 
 let timer: ReturnType<typeof setTimeout> | null = null;
@@ -65,6 +94,7 @@ export const useProjectStore = create<ProjectState>((set, get) => {
     saveStatus: 'idle',
     remoteChanged: false,
     trimmedWarning: false,
+    restoredBackup: false,
     dirtyFields: new Set(),
     dirtyDocs: new Set(),
 
@@ -87,7 +117,21 @@ export const useProjectStore = create<ProjectState>((set, get) => {
         if (token !== loadToken) return;
         unsubscribe?.();
         knownUpdatedAt = r.project.updatedAt;
-        set({ project: r.project, docs, invalidDocs: invalid, loading: false, saveStatus: 'idle' });
+        set({ project: r.project, docs, invalidDocs: invalid, loading: false, saveStatus: 'idle', restoredBackup: false });
+        // Pulihkan perubahan yang belum sempat tersimpan saat tab ditutup.
+        const backup = readBackup(pid);
+        if (backup && backup.ts > r.project.updatedAt) {
+          const fields = Object.keys(backup.fields) as ProjectField[];
+          const docNames = Object.keys(backup.docs) as DocName[];
+          set({
+            project: { ...r.project, ...backup.fields },
+            docs: { ...docs, ...backup.docs },
+            dirtyFields: new Set(fields),
+            dirtyDocs: new Set(docNames),
+            restoredBackup: fields.length + docNames.length > 0,
+          });
+          schedule();
+        } else if (backup) clearBackup(pid);
         unsubscribe = repo.subscribeProject(uid, pid, (remote, meta) => {
           if (!remote || meta.hasPendingWrites) return;
           if (remote.updatedAt > knownUpdatedAt) set({ remoteChanged: true });
@@ -178,6 +222,7 @@ export const useProjectStore = create<ProjectState>((set, get) => {
           const cur = get().project;
           if (cur) set({ project: { ...cur, updatedAt: ts } });
           set({ saveStatus: 'saved', trimmedWarning: trimmed || get().trimmedWarning });
+          if (!get().dirtyFields.size && !get().dirtyDocs.size) clearBackup(projectId);
           return true;
         } catch (e) {
           console.error('Gagal menyimpan', e instanceof Error ? e.name : 'error');
@@ -207,6 +252,19 @@ export const useProjectStore = create<ProjectState>((set, get) => {
     },
 
     dismissRemoteChange: () => set({ remoteChanged: false }),
+
+    backupPending() {
+      const { projectId, project, docs, dirtyFields, dirtyDocs } = get();
+      if (!projectId || !project || (!dirtyFields.size && !dirtyDocs.size)) return;
+      const backup: PendingBackup = { ts: Date.now(), fields: {}, docs: {} };
+      dirtyFields.forEach((f) => ((backup.fields as Record<string, unknown>)[f] = project[f]));
+      dirtyDocs.forEach((d) => ((backup.docs as Record<string, unknown>)[d] = docs[d]));
+      try {
+        localStorage.setItem(BACKUP_PREFIX + projectId, JSON.stringify(backup));
+      } catch {
+        /* kuota penuh atau diblokir: abaikan */
+      }
+    },
   };
 });
 

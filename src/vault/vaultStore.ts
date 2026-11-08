@@ -423,6 +423,7 @@ export const previewStore = {
   save: previews.savePreview,
   getUrl: previews.getPreviewUrl,
   remove: previews.deletePreview,
+  forAI: previews.getPreviewForAI,
 };
 
 /** Preferensi lokal non-rahasia (IndexedDB settings). */

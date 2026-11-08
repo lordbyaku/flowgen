@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { optionsFrom } from '@/components/common/ToggleGroup';
 import { Field } from '@/components/common/Field';
 import { Input } from '@/components/ui/input';
@@ -9,18 +10,28 @@ export function Step7Location() {
   const brief = useBrief();
   const set = useSetBrief();
   const main = brief.location.main;
-  const isCustom = main !== '' && !(LOCATION_OPTIONS as readonly string[]).includes(main);
+  const isPreset = (LOCATION_OPTIONS as readonly string[]).includes(main);
+  // Mode kustom disimpan di state UI, bukan dengan nilai palsu di data.
+  const [custom, setCustom] = React.useState(main !== '' && !isPreset);
   return (
     <StepSection title="Langkah 7 — Lokasi dan Props" description="Setting yang konsisten membuat klip terasa satu cerita.">
-      <Field id="f-loc" label="Lokasi utama" level="W" className="md:col-span-2" empty={!main}>
+      <Field id="f-loc" label="Lokasi utama" level="W" className="md:col-span-2" empty={!main.trim()}>
         <SingleToggle
           options={[...LOCATION_OPTIONS.map((l) => ({ value: l as string, label: l as string })), { value: '__custom', label: 'Kustom' }]}
-          value={isCustom ? '__custom' : main || undefined}
-          onChange={(v) => set('location.main', v === '__custom' ? ' ' : (v ?? ''))}
+          value={custom ? '__custom' : main || undefined}
+          onChange={(v) => {
+            if (v === '__custom') {
+              setCustom(true);
+              if (isPreset) set('location.main', '');
+            } else {
+              setCustom(false);
+              set('location.main', v ?? '');
+            }
+          }}
           ariaLabel="Lokasi utama"
         />
-        {(isCustom || main === ' ') && (
-          <Input id="f-loc" className="mt-2" value={main.trim()} placeholder="mis. Bengkel motor pinggir jalan" onChange={(e) => set('location.main', e.target.value || ' ')} />
+        {custom && (
+          <Input id="f-loc" className="mt-2" value={main} placeholder="mis. Bengkel motor pinggir jalan" onChange={(e) => set('location.main', e.target.value)} />
         )}
       </Field>
       <EnumField path="location.indoorOutdoor" label="Indoor/Outdoor" options={optionsFrom(LABELS.indoorOutdoor)} />

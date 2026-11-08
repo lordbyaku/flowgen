@@ -22,7 +22,7 @@ export const HUB_STEPS = [
 export default function ProjectHub() {
   const { id } = useParams();
   const uid = useAuthStore((s) => s.user?.uid);
-  const { load, project, loading, loadError, remoteChanged, reloadFromRemote, dismissRemoteChange, saveStatus, flush, docs, trimmedWarning, invalidDocs } =
+  const { load, project, loading, loadError, remoteChanged, reloadFromRemote, dismissRemoteChange, saveStatus, flush, docs, trimmedWarning, invalidDocs, restoredBackup } =
     useProjectStore();
 
   React.useEffect(() => {
@@ -114,6 +114,11 @@ export default function ProjectHub() {
           }
         >
           {MSG.saveFailed}
+        </Alert>
+      )}
+      {restoredBackup && (
+        <Alert variant="info" title="Perubahan yang belum tersimpan dipulihkan">
+          Perubahan dari sesi sebelumnya (saat tab ditutup sebelum sempat tersimpan) dipulihkan dan sedang disimpan.
         </Alert>
       )}
       {trimmedWarning && (

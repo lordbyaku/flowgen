@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { AlertCircle, AlertTriangle, BookMarked, CheckCircle2, History, Info, Pencil, RefreshCw, Sparkles } from 'lucide-react';
+import { AlertCircle, AlertTriangle, BookMarked, CheckCircle2, History, ImageIcon, Info, Pencil, RefreshCw, Sparkles, Wand2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,10 +11,11 @@ import { Alert } from '@/components/ui/misc';
 import { AiErrorPanel } from '@/components/common/AiStatus';
 import { CopyButton } from '@/components/common/CopyButton';
 import { EmptyState } from '@/components/common/states';
+import { CostHint } from '@/components/common/CostHint';
 import { LABELS } from '@/config/enums';
 import { aiService } from '@/ai/aiService';
-import { lintScene, worstSeverity, type LintIssue } from '@/domain/linter';
-import { copyAllText, copyText } from '@/domain/promptText';
+import { applyLintFixes, FIX_LABEL, isFixable, lintScene, worstSeverity, type FixableRule, type LintIssue } from '@/domain/linter';
+import { copyAllText, copyText, frameCopyText } from '@/domain/promptText';
 import { pushVersion, restoreVersion } from '@/domain/sceneVersions';
 import { countWords, cn } from '@/lib/utils';
 import { useAiStatusStore } from '@/stores/aiStatusStore';
@@ -32,9 +33,10 @@ const SEV = {
   info: { icon: Info, variant: 'muted' as const, label: 'info' },
 };
 
-function LintBadge({ issues }: { issues: LintIssue[] }) {
+function LintBadge({ issues, onFix }: { issues: LintIssue[]; onFix: (rules: FixableRule[]) => void }) {
   const [open, setOpen] = React.useState(false);
   const worst = worstSeverity(issues);
+  const fixable = [...new Set(issues.map((i) => i.ruleId).filter(isFixable))];
   if (!worst)
     return (
       <Badge variant="success">
@@ -56,13 +58,26 @@ function LintBadge({ issues }: { issues: LintIssue[] }) {
             return (
               <li key={k} className="flex gap-1.5">
                 <I className={cn('mt-0.5 h-3.5 w-3.5 shrink-0', i.severity === 'error' ? 'text-destructive' : i.severity === 'warn' ? 'text-warning' : 'text-muted-foreground')} />
-                <span>
+                <span className="flex-1">
                   <strong>{i.ruleId}</strong> {i.message}
                 </span>
+                {isFixable(i.ruleId) && (
+                  <button type="button" className="shrink-0 text-primary underline" onClick={() => onFix([i.ruleId as FixableRule])}>
+                    Perbaiki
+                  </button>
+                )}
               </li>
             );
           })}
-          <li className="pt-1 text-muted-foreground">Peringatan tidak memblokir penyalinan.</li>
+          <li className="flex flex-wrap items-center gap-2 pt-1 text-muted-foreground">
+            Peringatan tidak memblokir penyalinan.
+            {fixable.length > 1 && (
+              <button type="button" className="text-primary underline" onClick={() => onFix(fixable)}>
+                <Wand2 className="mr-1 inline h-3 w-3" />
+                Perbaiki semua ({fixable.length})
+              </button>
+            )}
+          </li>
         </ul>
       )}
     </div>
@@ -80,7 +95,13 @@ function PromptCard({ scene, index, variants, onRegen }: { scene: Scene; index: 
   const [compare, setCompare] = React.useState(false);
   const [snip, setSnip] = React.useState(false);
 
-  const issues = lintScene(scene, { brief: project.brief, bibles, scenes: allScenes, variant }, project.lintDisabled);
+  const lintCtx = { brief: project.brief, bibles, scenes: allScenes, variant };
+  const issues = lintScene(scene, lintCtx, project.lintDisabled);
+  const fix = (rules: FixableRule[]) => {
+    const fixed = applyLintFixes(scene, lintCtx, rules, variant);
+    save(pushVersion({ ...fixed, approved: false, updatedAt: Date.now() }, 'edited', Date.now()));
+    toast.success(rules.length > 1 ? `${rules.length} perbaikan diterapkan` : FIX_LABEL[rules[0]]);
+  };
   const available = variants.filter((v) => v === 'standard' || scene.flowPrompts[v]);
   const save = (next: Scene) => updateScenes((cur) => cur.map((s) => (s.id === next.id ? next : s)));
 
@@ -105,7 +126,7 @@ function PromptCard({ scene, index, variants, onRegen }: { scene: Scene; index: 
             </Badge>
           )}
         </div>
-        <LintBadge issues={issues} />
+        <LintBadge issues={issues} onFix={fix} />
       </CardHeader>
       <CardContent className="space-y-3">
         <Tabs value={variant} onValueChange={(v) => setVariant(v as Variant)}>
@@ -146,6 +167,24 @@ function PromptCard({ scene, index, variants, onRegen }: { scene: Scene; index: 
             </TabsContent>
           ))}
         </Tabs>
+        {scene.framePrompts && (scene.framePrompts.start || scene.framePrompts.end) && (
+          <div className="space-y-2 rounded-md border border-dashed p-3">
+            <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+              <ImageIcon className="h-3.5 w-3.5" /> Prompt gambar frame ({LABELS.flowMode[project.brief.output.flowMode]}) — buat gambarnya dulu, lalu unggah ke Flow
+            </p>
+            {(['start', 'end'] as const).map((k) =>
+              scene.framePrompts?.[k] ? (
+                <div key={k} className="space-y-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-medium">{k === 'start' ? 'Frame awal' : 'Frame akhir'}</span>
+                    <CopyButton label="Salin" getText={() => frameCopyText(scene, k)} />
+                  </div>
+                  <p className="prose-prompt text-xs">{scene.framePrompts[k]}</p>
+                </div>
+              ) : null,
+            )}
+          </div>
+        )}
         {!editing && (
           <div className="flex flex-wrap gap-2">
             <CopyButton
@@ -255,6 +294,7 @@ export default function PromptsPage() {
         <div>
           <h2 className="text-xl font-semibold">Prompt Google Flow</h2>
           <p className="text-sm text-muted-foreground">Panggilan AI 3: prompt per scene (Inggris, mandiri) + panduan CapCut. Batch 6 scene.</p>
+          <CostHint est={aiService.estimate('prompts', { brief: project.brief, scenes, bibles })} />
         </div>
         <div className="flex flex-wrap gap-2">
           {hasPrompts && <CopyButton label="Salin Semua" getText={() => copyAllText(scenes)} />}

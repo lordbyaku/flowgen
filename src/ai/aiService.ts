@@ -6,6 +6,11 @@ import { classifyError } from '@/ai/router/errorClassifier';
 import { RouterError } from '@/ai/router/errors';
 import { buildUsageLog } from '@/ai/router/usageTracker';
 import { structuredCall } from '@/ai/json/structuredCall';
+import { extractJson } from '@/ai/json/extractJson';
+import { toGeminiSchema } from '@/ai/json/toGeminiSchema';
+import { loadReferenceImages, referenceCandidates, type ImageLoader } from '@/ai/director/referenceImages';
+import { AI_IMAGE_MAX_DIM, MAX_OUTPUT_TOKENS, TEMPERATURE, TOKENS_PER_IMAGE } from '@/config/constants';
+import { SchemaTestSchema } from '@/schemas/storyboard.schema';
 import { buildBriefAssistCall, filterAssistQuestions } from '@/ai/director/briefAssistCall';
 import { buildConceptCall, toConceptRound } from '@/ai/director/conceptCall';
 import { buildScriptStoryboardCall, mapScriptStoryboard } from '@/ai/director/scriptStoryboardCall';
@@ -30,7 +35,7 @@ import type {
   Scene,
   ScriptDoc,
 } from '@/types';
-import { usageStore, vaultKeyAccess, type KeyAccess } from '@/vault/vaultStore';
+import { previewStore, usageStore, vaultKeyAccess, type KeyAccess } from '@/vault/vaultStore';
 
 export interface CallOptions {
   signal?: AbortSignal;
@@ -65,9 +70,25 @@ function guardBrief(brief: Brief): AppError | null {
   return null;
 }
 
-export function createAiService(deps: { provider: AIProvider; keys: KeyAccess; router: AIRouter; now?: () => number }) {
+export interface CallEstimate {
+  calls: number;
+  inputTokens: number;
+  maxOutputTokens: number;
+  images: number;
+}
+
+const estTokens = (c: { systemPrompt: string; userPrompt: string }) => Math.ceil((c.systemPrompt.length + c.userPrompt.length) / 4);
+
+export function createAiService(deps: {
+  provider: AIProvider;
+  keys: KeyAccess;
+  router: AIRouter;
+  now?: () => number;
+  imageLoader?: ImageLoader;
+}) {
   const { provider, keys, router } = deps;
   const now = deps.now ?? Date.now;
+  const imageLoader: ImageLoader = deps.imageLoader ?? (async () => null);
 
   return {
     get busy() {
@@ -100,8 +121,9 @@ export function createAiService(deps: { provider: AIProvider; keys: KeyAccess; r
       const blocked = guardBrief(brief);
       if (blocked) return Promise.resolve({ ok: false, error: blocked });
       return safe(async () => {
-        const { targetCount: _t, ...call } = buildScriptStoryboardCall(brief, concept, brand);
-        const { data } = await structuredCall(router, { ...call, ...opts });
+        const images = await loadReferenceImages(brief, imageLoader);
+        const { targetCount: _t, ...call } = buildScriptStoryboardCall(brief, concept, brand, images.length);
+        const { data } = await structuredCall(router, { ...call, ...opts, images });
         return mapScriptStoryboard(data, brief, now());
       });
     },
@@ -200,6 +222,57 @@ export function createAiService(deps: { provider: AIProvider; keys: KeyAccess; r
       });
     },
 
+    /**
+     * Uji skema JSON: satu panggilan kecil dengan responseSchema (enum, integer, array objek, field opsional)
+     * memakai key tertentu. Membuktikan format responseSchema + thinkingConfig diterima model.
+     */
+    testStructured(keyId: string): Promise<Result<{ latencyMs: number; sample: string }>> {
+      return safe(async () => {
+        const r = await router.runWithKey(keyId, {
+          task: 'key_test',
+          systemPrompt: 'Output ONLY JSON matching the schema.',
+          userPrompt: 'Create one short Indonesian video concept for a coffee shop. Use angle "demo" and 3 scenes.',
+          responseSchema: toGeminiSchema(SchemaTestSchema),
+          temperature: TEMPERATURE.assist,
+          maxOutputTokens: MAX_OUTPUT_TOKENS.schemaTest,
+        });
+        const parsed = extractJson(r.text);
+        if (!parsed.ok) throw new RouterError({ code: 'invalid_json', message: MSG.invalidJson, rawOutput: r.text });
+        const v = SchemaTestSchema.safeParse(parsed.value);
+        if (!v.success) throw new RouterError({ code: 'invalid_json', message: `${MSG.invalidJson} (${v.error.issues[0]?.path.join('.')})`, rawOutput: r.text });
+        return { latencyMs: r.latencyMs, sample: v.data.title };
+      });
+    },
+
+    /** Perkiraan biaya sebelum generate (lokal, tanpa panggilan). Perbaikan JSON dapat menambah 1 panggilan. */
+    estimate(
+      kind: 'concepts' | 'script' | 'prompts',
+      input: { brief: Brief; concept?: Concept | null; scenes?: Scene[]; bibles?: BiblesDoc | null },
+    ): CallEstimate {
+      const { brief } = input;
+      if (kind === 'concepts') {
+        const c = buildConceptCall(brief, null);
+        return { calls: 1, inputTokens: estTokens(c) + 200, maxOutputTokens: c.maxOutputTokens, images: 0 };
+      }
+      if (kind === 'script') {
+        const concept = input.concept;
+        const images = referenceCandidates(brief).length;
+        if (!concept) return { calls: 1, inputTokens: 0, maxOutputTokens: MAX_OUTPUT_TOKENS.script, images };
+        const c = buildScriptStoryboardCall(brief, concept, null, images);
+        return { calls: 1, inputTokens: estTokens(c) + 200 + images * TOKENS_PER_IMAGE, maxOutputTokens: c.maxOutputTokens, images };
+      }
+      const scenes = input.scenes ?? [];
+      const targets = scenes.filter((s) => !(s.approved && s.flowPrompts.standard.trim()));
+      if (!input.bibles || targets.length === 0) return { calls: 0, inputTokens: 0, maxOutputTokens: 0, images: 0 };
+      const batches = buildScenePromptBatches(brief, scenes, targets, input.bibles);
+      return {
+        calls: batches.length,
+        inputTokens: batches.reduce((a, b) => a + estTokens(b.call), 0),
+        maxOutputTokens: batches.reduce((a, b) => a + b.call.maxOutputTokens, 0),
+        images: 0,
+      };
+    },
+
     listModels(keyId: string): Promise<Result<string[]>> {
       return safe(async () => keys.withPlainKey(keyId, (apiKey) => provider.listModels(apiKey)));
     },
@@ -208,5 +281,10 @@ export function createAiService(deps: { provider: AIProvider; keys: KeyAccess; r
 
 const router = new AIRouter({ provider: geminiProvider, keys: vaultKeyAccess, usage: usageStore });
 
-export const aiService = createAiService({ provider: geminiProvider, keys: vaultKeyAccess, router });
+export const aiService = createAiService({
+  provider: geminiProvider,
+  keys: vaultKeyAccess,
+  router,
+  imageLoader: (id) => previewStore.forAI(id, AI_IMAGE_MAX_DIM),
+});
 export type AiService = ReturnType<typeof createAiService>;

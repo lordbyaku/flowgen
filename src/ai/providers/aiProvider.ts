@@ -9,6 +9,15 @@ export interface AIRequest {
   temperature: number;
   maxOutputTokens: number;
   signal?: AbortSignal;
+  /** Gambar referensi (multimodal). Label disisipkan sebagai teks sebelum tiap gambar. */
+  images?: AIImage[];
+}
+
+export interface AIImage {
+  label: string;
+  mimeType: string;
+  /** base64 tanpa prefiks data: */
+  data: string;
 }
 
 export interface AIResponse {

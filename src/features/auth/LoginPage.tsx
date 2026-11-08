@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input, Label } from '@/components/ui/input';
 import { Alert } from '@/components/ui/misc';
 import { useAuthStore } from '@/stores/authStore';
-import { isDemoMode, isFirebaseConfigured } from '@/config/firebase';
+import { isDemoMode, isFirebaseConfigured } from '@/config/env';
 
 const schema = z.object({
   email: z.string().trim().email('Format email tidak valid'),

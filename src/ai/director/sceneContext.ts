@@ -72,5 +72,22 @@ export function promptFormatRules(brief: Brief, variants: Variant[]): string {
     extra.length
       ? `- Also write variants: ${extra.map((v) => (v === 'cinematic' ? 'cinematic (filmic, dramatic camera moves, anamorphic feel)' : 'premium (high-end commercial polish, luxurious lighting, product hero shots)')).join('; ')}.`
       : '- Only write the standard prompt; leave cinematic and premium empty/omitted.',
+    ...frameModeRules(brief),
   ].join('\n');
+}
+
+/** Aturan tambahan untuk mode Flow berbasis gambar (frame awal / frame awal-akhir). */
+export function frameModeRules(brief: Brief): string[] {
+  const mode = brief.output.flowMode;
+  if (mode === 'text_to_video') return ['- Flow mode is text-to-video: omit startFrame and endFrame.'];
+  const still = `a single STILL image prompt (English, 60-120 words) for an image generator: full character master description, full product appearance, setting, composition, lighting, visual style, aspect ratio ${brief.project.aspectRatio}. No motion words, no on-screen text.`;
+  return [
+    '',
+    `FLOW MODE: ${mode === 'frames' ? 'start and end frames' : 'image-to-video'}.`,
+    `- startFrame: ${still} It must show the exact first moment of the scene.`,
+    mode === 'frames'
+      ? `- endFrame: ${still} It must show the exact last moment of the scene, keeping the same character, outfit, product and setting.`
+      : '- Omit endFrame.',
+    '- In this mode the Flow prompt (standard/variants) focuses on MOTION from the start frame: action, camera movement, timing and mood. Still restate the character and product briefly for continuity and end with the aspect ratio.',
+  ];
 }

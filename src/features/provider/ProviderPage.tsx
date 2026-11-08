@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ArrowDown, ArrowUp, Eye, KeyRound, Lock, Pencil, Plus, Power, ShieldAlert, Trash2, Unlock, Zap } from 'lucide-react';
+import { ArrowDown, ArrowUp, Braces, Eye, KeyRound, Lock, Pencil, Plus, Power, ShieldAlert, Trash2, Unlock, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -63,7 +63,7 @@ function RevealedKey({ keyId, onDone }: { keyId: string; onDone: () => void }) {
 function KeyCard({ k, index, total, todayCount }: { k: KeyView; index: number; total: number; todayCount: number }) {
   const { updateKey, removeKey, moveKey, meta } = useVaultStore();
   const now = useNow();
-  const [busy, setBusy] = React.useState<'test' | 'gen' | null>(null);
+  const [busy, setBusy] = React.useState<'test' | 'gen' | 'schema' | null>(null);
   const [edit, setEdit] = React.useState(false);
   const [del, setDel] = React.useState(false);
   const [confirmReveal, setConfirmReveal] = React.useState(false);
@@ -136,6 +136,21 @@ function KeyCard({ k, index, total, todayCount }: { k: KeyView; index: number; t
             }}
           >
             <Zap /> Tes Generate
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            loading={busy === 'schema'}
+            title="Satu panggilan kecil dengan responseSchema untuk memastikan model menerima format JSON yang dipakai pipeline"
+            onClick={async () => {
+              setBusy('schema');
+              const r = await aiService.testStructured(k.id);
+              setBusy(null);
+              if (r.ok) toast.success(`Skema JSON OK (${r.value.latencyMs} ms): "${r.value.sample}"`);
+              else toast.error(`Uji skema gagal: ${r.error.message}`);
+            }}
+          >
+            <Braces /> Uji skema JSON
           </Button>
           <Button size="sm" variant="outline" onClick={() => void updateKey(k.id, { enabled: !k.enabled })}>
             <Power /> {k.enabled ? 'Nonaktifkan' : 'Aktifkan'}

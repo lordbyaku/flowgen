@@ -51,7 +51,7 @@ export function buildScenePromptBatches(brief: Brief, allScenes: Scene[], target
       '</scenes_for_this_batch>',
       '',
       'TASK (Call 3 — Flow prompts):',
-      `For EACH scene in this batch return one item in prompts with the same sceneId: standard${variants.includes('cinematic') ? ', cinematic' : ''}${variants.includes('premium') ? ', premium' : ''}, negativePrompt.`,
+      `For EACH scene in this batch return one item in prompts with the same sceneId: standard${variants.includes('cinematic') ? ', cinematic' : ''}${variants.includes('premium') ? ', premium' : ''}${brief.output.flowMode !== 'text_to_video' ? ', startFrame' : ''}${brief.output.flowMode === 'frames' ? ', endFrame' : ''}, negativePrompt.`,
       promptFormatRules(brief, variants),
       ...(final
         ? [
@@ -80,6 +80,16 @@ export function buildScenePromptBatches(brief: Brief, allScenes: Scene[], target
 
 export { pushVersion };
 
+/** Prompt frame hanya disimpan untuk mode berbasis gambar. */
+export function framePromptsFor(brief: Brief, start?: string, end?: string): Scene['framePrompts'] {
+  const mode = brief.output.flowMode;
+  if (mode === 'text_to_video') return undefined;
+  return {
+    ...(start?.trim() ? { start: start.trim() } : {}),
+    ...(mode === 'frames' && end?.trim() ? { end: end.trim() } : {}),
+  };
+}
+
 /** Gabungkan hasil prompt ke scene target. Scene lain tidak disentuh. */
 export function applyPromptItems(scenes: Scene[], items: ScenePromptItem[], brief: Brief, now: number): Scene[] {
   const byId = new Map(items.map((i) => [i.sceneId, i]));
@@ -94,6 +104,7 @@ export function applyPromptItems(scenes: Scene[], items: ScenePromptItem[], brie
         ...(variants.includes('cinematic') && it.cinematic ? { cinematic: it.cinematic } : {}),
         ...(variants.includes('premium') && it.premium ? { premium: it.premium } : {}),
       },
+      framePrompts: framePromptsFor(brief, it.startFrame, it.endFrame),
       negativePrompt: buildNegative(it.negativePrompt, brief),
       tracker: 'prompt_ready',
       updatedAt: now,

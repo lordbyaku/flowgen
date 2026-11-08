@@ -44,6 +44,12 @@ export function copyText(scene: Scene, variant: Variant = 'standard'): string {
   return neg ? `${prompt}\n\nAvoid: ${neg}` : prompt;
 }
 
+/** Prompt gambar frame (awal/akhir) + baris Avoid tanpa teks di gambar. */
+export function frameCopyText(scene: Scene, which: 'start' | 'end'): string {
+  const p = scene.framePrompts?.[which]?.trim() ?? '';
+  return p ? `${p}\n\nAvoid: text, letters, watermark, distorted logo, deformed hands` : '';
+}
+
 /** Salin Semua: teks bernomor dengan pemisah === SCENE n ===. */
 export function copyAllText(scenes: Scene[], variant: Variant = 'standard'): string {
   return [...scenes]

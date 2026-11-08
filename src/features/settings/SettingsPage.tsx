@@ -12,7 +12,7 @@ import { SingleToggle } from '@/components/common/ToggleGroup';
 import { PageHeader } from '@/components/common/states';
 import { APP_VERSION, DEFAULT_MODEL_HINT, MAX_SCENE_SEC } from '@/config/constants';
 import { LABELS } from '@/config/enums';
-import { isDemoMode } from '@/config/firebase';
+import { isDemoMode } from '@/config/env';
 import { getProjectDocs, importProject, listAllProjects } from '@/data/projectRepo';
 import { getPreferences, savePreferences } from '@/data/templateRepo';
 import { readOps } from '@/data/opsCounter';

@@ -55,6 +55,12 @@ export function Step8Output() {
         />
       </Field>
       <EnumField path="output.promptLength" label="Panjang prompt" options={optionsFrom(LABELS.promptLength)} clearable={false} />
+      <BoolField
+        path="output.sendReferenceImages"
+        defaultValue
+        label="Kirim gambar referensi lokal ke AI"
+        hint="Gambar produk/karakter yang diunggah sebagai file ikut dibaca Gemini saat membuat Character & Visual Bible (maks 6, diperkecil 1024 px). Gambar URL tidak dikirim. Jangan unggah gambar rahasia."
+      />
       <EnumField path="output.flowMode" label="Mode di Google Flow" options={optionsFrom(LABELS.flowMode)} clearable={false} hint="Verifikasi fitur terbaru di Google Flow" />
     </StepSection>
   );

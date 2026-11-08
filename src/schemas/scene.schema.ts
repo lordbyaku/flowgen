@@ -7,6 +7,12 @@ export const FlowPromptsSchema = z.object({
   premium: z.string().optional(),
 });
 
+/** Prompt gambar frame awal/akhir (mode Gambar ke video / Frame awal-akhir). */
+export const FramePromptsSchema = z.object({
+  start: z.string().optional(),
+  end: z.string().optional(),
+});
+
 export const SceneVersionSchema = z.object({
   id: z.string(),
   prompt: z.string(),
@@ -36,6 +42,7 @@ export const SceneSchema = z.object({
   /** Hanya untuk CapCut; tidak pernah diminta dari AI video. */
   textOverlay: z.string(),
   flowPrompts: FlowPromptsSchema,
+  framePrompts: FramePromptsSchema.optional(),
   negativePrompt: z.string(),
   approved: z.boolean(),
   tracker: TrackerStatusSchema,

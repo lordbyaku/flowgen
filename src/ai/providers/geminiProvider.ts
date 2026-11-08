@@ -1,5 +1,5 @@
 // Satu-satunya tempat fetch ke Gemini. Detail REST [VERIFIKASI] — bila API berubah, ubah hanya file ini.
-import { GEMINI_BASE_URL, KEY_TEST_MAX_OUTPUT_TOKENS, REQUEST_TIMEOUT_MS } from '@/config/constants';
+import { GEMINI_BASE_URL, KEY_TEST_MAX_OUTPUT_TOKENS, REQUEST_TIMEOUT_MS, THINKING_BUDGET } from '@/config/constants';
 import { redactSecrets } from '@/ai/sanitize';
 import { ProviderError, type AIProvider, type AIRequest, type AIResponse, type KeyValidationResult } from './aiProvider';
 
@@ -96,8 +96,15 @@ export function createGeminiProvider(fetchFn: FetchFn = (...a) => fetch(...a), b
 
   return {
     async generate(apiKey: string, model: string, req: AIRequest): Promise<AIResponse> {
-      const body = {
-        contents: [{ role: 'user', parts: [{ text: req.userPrompt }] }],
+      const thinking = thinkingConfigFor(model);
+      const parts: Record<string, unknown>[] = [];
+      for (const img of req.images ?? []) {
+        parts.push({ text: img.label });
+        parts.push({ inlineData: { mimeType: img.mimeType, data: img.data } });
+      }
+      parts.push({ text: req.userPrompt });
+      const buildBody = (withThinking: boolean) => ({
+        contents: [{ role: 'user', parts }],
         systemInstruction: { parts: [{ text: req.systemPrompt }] },
         generationConfig: {
           temperature: req.temperature,
@@ -105,10 +112,18 @@ export function createGeminiProvider(fetchFn: FetchFn = (...a) => fetch(...a), b
           ...(req.responseSchema
             ? { responseMimeType: 'application/json', responseSchema: req.responseSchema }
             : {}),
+          ...(withThinking && thinking ? { thinkingConfig: thinking } : {}),
         },
-      };
+      });
       const url = `${baseUrl}/models/${encodeURIComponent(model)}:generateContent`;
-      const { res, latencyMs } = await call(apiKey, url, { method: 'POST', body: JSON.stringify(body) }, req.signal);
+      let { res, latencyMs } = await call(apiKey, url, { method: 'POST', body: JSON.stringify(buildBody(true)) }, req.signal);
+      if (!res.ok && res.status === 400 && thinking) {
+        // Model menolak thinkingConfig: ulangi SEKALI tanpa konfigurasi tersebut.
+        const err = await toHttpError(res.clone(), apiKey, latencyMs);
+        if (/thinking/i.test(err.message)) {
+          ({ res, latencyMs } = await call(apiKey, url, { method: 'POST', body: JSON.stringify(buildBody(false)) }, req.signal));
+        }
+      }
       if (!res.ok) throw await toHttpError(res, apiKey, latencyMs);
       const json = (await res.json()) as GeminiGenerateBody;
       const cand = json.candidates?.[0];
@@ -172,6 +187,19 @@ export function createGeminiProvider(fetchFn: FetchFn = (...a) => fetch(...a), b
         .sort();
     },
   };
+}
+
+/**
+ * Konfigurasi "thinking" per keluarga model [VERIFIKASI]. Token berpikir ikut menghabiskan
+ * maxOutputTokens, sehingga output JSON panjang bisa terpotong. Tugas kita terstruktur, jadi
+ * budget berpikir dibuat minimal.
+ */
+export function thinkingConfigFor(model: string): Record<string, unknown> | undefined {
+  const m = model.toLowerCase();
+  if (/gemini-2\.5-pro/.test(m)) return { thinkingBudget: THINKING_BUDGET.pro };
+  if (/gemini-2\.5-flash/.test(m)) return { thinkingBudget: THINKING_BUDGET.flash };
+  if (/gemini-3/.test(m)) return { thinkingLevel: THINKING_BUDGET.gemini3Level };
+  return undefined;
 }
 
 /** Tes Generate: satu request kecil (maks 8 token output). */

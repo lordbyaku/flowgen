@@ -159,5 +159,7 @@ export const BriefSchema = z.object({
     promptLength: z.enum(E.PROMPT_LENGTHS),
     flowMode: z.enum(E.FLOW_MODES),
     extraNotes: Text.optional(),
+    /** Kirim gambar referensi lokal ke AI (multimodal). Default: ya. */
+    sendReferenceImages: z.boolean().optional(),
   }),
 });

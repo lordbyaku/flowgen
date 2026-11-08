@@ -66,6 +66,22 @@ describe('Autosave (25.3)', () => {
     expect(Object.keys(patch).sort()).toEqual(['brandId', 'brief', 'completeness', 'name', 'updatedAt']);
   });
 
+  it('cadangan saat tab ditutup dipulihkan dan disimpan saat project dimuat lagi', async () => {
+    useProjectStore.getState().updateBrief((b) => ({ ...b, product: { ...b.product, name: 'Belum tersimpan' } }));
+    useProjectStore.getState().backupPending();
+    expect(localStorage.getItem('avps-pending-p1')).toContain('Belum tersimpan');
+    // simulasi tab ditutup sebelum autosave
+    _resetProjectStoreTimers();
+    useProjectStore.setState({ projectId: null, project: null, dirtyDocs: new Set(), dirtyFields: new Set() });
+    updateProject.mockClear();
+    await useProjectStore.getState().load('u1', 'p1');
+    expect(useProjectStore.getState().restoredBackup).toBe(true);
+    expect(useProjectStore.getState().project!.brief.product.name).toBe('Belum tersimpan');
+    await vi.advanceTimersByTimeAsync(1600);
+    expect(updateProject).toHaveBeenCalledTimes(1);
+    expect(localStorage.getItem('avps-pending-p1')).toBeNull();
+  });
+
   it('gagal simpan tidak menghapus perubahan lokal dan bisa dicoba lagi', async () => {
     updateProject.mockRejectedValueOnce(new Error('offline'));
     useProjectStore.getState().patchProject({ status: 'in_progress' });

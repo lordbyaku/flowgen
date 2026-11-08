@@ -6,6 +6,7 @@ Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.3). Keputusan implementasi: [`docs/D
 
 | Versi | Tanggal | Catatan |
 |---|---|---|
+| 1.1.0 | 2026-11-08 | Gambar referensi multimodal, prompt frame mode gambar, perbaikan otomatis linter, estimasi biaya, uji skema JSON, cadangan saat tab ditutup, Firebase lazy |
 | 1.0.0 | 2026-11-08 | Rilis awal: Fase 1, 2, dan 3 |
 
 ## Alur kerja
@@ -48,6 +49,7 @@ Tanpa `.env.local`, aplikasi otomatis berjalan dalam **Mode Demo Lokal**: login 
 | `pnpm typecheck` · `pnpm lint` · `pnpm test` | Pemeriksaan wajib sebelum commit |
 | `pnpm check:secrets` | Gagal bila ada pola `AIza…` (35 karakter) di `src`/`dist` |
 | `pnpm test:rules` | Tes Firestore Security Rules (butuh `pnpm emulators` berjalan) |
+| `pnpm test:rules:emu` | Menyalakan emulator Firestore lalu menjalankan tes rules (butuh Java 11+) |
 | `pnpm test:e2e` | E2E Playwright, Gemini dipalsukan. `PW_CHANNEL=msedge` atau `chrome` untuk browser terpasang |
 | `pnpm emulators` | Firebase emulator auth, firestore, hosting |
 
@@ -78,6 +80,14 @@ Tanpa `.env.local`, aplikasi otomatis berjalan dalam **Mode Demo Lokal**: login 
 - Preset tambahan (Kecantikan, Properti, Promo Musiman) & aturan linter aktif/nonaktif per project.
 - Uji E2E Playwright dengan Gemini dipalsukan.
 
+**Peningkatan v1.1**
+- Gambar referensi lokal dikirim ke Gemini (multimodal) saat membuat Character & Visual Bible.
+- Mode Flow "Gambar ke video"/"Frame awal-akhir": prompt gambar frame awal/akhir per scene + prompt gerak.
+- Perbaikan otomatis Prompt Linter (L02, L03, L04, L07, L10).
+- Estimasi panggilan & token sebelum generate; tombol "Uji skema JSON" per key.
+- Budget "thinking" minimal per model agar output JSON tidak terpotong.
+- Cadangan perubahan saat tab ditutup; konfirmasi reload di vault mode sesi; Firebase dimuat lazy.
+
 **Fase 3**
 - Prompt Library (koleksi `promptTemplates`) + sisip ke prompt scene.
 - Import/Export project JSON dengan validasi Zod & `schemaVersion`.
@@ -102,7 +112,8 @@ tests/ unit/ rules/ e2e/
 
 - `pnpm typecheck`, `pnpm lint`, `pnpm test` (unit + komponen), `pnpm build`, `pnpm check:secrets` (src & dist): **lulus**.
 - `pnpm test:e2e` dengan Edge: **lulus** (alur brief → konsep → naskah → storyboard → prompt → export, Gemini dipalsukan).
-- `pnpm test:rules`: ditulis, **belum dijalankan** (butuh Firestore emulator + Java).
+- `pnpm test:rules`: ditulis, **belum dijalankan** (butuh Java 11+ dan Firebase CLI). Setelah Java terpasang cukup `pnpm test:rules:emu`.
+- **Belum diuji dengan Gemini asli.** Langkah pertama yang disarankan: AI Provider → tambah key → **Uji skema JSON**, lalu jalankan satu alur Konsep.
 - Deploy Firebase Hosting & uji asap manual Bagian 29.2: **belum** (butuh project Firebase milik pemilik).
 
 ## Deploy

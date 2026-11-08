@@ -1,7 +1,7 @@
 {
   "name": "ai-video-prompt-studio",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "packageManager": "pnpm@9.15.9",
   "scripts": {
@@ -16,7 +16,8 @@
     "test:e2e": "playwright test --trace off",
     "emulators": "firebase emulators:start --only auth,firestore,hosting",
     "check:secrets": "node scripts/check-secrets.mjs",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test:rules:emu": "firebase emulators:exec --only firestore --project demo-avps \"vitest run --config vitest.rules.config.ts\""
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

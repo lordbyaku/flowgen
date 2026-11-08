@@ -9,6 +9,7 @@ import { Input, Select, Textarea } from '@/components/ui/input';
 import { Alert } from '@/components/ui/misc';
 import { AiErrorPanel } from '@/components/common/AiStatus';
 import { EmptyState } from '@/components/common/states';
+import { CostHint } from '@/components/common/CostHint';
 import { ANGLES, LABELS } from '@/config/enums';
 import { MAX_CONCEPT_HISTORY } from '@/config/constants';
 import { aiService } from '@/ai/aiService';
@@ -184,6 +185,7 @@ export default function ConceptPage() {
         <div>
           <h2 className="text-xl font-semibold">Konsep</h2>
           <p className="text-sm text-muted-foreground">Panggilan AI 1: analisis dan {project.brief.strategy.conceptAlternatives} alternatif konsep.</p>
+          {blockers.length === 0 && <CostHint est={aiService.estimate('concepts', { brief: project.brief })} />}
         </div>
         <div className="flex flex-wrap gap-2">
           {creative && creative.history.length > 0 && (

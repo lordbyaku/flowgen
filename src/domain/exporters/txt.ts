@@ -6,7 +6,11 @@ export function scenePromptTxt(scene: Scene, index: number, variant: Variant = '
   const head = `=== SCENE ${index + 1}: ${scene.title} (${scene.durationSec}s) ===`;
   const prompt = scenePrompt(scene, variant).trim();
   const neg = scene.negativePrompt.trim();
-  return [head, prompt, '', neg ? `Avoid: ${neg}` : ''].join('\n').trimEnd();
+  const frames = [
+    scene.framePrompts?.start ? `\n[FRAME AWAL]\n${scene.framePrompts.start}` : '',
+    scene.framePrompts?.end ? `\n[FRAME AKHIR]\n${scene.framePrompts.end}` : '',
+  ].filter(Boolean);
+  return [head, prompt, '', neg ? `Avoid: ${neg}` : '', ...frames].join('\n').trimEnd();
 }
 
 export function promptsTxt(bundle: ExportBundle, variant: Variant = 'standard'): string {

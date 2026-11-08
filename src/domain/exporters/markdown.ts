@@ -163,6 +163,8 @@ export function toMarkdown(
         if (!text.trim()) continue;
         out.push(`**${LABELS.variant[v]}**`, '```text', text, '```');
       }
+      if (s.framePrompts?.start) out.push('**Frame awal (gambar)**', '```text', s.framePrompts.start, '```');
+      if (s.framePrompts?.end) out.push('**Frame akhir (gambar)**', '```text', s.framePrompts.end, '```');
     });
   }
 

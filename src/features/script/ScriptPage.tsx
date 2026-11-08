@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { AiErrorPanel } from '@/components/common/AiStatus';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { EmptyState } from '@/components/common/states';
+import { CostHint } from '@/components/common/CostHint';
 import { aiService } from '@/ai/aiService';
 import { getBrand } from '@/data/brandRepo';
 import { estimateSpokenSec, totalWordBudget } from '@/domain/wordBudget';
@@ -87,6 +88,9 @@ export default function ScriptPage() {
         <div>
           <h2 className="text-xl font-semibold">Naskah</h2>
           <p className="text-sm text-muted-foreground">Panggilan AI 2: naskah, VO, storyboard, Character Bible, dan Visual Bible sekaligus.</p>
+          {conceptOk && (
+            <CostHint est={aiService.estimate('script', { brief: project.brief, concept: creative?.concepts.find((c) => c.id === creative.selectedConceptId) })} />
+          )}
         </div>
         <Button onClick={onGenerate} disabled={!conceptOk || !!running} loading={running === 'script_storyboard'} variant={script ? 'outline' : 'default'}>
           {script ? <RefreshCw /> : <FileText />} {script ? 'Buat ulang naskah & storyboard' : 'Buat naskah & storyboard'}

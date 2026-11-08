@@ -120,7 +120,7 @@ export function ReferenceImages({ value, onChange }: { value: ReferenceImage[]; 
         />
       </div>
       <p className="text-xs text-muted-foreground">
-        {value.length}/{MAX_REF_IMAGES} · File lokal maks 3 MB dan tidak diunggah ke cloud.
+        {value.length}/{MAX_REF_IMAGES} · File lokal maks 3 MB, tidak diunggah ke cloud penyimpanan; bila opsi di Langkah 8 aktif, file dibaca Gemini saat membuat Bible. Gambar URL hanya dicatat sebagai teks.
       </p>
     </div>
   );

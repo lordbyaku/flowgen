@@ -152,10 +152,11 @@ export function SelectField<T extends string>({
   );
 }
 
-export function BoolField({ path, label, hint, className }: BaseProps) {
+export function BoolField({ path, label, hint, className, defaultValue = false }: BaseProps & { defaultValue?: boolean }) {
   const brief = useBrief();
   const set = useSetBrief();
-  const value = Boolean(getPath(brief, path));
+  const raw = getPath(brief, path);
+  const value = raw === undefined ? defaultValue : Boolean(raw);
   return (
     <Field label={label} hint={hint} className={className}>
       <SingleToggle
