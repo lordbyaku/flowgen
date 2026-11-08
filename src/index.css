@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 20% 98%;
+    --foreground: 250 24% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 250 24% 12%;
+    --muted: 245 16% 94%;
+    --muted-foreground: 248 9% 40%;
+    --primary: 262 70% 46%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 245 20% 93%;
+    --secondary-foreground: 250 24% 16%;
+    --accent: 32 95% 92%;
+    --accent-foreground: 24 80% 28%;
+    --destructive: 0 72% 46%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 62% 32%;
+    --warning: 34 92% 40%;
+    --border: 245 14% 87%;
+    --input: 245 14% 82%;
+    --ring: 262 70% 50%;
+    --radius: 0.65rem;
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not(.light) {
+      --background: 250 22% 7%;
+      --foreground: 245 20% 94%;
+      --card: 250 20% 10%;
+      --card-foreground: 245 20% 94%;
+      --muted: 250 16% 15%;
+      --muted-foreground: 245 10% 66%;
+      --primary: 262 80% 70%;
+      --primary-foreground: 250 30% 8%;
+      --secondary: 250 15% 18%;
+      --secondary-foreground: 245 20% 94%;
+      --accent: 30 50% 18%;
+      --accent-foreground: 34 90% 78%;
+      --destructive: 0 70% 60%;
+      --destructive-foreground: 0 0% 100%;
+      --success: 152 55% 52%;
+      --warning: 38 90% 60%;
+      --border: 250 14% 20%;
+      --input: 250 14% 26%;
+      --ring: 262 80% 70%;
+      color-scheme: dark;
+    }
+  }
+
+  :root.dark {
+    --background: 250 22% 7%;
+    --foreground: 245 20% 94%;
+    --card: 250 20% 10%;
+    --card-foreground: 245 20% 94%;
+    --muted: 250 16% 15%;
+    --muted-foreground: 245 10% 66%;
+    --primary: 262 80% 70%;
+    --primary-foreground: 250 30% 8%;
+    --secondary: 250 15% 18%;
+    --secondary-foreground: 245 20% 94%;
+    --accent: 30 50% 18%;
+    --accent-foreground: 34 90% 78%;
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 55% 52%;
+    --warning: 38 90% 60%;
+    --border: 250 14% 20%;
+    --input: 250 14% 26%;
+    --ring: 262 80% 70%;
+    color-scheme: dark;
+  }
+
+  * {
+    @apply border-border;
+  }
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer components {
+  .page-title {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+  .page-subtitle {
+    @apply text-sm text-muted-foreground;
+  }
+  .prose-prompt {
+    @apply whitespace-pre-wrap break-words font-mono text-[13px] leading-relaxed;
+  }
+}
