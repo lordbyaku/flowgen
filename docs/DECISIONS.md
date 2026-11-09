@@ -29,4 +29,4 @@ Dicatat sesuai aturan 18.1 (spesifikasi ambigu → pilih opsi paling sederhana y
 | D23 | Cadangan saat tab ditutup | Hanya field/dokumen yang dirty ditulis ke `localStorage` (`avps-pending-{pid}`); dibersihkan setelah tersimpan. Tidak pernah memuat key. | `beforeunload` tidak bisa menunggu penyimpanan async. |
 | D24 | Lazy Firebase | `config/env.ts` tanpa SDK; `firestoreBackend` dan `firebaseAuth` diimpor dinamis. `manualChunks` untuk Firebase dihapus karena menarik `idb` (dipakai vault) ke chunk Firebase sehingga dimuat di awal. | Mode Demo lebih ringan. |
 | D25 | CSP Google Sign-in | `https://accounts.google.com` ditambahkan ke `frame-src`. | Popup Google Sign-in. |
-
+| D26 | Format key Gemini | Pola `AIza` + 35 karakter (lama) dan `AQ.` + ≥20 karakter base64url (baru, 2026). Validasi format hanya peringatan; sensor memakai pola longgar. `check:secrets` mengecualikan nilai persis `VITE_FIREBASE_API_KEY`. | Google mengganti format key; key web Firebase berformat `AIza` dan bersifat publik. |

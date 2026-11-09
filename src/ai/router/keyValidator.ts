@@ -10,7 +10,7 @@ export function checkKeyFormat(apiKey: string): FormatCheck {
   return {
     warning: looksLikeGeminiKey(apiKey)
       ? null
-      : 'Format key tidak seperti biasanya (AIza + 35 karakter). Tetap bisa disimpan, tetapi periksa kembali.',
+      : 'Format key tidak seperti biasanya (umumnya AQ.… atau AIza…). Tetap bisa disimpan, tetapi periksa kembali.',
   };
 }
 

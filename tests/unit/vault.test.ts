@@ -114,6 +114,15 @@ describe('vaultStore', () => {
     await expect(useVaultStore.getState().addKey({ label: 'K6', projectId: 'p', model: 'm', apiKey: FAKE_KEY })).rejects.toThrow(/Maksimal 5/);
   });
 
+  it('key format baru AQ.… terenkripsi dan tidak muncul di dump', async () => {
+    const NEW = 'AQ.' + 'VaultNewFormat'.repeat(4);
+    await useVaultStore.getState().setup({ mode: 'persistent', passphrase: 'passphrase-uji-123', iterations: ITER });
+    const k = await useVaultStore.getState().addKey({ label: 'Baru', projectId: 'p1', model: 'm', apiKey: NEW });
+    expect(k.last4).toBe(NEW.slice(-4));
+    expect(await dumpDb()).not.toContain(NEW);
+    expect(await vaultKeyAccess.withPlainKey(k.id, async (p) => p)).toBe(NEW);
+  });
+
   it('mode sesi: key tidak pernah ditulis ke IndexedDB', async () => {
     await useVaultStore.getState().setup({ mode: 'session' });
     await useVaultStore.getState().addKey({ label: 'S', projectId: 'p', model: 'm', apiKey: FAKE_KEY });

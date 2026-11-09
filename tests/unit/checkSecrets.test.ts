@@ -9,6 +9,7 @@ describe('check:secrets (P1-02)', () => {
     const r = run('tests/fixtures/leaky');
     expect(r.status).toBe(1);
     expect(r.stderr).toContain('config.ts');
+    expect(r.stderr).toContain('config-new.ts'); // format baru AQ.…
   });
   it('src bersih', () => {
     const r = run('src');

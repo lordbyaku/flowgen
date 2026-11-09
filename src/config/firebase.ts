@@ -13,8 +13,6 @@ import { firebaseConfig, isDemoMode } from './env';
 
 export { firebaseConfig, isDemoMode, isFirebaseConfigured } from './env';
 
-const env = import.meta.env;
-
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let db: Firestore | null = null;
@@ -23,11 +21,11 @@ function init() {
   if (app || isDemoMode) return;
   app = initializeApp(firebaseConfig);
 
-  const siteKey = env.VITE_APPCHECK_SITE_KEY as string | undefined;
+  const siteKey = import.meta.env.VITE_APPCHECK_SITE_KEY as string | undefined;
   if (siteKey && typeof window !== 'undefined') {
-    if (env.DEV && env.VITE_APPCHECK_DEBUG_TOKEN) {
+    if (import.meta.env.DEV && import.meta.env.VITE_APPCHECK_DEBUG_TOKEN) {
       (self as unknown as { FIREBASE_APPCHECK_DEBUG_TOKEN?: string }).FIREBASE_APPCHECK_DEBUG_TOKEN =
-        env.VITE_APPCHECK_DEBUG_TOKEN as string;
+        import.meta.env.VITE_APPCHECK_DEBUG_TOKEN as string;
     }
     // App Check hanya melindungi layanan Firebase, bukan panggilan langsung ke Gemini.
     initializeAppCheck(app, { provider: new ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled: true });
@@ -40,7 +38,7 @@ function init() {
     ignoreUndefinedProperties: true,
   });
 
-  if (env.VITE_USE_EMULATORS === 'true') {
+  if (import.meta.env.VITE_USE_EMULATORS === 'true') {
     connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
     connectFirestoreEmulator(db, '127.0.0.1', 8080);
   }

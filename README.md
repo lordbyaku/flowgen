@@ -6,6 +6,7 @@ Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.3). Keputusan implementasi: [`docs/D
 
 | Versi | Tanggal | Catatan |
 |---|---|---|
+| 1.1.1 | 2026-11-09 | Dukungan format API key Gemini baru `AQ.…`; token debug App Check tidak lagi ikut ke bundle produksi |
 | 1.1.0 | 2026-11-08 | Gambar referensi multimodal, prompt frame mode gambar, perbaikan otomatis linter, estimasi biaya, uji skema JSON, cadangan saat tab ditutup, Firebase lazy |
 | 1.0.0 | 2026-11-08 | Rilis awal: Fase 1, 2, dan 3 |
 
@@ -39,6 +40,8 @@ Tanpa `.env.local`, aplikasi otomatis berjalan dalam **Mode Demo Lokal**: login 
 2. Salin `.env.example` → `.env.local`, isi `VITE_FIREBASE_*` dan `VITE_APPCHECK_SITE_KEY`. Ubah `.firebaserc`.
 3. Emulator lokal: `pnpm emulators` lalu jalankan dev dengan `VITE_USE_EMULATORS=true`.
 
+API key Gemini dari Google AI Studio berformat `AQ.…` (baru) atau `AIza…` (lama); keduanya diterima.
+
 **API key Gemini tidak boleh ada di `.env`, source code, atau Firestore** — hanya dimasukkan lewat UI dan disimpan terenkripsi di browser.
 
 ## Script
@@ -47,7 +50,7 @@ Tanpa `.env.local`, aplikasi otomatis berjalan dalam **Mode Demo Lokal**: login 
 |---|---|
 | `pnpm dev` / `pnpm build` / `pnpm preview` | Dev server, build produksi, pratinjau |
 | `pnpm typecheck` · `pnpm lint` · `pnpm test` | Pemeriksaan wajib sebelum commit |
-| `pnpm check:secrets` | Gagal bila ada pola `AIza…` (35 karakter) di `src`/`dist` |
+| `pnpm check:secrets` | Gagal bila ada pola key Gemini (`AQ.…` atau `AIza…`) di `src`/`dist`; key web Firebase dari `.env` dikecualikan |
 | `pnpm test:rules` | Tes Firestore Security Rules (butuh `pnpm emulators` berjalan) |
 | `pnpm test:rules:emu` | Menyalakan emulator Firestore lalu menjalankan tes rules (butuh Java 11+) |
 | `pnpm test:e2e` | E2E Playwright, Gemini dipalsukan. `PW_CHANNEL=msedge` atau `chrome` untuk browser terpasang |

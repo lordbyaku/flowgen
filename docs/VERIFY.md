@@ -19,3 +19,4 @@ Semua item diimplementasikan lewat konstanta atau satu file adapter. Status: **b
 | Format gambar multimodal | `geminiProvider.ts` (`inlineData`) | JPEG ≤1024 px, maks 6 | Panggilan 2 dengan gambar produk; cek Visual Bible menyebut detail gambar | Belum |
 | Perkiraan token gambar | `TOKENS_PER_IMAGE` | 258 | Bandingkan `usageMetadata.promptTokenCount` | Belum |
 | Alur frame awal/akhir di Flow | `frameModeRules()` di `sceneContext.ts` | Prompt gambar diam + prompt gerak | Buat gambar dari prompt frame, unggah ke Flow, nilai konsistensi | Belum |
+| Format API key Gemini | `GEMINI_KEY_PATTERNS` di `src/ai/sanitize.ts`, `scripts/check-secrets.mjs` | `AIza…` (35) dan `AQ.…` (≥20) | Bandingkan dengan key baru di AI Studio; bila format berubah lagi, ubah pola di dua tempat itu | Format `AQ.` dikonfirmasi pemilik (2026-11-09) |

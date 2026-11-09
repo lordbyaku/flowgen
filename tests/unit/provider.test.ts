@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createGeminiProvider } from '@/ai/providers/geminiProvider';
 import { ProviderError } from '@/ai/providers/aiProvider';
-import { redactSecrets } from '@/ai/sanitize';
+import { looksLikeGeminiKey, redactSecrets } from '@/ai/sanitize';
 
 const KEY = 'AIza' + 'Sy' + 'PROVPROVPROVPROVPROVPROVPROVPROV7';
 const req = { task: 'concepts' as const, systemPrompt: 'sys', userPrompt: 'user', temperature: 0.5, maxOutputTokens: 100, responseSchema: { type: 'OBJECT' } };
@@ -108,6 +108,22 @@ describe('geminiProvider (P1-11)', () => {
       }) as unknown as typeof fetch,
     );
     expect(await p.listModels(KEY)).toEqual(['gemini-a', 'gemini-b']);
+  });
+
+  it('format key baru AQ.… dikenali dan disensor', () => {
+    const NEW = 'AQ.' + 'NewFormatFake'.repeat(4);
+    expect(looksLikeGeminiKey(NEW)).toBe(true);
+    expect(looksLikeGeminiKey(KEY)).toBe(true);
+    expect(looksLikeGeminiKey('kunci-asal')).toBe(false);
+    expect(redactSecrets(`invalid key ${NEW}.`)).toBe('invalid key [REDACTED].');
+  });
+
+  it('pesan error dengan key format baru tidak bocor', async () => {
+    const NEW = 'AQ.' + 'NewFormatFake'.repeat(4);
+    const p = createGeminiProvider(fakeFetch(400, { error: { code: 400, message: `API key ${NEW} not valid` } }) as unknown as typeof fetch);
+    const e = await catchErr(p.generate(NEW, 'm', req));
+    expect(e.message).not.toContain(NEW);
+    expect(e.message).toContain('[REDACTED]');
   });
 
   it('redactSecrets', () => {

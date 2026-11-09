@@ -11,7 +11,7 @@ import { fitScenesDoc } from '@/data/sceneRepo';
 import type { Project, ProjectDocs } from '@/types';
 import { makeBibles, makeBrief, makeScene } from './helpers';
 
-const KEY_RE = /AIza[0-9A-Za-z_-]{35}/;
+const KEY_RE = /AIza[0-9A-Za-z_-]{35}|AQ\.[0-9A-Za-z_-]{20,}/;
 
 function project(): Project {
   return {
@@ -105,7 +105,7 @@ describe('Exporters (27)', () => {
 
   it('ekspor seluruh project tidak memuat pola key atau kata cipher', () => {
     // project mentah dengan field liar tidak ikut karena bundle whitelist
-    const dirty = { ...project(), apiKey: 'AIza' + 'Sy' + 'LEAKLEAKLEAKLEAKLEAKLEAKLEAKLEAK1', cipher: { iv: 'x', data: 'y' } } as unknown as Project;
+    const dirty = { ...project(), apiKey: 'AIza' + 'Sy' + 'LEAKLEAKLEAKLEAKLEAKLEAKLEAKLEAK1', geminiKey: 'AQ.' + 'LeakLeakLeak'.repeat(4), cipher: { iv: 'x', data: 'y' } } as unknown as Project;
     const b = toExportBundle(dirty, docs());
     for (const out of [toMarkdown(b, [...EXPORT_SECTIONS]), promptsTxt(b), voTxt(b), projectToJson(b), clipboardText(b, 'allPrompts')]) {
       expect(out).not.toMatch(KEY_RE);

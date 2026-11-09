@@ -2,10 +2,15 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [Semantic Versioning](https://semver.org/lang/id/).
 
-## [Unreleased]
+## [1.1.1] - 2026-11-09
 
 ### Diubah
+- Format API key Gemini baru `AQ.…` dikenali (validasi format, sensor pesan error/log, dan `check:secrets`); format lama `AIza…` tetap didukung. Placeholder dan pesan peringatan diperbarui.
+- `check:secrets` mengecualikan hanya nilai `VITE_FIREBASE_API_KEY` (key web Firebase memang publik dan berformat `AIza…`), sehingga pemindaian `dist` bisa dipakai pada build Firebase.
 - `.env` ditambahkan ke `.gitignore`; `.firebaserc` diarahkan ke project Firebase `myflowgen`.
+
+### Diperbaiki
+- Seluruh objek `import.meta.env` sebelumnya tertanam di bundle produksi (termasuk `VITE_APPCHECK_DEBUG_TOKEN` bila diisi). Sekarang variabel diakses langsung sehingga hanya nilai yang dipakai ikut di-build dan token debug hanya ada di mode dev.
 
 ## [1.1.0] - 2026-11-08
 

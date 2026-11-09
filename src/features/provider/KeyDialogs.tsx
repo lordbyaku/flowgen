@@ -9,11 +9,11 @@ import { Field } from '@/components/common/Field';
 import { KeyStatusBadge } from '@/components/common/StatusBadges';
 import { DEFAULT_MODEL_HINT, MAX_KEYS } from '@/config/constants';
 import { KeyFormSchema } from '@/schemas/key.schema';
+import { KEY_FORMAT_HINT, looksLikeGeminiKey } from '@/ai/sanitize';
 import { aiService } from '@/ai/aiService';
 import { localSettings, useVaultStore } from '@/vault/vaultStore';
 import type { KeyStatus, KeyView } from '@/types';
 
-const looksLikeKey = (k: string) => /^AIza[0-9A-Za-z_-]{35}$/.test(k.trim());
 
 function MaskedKeyInput({ value, onChange, id }: { value: string; onChange: (v: string) => void; id: string }) {
   const [show, setShow] = React.useState(false);
@@ -27,7 +27,7 @@ function MaskedKeyInput({ value, onChange, id }: { value: string; onChange: (v: 
         autoComplete="off"
         spellCheck={false}
         className="pr-10 font-mono"
-        placeholder="AIza…"
+        placeholder="AQ.… atau AIza…"
       />
       <button
         type="button"
@@ -172,8 +172,8 @@ export function AddKeyDialog({ open, onOpenChange }: { open: boolean; onOpenChan
             </Field>
             <Field id="k-key" label="API key" level="W" error={errors.apiKey}>
               <MaskedKeyInput id="k-key" value={apiKey} onChange={setApiKey} />
-              {apiKey && !looksLikeKey(apiKey) && (
-                <p className="text-xs text-warning">Format tidak seperti biasanya (AIza + 35 karakter). Tetap bisa disimpan.</p>
+              {apiKey && !looksLikeGeminiKey(apiKey) && (
+                <p className="text-xs text-warning">Format tidak seperti biasanya ({KEY_FORMAT_HINT}). Tetap bisa disimpan.</p>
               )}
             </Field>
             <DialogFooter>
