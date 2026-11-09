@@ -2,6 +2,11 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [Semantic Versioning](https://semver.org/lang/id/).
 
+## [Unreleased]
+
+### Diubah
+- `.env` ditambahkan ke `.gitignore`; `.firebaserc` diarahkan ke project Firebase `myflowgen`.
+
 ## [1.1.0] - 2026-11-08
 
 ### Ditambahkan
