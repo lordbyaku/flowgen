@@ -25,11 +25,12 @@ const NAV = [
 
 function useVaultLifecycle() {
   const init = useVaultStore((s) => s.init);
+  const uid = useAuthStore((s) => s.user?.uid ?? null);
   const touch = useVaultStore((s) => s.touch);
   const checkIdle = useVaultStore((s) => s.checkIdle);
   React.useEffect(() => {
-    void init();
-  }, [init]);
+    void init(uid);
+  }, [init, uid]);
   React.useEffect(() => {
     let last = 0;
     const onAct = () => {
@@ -104,6 +105,7 @@ export function AppShell() {
             className="w-full justify-start px-2"
             onClick={async () => {
               await useProjectStore.getState().unload();
+              useVaultStore.getState().resetMemory();
               await logout();
               navigate('/login');
             }}

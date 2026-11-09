@@ -18,7 +18,7 @@ import { useUiStore } from '@/stores/uiStore';
 import { useVaultStore } from '@/vault/vaultStore';
 import type { KeyView, Routing } from '@/types';
 import { AddKeyDialog, EditKeyDialog } from './KeyDialogs';
-import { SECURITY_WARNING, VaultSetupDialog } from './VaultDialogs';
+import { CLOUD_WARNING, SECURITY_WARNING, VaultSetupDialog } from './VaultDialogs';
 import { UsagePanel, useUsage } from './UsagePanel';
 
 const ROUTING_HELP: Record<Routing, string> = {
@@ -197,7 +197,7 @@ function KeyCard({ k, index, total, todayCount }: { k: KeyView; index: number; t
 }
 
 export default function ProviderPage() {
-  const { status, meta, keys, lock, setRouting, deleteAll } = useVaultStore();
+  const { status, meta, keys, lock, setRouting, deleteAll, cloudError } = useVaultStore();
   const setUnlockOpen = useUiStore((s) => s.setUnlockOpen);
   const [setupOpen, setSetupOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
@@ -225,7 +225,7 @@ export default function ProviderPage() {
         }
       />
       <Alert variant="warning" title="Peringatan keamanan">
-        <p>{SECURITY_WARNING}</p>
+        <p>{meta?.mode === 'cloud' ? CLOUD_WARNING : SECURITY_WARNING}</p>
         <p className="mt-1">
           Key di browser tidak setara dengan secret di server: dapat dilihat pemilik sesi dan terdampak ekstensi atau script berbahaya. Jangan
           dipakai sebagai aplikasi publik dengan key bersama. App Check tidak melindungi panggilan langsung ke Gemini. Batasi key di Google AI
@@ -234,6 +234,16 @@ export default function ProviderPage() {
         <p className="mt-1">Privasi: pada free tier, data prompt dapat diproses sesuai ketentuan Google. Jangan masukkan data rahasia klien ke brief.</p>
       </Alert>
 
+      {cloudError && (
+        <Alert variant="error" title="Sinkronisasi key gagal">
+          {cloudError}
+        </Alert>
+      )}
+      {meta?.mode === 'cloud' && (
+        <Alert variant="info" title="Key tersimpan di akun">
+          Key yang Anda tambahkan otomatis tersedia di semua device setelah login dengan akun yang sama.
+        </Alert>
+      )}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader>
@@ -345,7 +355,11 @@ export default function ProviderPage() {
         open={delAll}
         onOpenChange={setDelAll}
         title="Hapus semua key?"
-        description="Semua key dan pengaturan vault di browser ini dihapus permanen. Riwayat usage lokal tetap ada."
+        description={
+          meta?.mode === 'cloud'
+            ? 'Semua key di akun Anda dihapus permanen dari SEMUA device. Riwayat usage lokal tetap ada.'
+            : 'Semua key dan pengaturan vault di browser ini dihapus permanen. Riwayat usage lokal tetap ada.'
+        }
         typeToConfirm="HAPUS"
         destructive
         confirmLabel="Hapus semua"

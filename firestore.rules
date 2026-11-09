@@ -10,6 +10,8 @@ service cloud.firestore {
     match /users/{uid} {
       allow read, write: if isOwner(uid);
     }
+    // Termasuk users/{uid}/private/aiKeys (mode vault "Tersimpan di akun", v1.2): hanya pemilik.
+    // noSecretFields hanya memeriksa field tingkat atas; dokumen itu menyimpan key di dalam `items`.
     match /users/{uid}/{document=**} {
       allow read, delete: if isOwner(uid);
       allow create, update: if isOwner(uid)

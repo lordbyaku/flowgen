@@ -59,6 +59,17 @@ describe('firestore.rules', () => {
     }
   });
 
+  it('dokumen key akun (private/aiKeys): hanya pemilik yang bisa baca/tulis', async () => {
+    const owner = env.authenticatedContext('alice').firestore();
+    const items = [{ id: 'k1', label: 'A', apiKey: 'AQ.fake-test-value' }];
+    await assertSucceeds(setDoc(doc(owner, 'users/alice/private/aiKeys'), { items, updatedAt: 1 }));
+    await assertSucceeds(getDoc(doc(owner, 'users/alice/private/aiKeys')));
+    const bob = env.authenticatedContext('bob').firestore();
+    await assertFails(getDoc(doc(bob, 'users/alice/private/aiKeys')));
+    await assertFails(setDoc(doc(bob, 'users/alice/private/aiKeys'), { items: [], updatedAt: 1 }));
+    await assertFails(getDoc(doc(env.unauthenticatedContext().firestore(), 'users/alice/private/aiKeys')));
+  });
+
   it('dokumen dengan 60+ field ditolak', async () => {
     const db = env.authenticatedContext('alice').firestore();
     const big = Object.fromEntries(Array.from({ length: 60 }, (_, i) => [`f${i}`, i]));

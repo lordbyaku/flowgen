@@ -42,6 +42,7 @@ export function _setBackendForTests(b: DataBackend | null) {
 
 export const paths = {
   user: (uid: string) => `users/${uid}`,
+  aiKeys: (uid: string) => `users/${uid}/private/aiKeys`,
   brands: (uid: string) => `users/${uid}/brands`,
   brand: (uid: string, id: string) => `users/${uid}/brands/${id}`,
   templates: (uid: string) => `users/${uid}/briefTemplates`,

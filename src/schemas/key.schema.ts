@@ -58,3 +58,13 @@ export const VaultMetaSchema = z.object({
   rrCursor: z.string().optional(),
   projectCooldowns: z.record(z.object({ until: z.number(), level: z.number().int().min(0) })),
 });
+
+/**
+ * Dokumen key yang disinkronkan ke akun (mode vault 'cloud', keputusan pemilik v1.2).
+ * Disimpan di users/{uid}/private/aiKeys. Plaintext — dilindungi Security Rules (hanya pemilik).
+ */
+export const CloudKeyItemSchema = LocalKeySchema.omit({ cipher: true }).extend({ apiKey: z.string().min(1) });
+export const CloudKeysDocSchema = z.object({
+  items: z.array(CloudKeyItemSchema).max(5),
+  updatedAt: z.number().default(0),
+});

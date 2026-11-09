@@ -6,6 +6,7 @@ Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.3). Keputusan implementasi: [`docs/D
 
 | Versi | Tanggal | Catatan |
 |---|---|---|
+| 1.2.0 | 2026-11-09 | API key tersimpan di akun (sinkron antar device, tanpa passphrase) |
 | 1.1.1 | 2026-11-09 | Dukungan format API key Gemini baru `AQ.…`; token debug App Check tidak lagi ikut ke bundle produksi |
 | 1.1.0 | 2026-11-08 | Gambar referensi multimodal, prompt frame mode gambar, perbaikan otomatis linter, estimasi biaya, uji skema JSON, cadangan saat tab ditutup, Firebase lazy |
 | 1.0.0 | 2026-11-08 | Rilis awal: Fase 1, 2, dan 3 |
@@ -42,7 +43,17 @@ Tanpa `.env.local`, aplikasi otomatis berjalan dalam **Mode Demo Lokal**: login 
 
 API key Gemini dari Google AI Studio berformat `AQ.…` (baru) atau `AIza…` (lama); keduanya diterima.
 
-**API key Gemini tidak boleh ada di `.env`, source code, atau Firestore** — hanya dimasukkan lewat UI dan disimpan terenkripsi di browser.
+### Penyimpanan API key (mode vault)
+
+| Mode | Lokasi | Pindah device | Passphrase |
+|---|---|---|---|
+| **Tersimpan di akun** (default) | Firestore `users/{uid}/private/aiKeys`, hanya bisa dibaca akun Anda | Otomatis muncul setelah login | Tidak |
+| Terenkripsi di browser | IndexedDB browser ini (AES-GCM) | Tambah ulang per device | Ya, tiap sesi |
+| Hanya sesi | Memori tab | Hilang saat tab ditutup | Tidak |
+
+Mode akun menyimpan key sebagai teks biasa yang dilindungi Security Rules: siapa pun yang berhasil masuk ke akun ini atau punya akses ke Firebase Console project ini bisa membacanya. Pakai password akun yang kuat dan batasi key di Google Cloud Console. Mode bisa diganti di Settings.
+
+**API key Gemini tidak boleh ada di `.env` atau source code** — hanya dimasukkan lewat UI dan disimpan terenkripsi di browser.
 
 ## Script
 

@@ -12,6 +12,7 @@ import type { KeyView, LocalKey, Routing, UsageLog, VaultMeta, VaultMode } from 
 import * as crypto from './crypto';
 import * as repo from './keyRepository';
 import * as previews from './previewRepo';
+import { deleteCloudKeys, loadCloudKeys, saveCloudKeys, type CloudKeyItem } from '@/data/aiKeyRepo';
 
 /**
  * Vault: satu-satunya pemilik API key. CryptoKey dan plaintext (mode sesi) hanya disimpan di
@@ -20,6 +21,29 @@ import * as previews from './previewRepo';
 let cryptoKey: CryptoKey | null = null;
 const sessionSecrets = new Map<string, string>();
 let sessionKeys: LocalKey[] = [];
+/** UID pengguna yang login; dibutuhkan mode 'cloud' (key tersimpan di akun). */
+let currentUid: string | null = null;
+
+/** Mode yang menyimpan key di memori tab: 'session' (tidak disimpan) dan 'cloud' (disinkronkan ke akun). */
+const isMemoryMode = (m: VaultMode | undefined) => m === 'session' || m === 'cloud';
+
+function hydrateFromCloud(items: CloudKeyItem[]) {
+  sessionSecrets.clear();
+  sessionKeys = items.map(({ apiKey, ...k }) => {
+    sessionSecrets.set(k.id, apiKey);
+    return { ...k, cipher: { iv: '', data: '' } };
+  });
+}
+
+/** Tulis seluruh daftar key mode 'cloud' ke dokumen akun. */
+async function syncCloud(): Promise<void> {
+  if (!currentUid) throw new Error('Belum login: key tidak bisa disimpan ke akun.');
+  const items: CloudKeyItem[] = sessionKeys.flatMap(({ cipher: _c, ...k }) => {
+    const apiKey = sessionSecrets.get(k.id);
+    return apiKey ? [{ ...k, apiKey }] : [];
+  });
+  await saveCloudKeys(currentUid, items);
+}
 
 export type VaultStatus = 'loading' | 'uninitialized' | 'locked' | 'unlocked';
 
@@ -42,7 +66,11 @@ interface VaultState {
   lockoutUntil: number;
   lastActivity: number;
   autoLockMs: number;
-  init(): Promise<void>;
+  /** Error saat memuat/menyimpan key di akun (mode 'cloud'). */
+  cloudError: string | null;
+  init(uid?: string | null): Promise<void>;
+  /** Bersihkan semua key dari memori (dipanggil saat logout). */
+  resetMemory(): void;
   setup(opts: { mode: VaultMode; passphrase?: string; iterations?: number }): Promise<{ ok: boolean; message?: string }>;
   unlock(passphrase: string): Promise<{ ok: boolean; message?: string }>;
   lock(): void;
@@ -74,14 +102,15 @@ const emptyMeta = (mode: VaultMode, salt = '', iterations = 0, verifier = { iv: 
 });
 
 async function loadAllKeys(mode: VaultMode | undefined): Promise<LocalKey[]> {
-  return mode === 'session' ? [...sessionKeys] : repo.listKeys();
+  return isMemoryMode(mode) ? [...sessionKeys] : repo.listKeys();
 }
 
 async function persistKey(mode: VaultMode, key: LocalKey): Promise<void> {
-  if (mode === 'session') {
+  if (isMemoryMode(mode)) {
     const i = sessionKeys.findIndex((k) => k.id === key.id);
     if (i >= 0) sessionKeys[i] = key;
     else sessionKeys.push(key);
+    if (mode === 'cloud') await syncCloud();
   } else {
     await repo.putKey(key);
   }
@@ -100,10 +129,38 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   lockoutUntil: 0,
   lastActivity: Date.now(),
   autoLockMs: VAULT_IDLE_LOCK_MS,
+  cloudError: null,
 
-  async init() {
-    const meta = await repo.getMeta();
+  async init(uid) {
+    if (uid !== undefined) currentUid = uid;
+    let meta = await repo.getMeta();
     const autoLockMs = (await repo.getSetting<number>('autoLockMs')) ?? VAULT_IDLE_LOCK_MS;
+    // Mode 'cloud', atau device baru tanpa vault lokal: cek key yang tersimpan di akun.
+    if (currentUid && (meta?.mode === 'cloud' || !meta)) {
+      try {
+        const cloud = await loadCloudKeys(currentUid);
+        if (!meta && cloud && cloud.items.length > 0) {
+          meta = emptyMeta('cloud');
+          await repo.putMeta(meta);
+        }
+        if (meta?.mode === 'cloud') {
+          hydrateFromCloud(cloud?.items ?? []);
+          set({ status: 'unlocked', meta, keys: sessionKeys.map(toView), autoLockMs, cloudError: null });
+          return;
+        }
+      } catch {
+        if (meta?.mode === 'cloud') {
+          set({
+            status: 'unlocked',
+            meta,
+            keys: sessionKeys.map(toView),
+            autoLockMs,
+            cloudError: 'Gagal memuat API key dari akun. Periksa koneksi lalu muat ulang halaman.',
+          });
+          return;
+        }
+      }
+    }
     if (!meta) {
       set({ status: 'uninitialized', meta: null, keys: [], autoLockMs });
       return;
@@ -128,6 +185,14 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       await repo.putMeta(meta);
       cryptoKey = key;
       set({ status: 'unlocked', meta, keys: [], lastActivity: Date.now(), failedAttempts: 0 });
+    } else if (mode === 'cloud') {
+      if (!currentUid) return { ok: false, message: 'Login terlebih dahulu untuk menyimpan key di akun.' };
+      const meta = emptyMeta('cloud');
+      // Jangan menimpa key yang sudah tersimpan di akun dari device lain.
+      const cloud = await loadCloudKeys(currentUid).catch(() => null);
+      await repo.putMeta(meta);
+      hydrateFromCloud(cloud?.items ?? []);
+      set({ status: 'unlocked', meta, keys: sessionKeys.map(toView), lastActivity: Date.now(), cloudError: null });
     } else {
       const meta = emptyMeta('session');
       await repo.putMeta(meta);
@@ -138,10 +203,18 @@ export const useVaultStore = create<VaultState>((set, get) => ({
     return { ok: true };
   },
 
+  resetMemory() {
+    cryptoKey = null;
+    sessionKeys = [];
+    sessionSecrets.clear();
+    currentUid = null;
+    set({ status: 'loading', meta: null, keys: [], cloudError: null });
+  },
+
   async unlock(passphrase) {
     const { meta, lockoutUntil, failedAttempts } = get();
     if (!meta) return { ok: false, message: 'Vault belum disiapkan.' };
-    if (meta.mode === 'session') return { ok: true };
+    if (isMemoryMode(meta.mode)) return { ok: true };
     const now = Date.now();
     if (lockoutUntil > now) {
       return { ok: false, message: `Terlalu banyak percobaan. Tunggu ${Math.ceil((lockoutUntil - now) / 1000)} detik.` };
@@ -160,7 +233,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   },
 
   lock() {
-    if (get().meta?.mode === 'session') return;
+    if (isMemoryMode(get().meta?.mode)) return;
     cryptoKey = null;
     set({ status: get().meta ? 'locked' : 'uninitialized' });
   },
@@ -188,7 +261,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
     const apiKey = input.apiKey.trim();
     const cipher =
       meta.mode === 'persistent' ? await crypto.encryptText(cryptoKey!, apiKey, id) : { iv: '', data: '' };
-    if (meta.mode === 'session') sessionSecrets.set(id, apiKey);
+    if (isMemoryMode(meta.mode)) sessionSecrets.set(id, apiKey);
     const rec: LocalKey = {
       id,
       label: input.label.trim(),
@@ -221,7 +294,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       if (get().status !== 'unlocked') throw new Error('Vault terkunci.');
       const trimmed = apiKey.trim();
       if (meta.mode === 'persistent') next.cipher = await crypto.encryptText(cryptoKey!, trimmed, id);
-      else sessionSecrets.set(id, trimmed);
+      else sessionSecrets.set(id, trimmed); // session & cloud
       next.last4 = trimmed.slice(-4);
       next.status = 'not_tested';
       next.consecutiveErrors = 0;
@@ -233,9 +306,10 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   async removeKey(id) {
     const { meta } = get();
     if (!meta) return;
-    if (meta.mode === 'session') {
+    if (isMemoryMode(meta.mode)) {
       sessionKeys = sessionKeys.filter((k) => k.id !== id);
       sessionSecrets.delete(id);
+      if (meta.mode === 'cloud') await syncCloud();
     } else await repo.deleteKey(id);
     if (meta.singleKeyId === id || meta.rrCursor === id) {
       const m = { ...meta, singleKeyId: meta.singleKeyId === id ? undefined : meta.singleKeyId, rrCursor: undefined };
@@ -264,6 +338,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   },
 
   async deleteAll() {
+    if (get().meta?.mode === 'cloud' && currentUid) await deleteCloudKeys(currentUid);
     await repo.deleteAllKeysAndMeta();
     cryptoKey = null;
     sessionKeys = [];
@@ -298,23 +373,20 @@ export const useVaultStore = create<VaultState>((set, get) => ({
     if (!meta) return { ok: false, message: 'Vault belum disiapkan.' };
     if (meta.mode === mode) return { ok: true };
     if (status !== 'unlocked') return { ok: false, message: 'Buka vault terlebih dahulu.' };
-    const keys = await loadAllKeys(meta.mode);
+    if (mode === 'cloud' && !currentUid) return { ok: false, message: 'Login terlebih dahulu untuk menyimpan key di akun.' };
+    if (mode === 'persistent') {
+      const err = validatePassphrase(passphrase);
+      if (err) return { ok: false, message: err };
+    }
+    const from = meta.mode;
+    const keys = await loadAllKeys(from);
     const plains = new Map<string, string>();
     for (const k of keys) {
       const p = await withPlainKeyInternal(k.id, async (x) => x);
       if (p) plains.set(k.id, p);
     }
-    if (mode === 'session') {
-      sessionKeys = keys.map((k) => ({ ...k, cipher: { iv: '', data: '' } }));
-      sessionSecrets.clear();
-      plains.forEach((v, id) => sessionSecrets.set(id, v));
-      const nextMeta: VaultMeta = { ...meta, mode: 'session', salt: '', iterations: 0, verifier: { iv: '', data: '' } };
-      await repo.replaceAllKeys([], nextMeta);
-      cryptoKey = null;
-      set({ meta: nextMeta, status: 'unlocked' });
-    } else {
-      const err = validatePassphrase(passphrase);
-      if (err) return { ok: false, message: err };
+
+    if (mode === 'persistent') {
       const salt = crypto.newSalt();
       const key = await crypto.deriveKey(passphrase!, salt, iterations);
       const enc: LocalKey[] = [];
@@ -322,19 +394,25 @@ export const useVaultStore = create<VaultState>((set, get) => ({
         const p = plains.get(k.id);
         if (p) enc.push({ ...k, cipher: await crypto.encryptText(key, p, k.id) });
       }
-      const nextMeta: VaultMeta = {
-        ...meta,
-        mode: 'persistent',
-        salt,
-        iterations,
-        verifier: await crypto.createVerifier(key),
-      };
+      const nextMeta: VaultMeta = { ...meta, mode: 'persistent', salt, iterations, verifier: await crypto.createVerifier(key) };
       await repo.replaceAllKeys(enc, nextMeta);
       sessionKeys = [];
       sessionSecrets.clear();
       cryptoKey = key;
       set({ meta: nextMeta, status: 'unlocked' });
+    } else {
+      // session atau cloud: key pindah ke memori (cloud juga disimpan ke akun)
+      sessionKeys = keys.filter((k) => plains.has(k.id)).map((k) => ({ ...k, cipher: { iv: '', data: '' } }));
+      sessionSecrets.clear();
+      plains.forEach((v, id) => sessionSecrets.set(id, v));
+      const nextMeta: VaultMeta = { ...meta, mode, salt: '', iterations: 0, verifier: { iv: '', data: '' } };
+      if (mode === 'cloud') await syncCloud();
+      await repo.replaceAllKeys([], nextMeta);
+      cryptoKey = null;
+      set({ meta: nextMeta, status: 'unlocked' });
     }
+    // Keluar dari mode cloud: hapus salinan di akun.
+    if (from === 'cloud' && currentUid) await deleteCloudKeys(currentUid).catch(() => undefined);
     await get().refreshKeys();
     return { ok: true };
   },
@@ -358,7 +436,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
 async function withPlainKeyInternal<T>(id: string, fn: (apiKey: string) => Promise<T>): Promise<T | null> {
   const { meta } = useVaultStore.getState();
   if (!meta) return null;
-  if (meta.mode === 'session') {
+  if (isMemoryMode(meta.mode)) {
     const k = sessionSecrets.get(id);
     return k ? fn(k) : null;
   }
@@ -436,6 +514,7 @@ export { passphraseStrength } from './crypto';
 
 /** Hanya untuk tes. */
 export function _resetVaultMemoryForTests() {
+  currentUid = null;
   cryptoKey = null;
   sessionKeys = [];
   sessionSecrets.clear();

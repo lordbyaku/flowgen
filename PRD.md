@@ -1312,3 +1312,14 @@ Item berikut bergantung pada layanan eksternal yang sering berubah. Implementasi
 | Ketentuan data free tier | Peringatan di UI | Peringatan privasi (Bagian 3.5 Bagian I) | Baca ketentuan layanan terbaru |
 
 **Asumsi yang sudah diputuskan**: aplikasi untuk satu pemilik; antarmuka satu bahasa (Indonesia); tidak ada backend; tidak ada unggahan ke cloud storage (gambar referensi lokal hanya pratinjau); tema terang/gelap mengikuti sistem; scene dibatasi 2–8 detik bilangan bulat; maksimal 3 karakter per project; satu request AI aktif pada satu waktu.
+
+# Perubahan v1.2 (keputusan pemilik, 2026-11-09)
+
+Menggantikan larangan "API key tidak boleh ada di Firestore" (Bagian 2, 3.2, 14, 16, 18.2) **khusus untuk mode vault "Tersimpan di akun"**:
+
+- Mode vault baru `cloud` (default saat setup): API key disimpan di `users/{uid}/private/aiKeys` sebagai `{ items: [{ ...LocalKey tanpa cipher, apiKey }], updatedAt }`.
+- Dilindungi Firestore Security Rules (hanya pemilik). Tidak memakai passphrase; key langsung tersedia di semua device setelah login.
+- Mode `persistent` (terenkripsi passphrase, lokal) dan `session` tetap tersedia dan tidak berubah.
+- Tetap berlaku: key tidak pernah ada di source code, `.env`, log, pesan error, URL, ekspor, atau analytics.
+- Kriteria Bagian 16 "Tidak ada key di Firestore" berlaku untuk mode `persistent` dan `session`; untuk mode `cloud` diganti menjadi "key hanya di dokumen `private/aiKeys` milik pemilik dan tidak terbaca akun lain".
+

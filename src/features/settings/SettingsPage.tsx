@@ -11,7 +11,7 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { SingleToggle } from '@/components/common/ToggleGroup';
 import { PageHeader } from '@/components/common/states';
 import { APP_VERSION, DEFAULT_MODEL_HINT, MAX_SCENE_SEC } from '@/config/constants';
-import { LABELS } from '@/config/enums';
+import { LABELS, VAULT_MODES } from '@/config/enums';
 import { isDemoMode } from '@/config/env';
 import { getProjectDocs, importProject, listAllProjects } from '@/data/projectRepo';
 import { getPreferences, savePreferences } from '@/data/templateRepo';
@@ -23,7 +23,8 @@ import { yyyymmdd } from '@/lib/format';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore, type ThemePref } from '@/stores/uiStore';
 import { localSettings, useVaultStore } from '@/vault/vaultStore';
-import { PassphraseInput, StrengthMeter } from '@/features/provider/VaultDialogs';
+import { CLOUD_WARNING, PassphraseInput, StrengthMeter } from '@/features/provider/VaultDialogs';
+import type { VaultMode } from '@/types';
 
 function ChangePassphraseDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const change = useVaultStore((s) => s.changePassphrase);
@@ -80,18 +81,32 @@ function SwitchModeDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
   const switchMode = useVaultStore((s) => s.switchMode);
   const [pass, setPass] = React.useState('');
   const [busy, setBusy] = React.useState(false);
-  const target = meta?.mode === 'session' ? 'persistent' : 'session';
+  const options = VAULT_MODES.filter((m) => m !== meta?.mode);
+  const [target, setTarget] = React.useState<VaultMode>(options[0] ?? 'cloud');
+  React.useEffect(() => {
+    if (open) setTarget(meta?.mode === 'cloud' ? 'persistent' : 'cloud');
+  }, [open, meta?.mode]);
+  const DESC: Record<VaultMode, string> = {
+    cloud: `Key yang ada disalin ke akun Anda dan otomatis tersedia di semua device. ${CLOUD_WARNING}`,
+    persistent: 'Key yang ada dienkripsi dengan passphrase baru dan disimpan hanya di browser ini.',
+    session: 'Key dipindahkan ke memori tab ini saja. Saat tab ditutup, semua key hilang dan harus ditambahkan ulang.',
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Ganti mode vault ke {LABELS.vaultMode[target]}</DialogTitle>
-          <DialogDescription>
-            {target === 'session'
-              ? 'Key dipindahkan ke memori dan dihapus dari IndexedDB. Saat tab ditutup, semua key hilang dan harus ditambahkan ulang.'
-              : 'Key yang ada sekarang dienkripsi dengan passphrase baru dan disimpan di IndexedDB.'}
-          </DialogDescription>
+          <DialogTitle>Ganti mode vault</DialogTitle>
+          <DialogDescription>Saat ini: {meta ? LABELS.vaultMode[meta.mode] : '-'}</DialogDescription>
         </DialogHeader>
+        <SingleToggle<VaultMode>
+          options={options.map((m) => ({ value: m, label: LABELS.vaultMode[m] }))}
+          value={target}
+          clearable={false}
+          onChange={(v) => v && setTarget(v)}
+          ariaLabel="Mode vault tujuan"
+        />
+        <p className="text-sm text-muted-foreground">{DESC[target]}</p>
+        {meta?.mode === 'cloud' && <p className="text-sm text-warning">Salinan key di akun akan dihapus dari semua device.</p>}
         {target === 'persistent' && (
           <div className="space-y-1.5">
             <Label htmlFor="sm-pass">Passphrase baru</Label>

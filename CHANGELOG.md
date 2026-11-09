@@ -2,6 +2,19 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.2.0] - 2026-11-09
+
+### Ditambahkan
+- **Mode vault "Tersimpan di akun (sinkron)"** (keputusan pemilik): API key disimpan di dokumen Firestore pribadi `users/{uid}/private/aiKeys` dan otomatis muncul di semua device setelah login, tanpa passphrase. Menjadi pilihan default saat menyiapkan vault. Status key (cooldown, terakhir dipakai, error) ikut tersinkron.
+- Device baru tanpa vault lokal otomatis memuat key dari akun saat login.
+- Ganti mode vault di Settings kini bisa ke tiga mode; pindah ke "Tersimpan di akun" menyalin key yang ada, pindah keluar menghapus salinan di akun.
+- Peringatan keamanan khusus mode akun di dialog setup dan halaman AI Provider; Hapus Semua Key di mode akun menghapus key dari semua device.
+- Tes vault mode akun dan tes Security Rules untuk dokumen key akun.
+
+### Diubah
+- Logout membersihkan semua key dari memori tab.
+- Requirement PRD "API key tidak boleh ada di Firestore" diubah untuk mode akun (lihat `PRD.md` bagian Perubahan v1.2).
+
 ## [1.1.1] - 2026-11-09
 
 ### Diubah

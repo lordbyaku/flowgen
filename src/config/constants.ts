@@ -1,5 +1,5 @@
 // Semua nilai yang bergantung pada layanan eksternal ditandai [VERIFIKASI] — lihat docs/VERIFY.md.
-export const APP_VERSION = '1.1.1';
+export const APP_VERSION = '1.2.0';
 
 export const MAX_KEYS = 5;
 export const MAX_SCENE_SEC = 8; // [VERIFIKASI] batas klip Google Flow

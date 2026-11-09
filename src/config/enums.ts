@@ -70,7 +70,7 @@ export const VARIANTS = ['standard', 'cinematic', 'premium'] as const;
 export const PROMPT_LENGTHS = ['short', 'detailed'] as const;
 export const FLOW_MODES = ['text_to_video', 'image_to_video', 'frames'] as const;
 export const ROUTINGS = ['round_robin', 'priority', 'single'] as const;
-export const VAULT_MODES = ['persistent', 'session'] as const;
+export const VAULT_MODES = ['persistent', 'session', 'cloud'] as const;
 export const PROJECT_STATUSES = ['draft', 'in_progress', 'completed'] as const;
 export const PROJECT_STAGES = ['brief', 'concepts', 'script', 'prompts', 'production', 'done'] as const;
 
@@ -229,7 +229,7 @@ export const LABELS = {
   promptLength: { short: 'Ringkas', detailed: 'Detail' },
   flowMode: { text_to_video: 'Teks ke video', image_to_video: 'Gambar ke video', frames: 'Frame awal-akhir' },
   routing: { round_robin: 'Round Robin', priority: 'Prioritas', single: 'Satu Key' },
-  vaultMode: { persistent: 'Persisten (terenkripsi)', session: 'Hanya sesi (memori)' },
+  vaultMode: { persistent: 'Persisten di browser (terenkripsi)', session: 'Hanya sesi (memori)', cloud: 'Tersimpan di akun (sinkron)' },
   projectStatus: { draft: 'Draft', in_progress: 'Berjalan', completed: 'Selesai' },
   stage: {
     brief: 'Brief',

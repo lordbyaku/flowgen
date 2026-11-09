@@ -10,6 +10,9 @@ import { passphraseStrength as passphraseStrengthLabel, useVaultStore } from '@/
 import { useUiStore } from '@/stores/uiStore';
 import { cn } from '@/lib/utils';
 
+export const CLOUD_WARNING =
+  'Key disimpan sebagai teks biasa di Firestore akun Anda dan hanya bisa dibaca akun Anda (Security Rules). Siapa pun yang berhasil masuk ke akun ini, atau yang punya akses ke Firebase Console project ini, bisa membaca key. Gunakan password akun yang kuat dan batasi key di Google Cloud Console.';
+
 export const SECURITY_WARNING =
   'Key disimpan di browser ini saja dan terenkripsi dengan passphrase Anda. Enkripsi ini tidak melindungi dari script berbahaya di aplikasi yang sama. Jangan pakai di komputer bersama. Menghapus data browser akan menghapus key.';
 
@@ -63,7 +66,8 @@ export function StrengthMeter({ value }: { value: string }) {
 
 export function VaultSetupDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const setup = useVaultStore((s) => s.setup);
-  const [mode, setMode] = React.useState<'persistent' | 'session'>('persistent');
+  const [mode, setMode] = React.useState<'persistent' | 'session' | 'cloud'>('cloud');
+  const [cloudAck, setCloudAck] = React.useState(false);
   const [p1, setP1] = React.useState('');
   const [p2, setP2] = React.useState('');
   const [ack, setAck] = React.useState(false);
@@ -71,7 +75,7 @@ export function VaultSetupDialog({ open, onOpenChange }: { open: boolean; onOpen
   const [error, setError] = React.useState<string | null>(null);
 
   const valid =
-    mode === 'session' || (p1.length >= PASSPHRASE_MIN_LENGTH && p1 === p2 && ack);
+    mode === 'session' || (mode === 'cloud' && cloudAck) || (mode === 'persistent' && p1.length >= PASSPHRASE_MIN_LENGTH && p1 === p2 && ack);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,7 +87,13 @@ export function VaultSetupDialog({ open, onOpenChange }: { open: boolean; onOpen
     if (!r.ok) return setError(r.message ?? 'Gagal menyiapkan vault.');
     setP1('');
     setP2('');
-    toast.success(mode === 'persistent' ? 'Vault terenkripsi siap.' : 'Mode sesi aktif. Key hilang saat tab ditutup.');
+    toast.success(
+      mode === 'persistent'
+        ? 'Vault terenkripsi siap.'
+        : mode === 'cloud'
+          ? 'Key akan tersimpan di akun dan tersedia di semua device.'
+          : 'Mode sesi aktif. Key hilang saat tab ditutup.',
+    );
     onOpenChange(false);
   };
 
@@ -97,10 +107,11 @@ export function VaultSetupDialog({ open, onOpenChange }: { open: boolean; onOpen
             </DialogTitle>
             <DialogDescription>Pilih cara menyimpan API key Gemini di browser ini.</DialogDescription>
           </DialogHeader>
-          <div role="radiogroup" aria-label="Mode vault" className="grid gap-2 sm:grid-cols-2">
+          <div role="radiogroup" aria-label="Mode vault" className="grid gap-2 sm:grid-cols-3">
             {(
               [
-                ['persistent', 'Persisten (terenkripsi)', 'Key disimpan terenkripsi di IndexedDB. Butuh passphrase tiap sesi.'],
+                ['cloud', 'Tersimpan di akun', 'Key disimpan di akun Anda dan otomatis muncul di semua device setelah login. Tanpa passphrase.'],
+                ['persistent', 'Terenkripsi di browser', 'Key terenkripsi di browser ini saja. Butuh passphrase tiap sesi.'],
                 ['session', 'Hanya sesi', 'Key disimpan di memori dan hilang saat tab ditutup.'],
               ] as const
             ).map(([v, t, d]) => (
@@ -120,6 +131,17 @@ export function VaultSetupDialog({ open, onOpenChange }: { open: boolean; onOpen
               </button>
             ))}
           </div>
+          {mode === 'cloud' && (
+            <div className="space-y-3">
+              <Alert variant="warning" title="Key disimpan tanpa enkripsi di akun Anda">
+                {CLOUD_WARNING}
+              </Alert>
+              <label className="flex items-start gap-2 text-sm">
+                <input type="checkbox" className="mt-0.5" checked={cloudAck} onChange={(e) => setCloudAck(e.target.checked)} />
+                Saya mengerti risikonya dan ingin key tersinkron di semua device.
+              </label>
+            </div>
+          )}
           {mode === 'persistent' && (
             <div className="space-y-3">
               <div className="space-y-1.5">
@@ -140,9 +162,11 @@ export function VaultSetupDialog({ open, onOpenChange }: { open: boolean; onOpen
               </label>
             </div>
           )}
-          <Alert variant="info" title="Catatan keamanan">
-            {SECURITY_WARNING}
-          </Alert>
+          {mode !== 'cloud' && (
+            <Alert variant="info" title="Catatan keamanan">
+              {SECURITY_WARNING}
+            </Alert>
+          )}
           {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
