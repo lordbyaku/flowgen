@@ -1,4 +1,4 @@
-import type { BiblesDoc, Brief, Scene, Variant } from '@/types';
+import type { AssetsDoc, BiblesDoc, Brief, Scene, Variant } from '@/types';
 
 export type LintSeverity = 'error' | 'warn' | 'info';
 
@@ -14,6 +14,8 @@ export interface LintContext {
   bibles: BiblesDoc | null;
   scenes: Scene[];
   variant: Variant;
+  /** Aset Flow (v1.3). Bila mode aset aktif, L02/L03 memeriksa nama aset, bukan deskripsi panjang. */
+  assets?: AssetsDoc | null;
 }
 
 export type LintRule = {

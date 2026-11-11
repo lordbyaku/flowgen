@@ -2,9 +2,9 @@ import { MAX_OUTPUT_TOKENS, SCENE_PROMPT_BATCH, TEMPERATURE } from '@/config/con
 import { ScenePromptsBatchSchema, ScenePromptsFinalSchema } from '@/schemas/storyboard.schema';
 import { buildNegative } from '@/domain/promptText';
 import { pushVersion } from '@/domain/sceneVersions';
-import type { BiblesDoc, Brief, Scene, ScenePromptItem, Variant } from '@/types';
+import type { AssetsDoc, BiblesDoc, Brief, Scene, ScenePromptItem, Variant } from '@/types';
 import { briefDigest } from './briefSerializer';
-import { biblesBlock, promptFormatRules, sceneBlock } from './sceneContext';
+import { promptFormatRules, sceneBlock, sceneContextBlock } from './sceneContext';
 import { buildSystemPrompt } from './systemPrompts';
 
 export function chunk<T>(arr: T[], size: number): T[][] {
@@ -27,7 +27,13 @@ export interface ScenePromptBatch {
 }
 
 /** Bagi menjadi batch maksimal 6 scene; panduan CapCut dibuat pada batch terakhir. */
-export function buildScenePromptBatches(brief: Brief, allScenes: Scene[], targets: Scene[], bibles: BiblesDoc): ScenePromptBatch[] {
+export function buildScenePromptBatches(
+  brief: Brief,
+  allScenes: Scene[],
+  targets: Scene[],
+  bibles: BiblesDoc,
+  assets?: AssetsDoc | null,
+): ScenePromptBatch[] {
   const sorted = [...allScenes].sort((a, b) => a.order - b.order);
   const variants = brief.output.variants;
   const outline = sorted.map((s, i) => `${i + 1}. ${s.title} (${s.durationSec}s) — VO: ${s.voiceOver || '-'} — overlay: ${s.textOverlay || '-'}`);
@@ -40,19 +46,19 @@ export function buildScenePromptBatches(brief: Brief, allScenes: Scene[], target
     const user = [
       briefDigest(brief),
       '',
-      biblesBlock(bibles),
+      sceneContextBlock(brief, bibles, assets),
       '',
       '<full_storyboard_outline>',
       ...outline,
       '</full_storyboard_outline>',
       '',
       `<scenes_for_this_batch batch="${bi + 1}/${batches.length}">`,
-      ...batch.map((s) => sceneBlock(s, sorted.findIndex((x) => x.id === s.id))),
+      ...batch.map((s) => sceneBlock(s, sorted.findIndex((x) => x.id === s.id), assets)),
       '</scenes_for_this_batch>',
       '',
       'TASK (Call 3 — Flow prompts):',
       `For EACH scene in this batch return one item in prompts with the same sceneId: standard${variants.includes('cinematic') ? ', cinematic' : ''}${variants.includes('premium') ? ', premium' : ''}${brief.output.flowMode !== 'text_to_video' ? ', startFrame' : ''}${brief.output.flowMode === 'frames' ? ', endFrame' : ''}, negativePrompt.`,
-      promptFormatRules(brief, variants),
+      promptFormatRules(brief, variants, assets),
       ...(final
         ? [
             '',

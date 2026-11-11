@@ -27,6 +27,7 @@ import type {
   UserPreferencesSchema,
 } from '@/schemas/project.schema';
 import type { LocalKeySchema, UsageLogSchema, VaultMetaSchema } from '@/schemas/key.schema';
+import type { AssetsDocSchema, CharacterAssetSchema, LocationAssetSchema, ProductAssetSchema } from '@/schemas/assets.schema';
 
 export type Objective = (typeof C.OBJECTIVES)[number];
 export type Platform = (typeof C.PLATFORMS)[number];
@@ -75,10 +76,16 @@ export type LocalKey = z.infer<typeof LocalKeySchema>;
 export type UsageLog = z.infer<typeof UsageLogSchema>;
 export type VaultMeta = z.infer<typeof VaultMetaSchema>;
 
+export type AssetsDoc = z.infer<typeof AssetsDocSchema>;
+export type CharacterAsset = z.infer<typeof CharacterAssetSchema>;
+export type LocationAsset = z.infer<typeof LocationAssetSchema>;
+export type ProductAsset = z.infer<typeof ProductAssetSchema>;
+export type CharacterRef = (typeof C.CHARACTER_REFS)[number];
+
 /** Tampilan key untuk UI: tanpa cipher. */
 export type KeyView = Omit<LocalKey, 'cipher'>;
 
-export type DocName = 'creative' | 'script' | 'bibles' | 'scenes' | 'capcut';
+export type DocName = 'creative' | 'script' | 'bibles' | 'scenes' | 'capcut' | 'assets';
 
 export interface ProjectDocs {
   creative: CreativeDoc | null;
@@ -86,6 +93,7 @@ export interface ProjectDocs {
   bibles: BiblesDoc | null;
   scenes: ScenesDoc | null;
   capcut: CapcutDoc | null;
+  assets: AssetsDoc | null;
 }
 
 export type Result<T, E = AppError> = { ok: true; value: T } | { ok: false; error: E };

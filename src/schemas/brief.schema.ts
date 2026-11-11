@@ -158,6 +158,8 @@ export const BriefSchema = z.object({
     variants: z.array(z.enum(E.VARIANTS)).min(1, 'Pilih minimal satu varian').max(3),
     promptLength: z.enum(E.PROMPT_LENGTHS),
     flowMode: z.enum(E.FLOW_MODES),
+    /** Cara karakter/tempat disebut di prompt scene (v1.3). Kosong = 'description' (perilaku lama). */
+    characterRef: z.enum(E.CHARACTER_REFS).optional(),
     extraNotes: Text.optional(),
     /** Kirim gambar referensi lokal ke AI (multimodal). Default: ya. */
     sendReferenceImages: z.boolean().optional(),

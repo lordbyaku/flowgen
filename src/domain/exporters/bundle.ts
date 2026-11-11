@@ -1,4 +1,4 @@
-import type { BiblesDoc, Brief, CapcutDoc, CreativeDoc, Project, ProjectDocs, Scene, ScriptDoc } from '@/types';
+import type { AssetsDoc, BiblesDoc, Brief, CapcutDoc, CreativeDoc, Project, ProjectDocs, Scene, ScriptDoc } from '@/types';
 
 /**
  * Objek whitelist untuk ekspor. Exporter hanya menerima bentuk ini — tidak pernah objek mentah
@@ -14,6 +14,7 @@ export interface ExportBundle {
   bibles: BiblesDoc | null;
   scenes: Scene[];
   capcut: CapcutDoc | null;
+  assets: AssetsDoc | null;
 }
 
 export function toExportBundle(project: Project, docs: ProjectDocs): ExportBundle {
@@ -27,6 +28,7 @@ export function toExportBundle(project: Project, docs: ProjectDocs): ExportBundl
     bibles: docs.bibles,
     scenes: [...(docs.scenes?.items ?? [])].sort((a, b) => a.order - b.order),
     capcut: docs.capcut,
+    assets: docs.assets,
   };
 }
 
@@ -37,6 +39,7 @@ export const EXPORT_SECTIONS = [
   'storyboard',
   'characterBible',
   'visualBible',
+  'assets',
   'prompts',
   'capcut',
   'assumptions',
@@ -51,6 +54,7 @@ export const EXPORT_SECTION_LABELS: Record<ExportSection, string> = {
   storyboard: 'Storyboard',
   characterBible: 'Character Bible',
   visualBible: 'Visual Bible',
+  assets: 'Prompt aset Flow (karakter → tempat → produk)',
   prompts: 'Prompt per scene',
   capcut: 'Panduan CapCut',
   assumptions: 'Asumsi AI',

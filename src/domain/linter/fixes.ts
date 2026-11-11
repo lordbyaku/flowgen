@@ -1,4 +1,5 @@
 import { buildNegative } from '@/domain/promptText';
+import { isFlowAssetsMode } from '@/domain/assets';
 import type { Scene, Variant } from '@/types';
 import type { LintContext } from './types';
 import { coverage, keywords, uniqueWords } from './text';
@@ -44,6 +45,12 @@ export function fixPrompt(prompt: string, rule: FixableRule, scene: Scene, ctx: 
       return prompt.includes(ratio) ? prompt : `${ensureEnd(prompt)} Aspect ratio ${ratio}.`;
     case 'L02': {
       if (!ctx.bibles) return prompt;
+      if (isFlowAssetsMode(ctx.brief, ctx.assets)) {
+        const missing = scene.characterIds
+          .map((cid) => ctx.assets!.characters.find((c) => c.id === cid)?.flowName)
+          .filter((n): n is string => !!n && !prompt.toLowerCase().includes(n.toLowerCase()));
+        return missing.length ? `${missing.join(' and ')}: ${prompt}`.trim() : prompt;
+      }
       let out = prompt;
       for (const cid of scene.characterIds) {
         const b = ctx.bibles.characters.find((c) => c.id === cid);
@@ -54,6 +61,10 @@ export function fixPrompt(prompt: string, rule: FixableRule, scene: Scene, ctx: 
       return out;
     }
     case 'L03': {
+      if (isFlowAssetsMode(ctx.brief, ctx.assets) && ctx.assets.product) {
+        const n = ctx.assets.product.flowName;
+        return prompt.toLowerCase().includes(n.toLowerCase()) ? prompt : insertBeforeTail(prompt, `Product: ${n} is clearly visible.`);
+      }
       const desc = ctx.bibles?.visual.productAppearanceEn.trim();
       if (!desc || coverage(keywords(desc), prompt) >= 0.4) return prompt;
       return insertBeforeTail(prompt, `Product: ${ensureEnd(desc)}`);

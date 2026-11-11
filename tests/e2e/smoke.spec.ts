@@ -118,7 +118,10 @@ test('alur brief → konsep → naskah → prompt → export', async ({ page }) 
   await expect(page.getByText(/Naskah dan 4 scene dibuat/)).toBeVisible();
   await page.getByRole('button', { name: /Approve & buka Storyboard/ }).click();
   await expect(page.getByText('Total 30 / 30 detik')).toBeVisible();
-  await page.getByRole('button', { name: /Lanjut ke Prompt/ }).click();
+  await page.getByRole('button', { name: /Lanjut ke Karakter & Tempat/ }).click();
+  await expect(page.getByText(/1\. Karakter/)).toBeVisible();
+  await expect(page.getByText(/2\. Tempat/)).toBeVisible();
+  await page.getByRole('link', { name: /Lanjut ke prompt scene/ }).click();
   await expect(page.getByRole('heading', { name: 'Prompt Google Flow' })).toBeVisible();
   await page.getByRole('button', { name: 'Buat prompt', exact: true }).click();
   await expect(page.getByText(/Prompt Flow dan panduan CapCut dibuat/)).toBeVisible();

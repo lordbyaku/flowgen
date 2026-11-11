@@ -22,6 +22,7 @@ import { buildTimelineFromScenes } from '@/domain/exporters/capcutGuide';
 import { newRequestId } from '@/lib/ids';
 import type {
   AppError,
+  AssetsDoc,
   BiblesDoc,
   Brand,
   Brief,
@@ -130,7 +131,7 @@ export function createAiService(deps: {
 
     /** Prompt per scene + panduan CapCut. Scene yang sudah di-approve dan sudah punya prompt tidak disentuh. */
     async generateScenePrompts(
-      input: { brief: Brief; scenes: Scene[]; bibles: BiblesDoc; onlySceneIds?: string[] },
+      input: { brief: Brief; scenes: Scene[]; bibles: BiblesDoc; assets?: AssetsDoc | null; onlySceneIds?: string[] },
       opts: CallOptions = {},
     ): Promise<Result<ScenePromptsResult>> {
       const { brief, bibles } = input;
@@ -140,7 +141,7 @@ export function createAiService(deps: {
       );
       if (targets.length === 0)
         return { ok: false, error: { code: 'validation', message: 'Semua scene sudah di-approve. Batalkan approve untuk membuat ulang.' } };
-      const batches = buildScenePromptBatches(brief, scenes, targets, bibles);
+      const batches = buildScenePromptBatches(brief, scenes, targets, bibles, input.assets);
       let capcut: CapcutGuide | null = null;
       for (const [i, b] of batches.entries()) {
         opts.onProgress?.('requesting', `Batch ${i + 1}/${batches.length}`);
@@ -162,13 +163,13 @@ export function createAiService(deps: {
 
     /** Regenerasi satu scene; scene lain tidak diubah. */
     regenerateScene(
-      input: { brief: Brief; scenes: Scene[]; bibles: BiblesDoc },
+      input: { brief: Brief; scenes: Scene[]; bibles: BiblesDoc; assets?: AssetsDoc | null },
       sceneId: string,
       instruction?: string,
       opts: CallOptions = {},
     ): Promise<Result<Scene[]>> {
       return safe(async () => {
-        const call = buildSceneRegenCall(input.brief, input.scenes, sceneId, input.bibles, instruction);
+        const call = buildSceneRegenCall(input.brief, input.scenes, sceneId, input.bibles, instruction, input.assets);
         const { data } = await structuredCall(router, { ...call, ...opts });
         return applySceneRegen(input.scenes, sceneId, data, input.brief, now());
       });
@@ -247,7 +248,7 @@ export function createAiService(deps: {
     /** Perkiraan biaya sebelum generate (lokal, tanpa panggilan). Perbaikan JSON dapat menambah 1 panggilan. */
     estimate(
       kind: 'concepts' | 'script' | 'prompts',
-      input: { brief: Brief; concept?: Concept | null; scenes?: Scene[]; bibles?: BiblesDoc | null },
+      input: { brief: Brief; concept?: Concept | null; scenes?: Scene[]; bibles?: BiblesDoc | null; assets?: AssetsDoc | null },
     ): CallEstimate {
       const { brief } = input;
       if (kind === 'concepts') {
@@ -264,7 +265,7 @@ export function createAiService(deps: {
       const scenes = input.scenes ?? [];
       const targets = scenes.filter((s) => !(s.approved && s.flowPrompts.standard.trim()));
       if (!input.bibles || targets.length === 0) return { calls: 0, inputTokens: 0, maxOutputTokens: 0, images: 0 };
-      const batches = buildScenePromptBatches(brief, scenes, targets, input.bibles);
+      const batches = buildScenePromptBatches(brief, scenes, targets, input.bibles, input.assets);
       return {
         calls: batches.length,
         inputTokens: batches.reduce((a, b) => a + estTokens(b.call), 0),

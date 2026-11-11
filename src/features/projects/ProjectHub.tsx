@@ -6,6 +6,7 @@ import { ErrorState, LoadingState } from '@/components/common/states';
 import { useAuthStore } from '@/stores/authStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { MSG } from '@/ai/messages';
+import { assetsProgress } from '@/domain/assets';
 import { cn } from '@/lib/utils';
 
 export const HUB_STEPS = [
@@ -13,6 +14,7 @@ export const HUB_STEPS = [
   { to: 'concepts', label: 'Konsep' },
   { to: 'script', label: 'Naskah' },
   { to: 'storyboard', label: 'Storyboard' },
+  { to: 'assets', label: 'Karakter & Tempat' },
   { to: 'prompts', label: 'Prompt' },
   { to: 'production', label: 'Produksi' },
   { to: 'capcut', label: 'CapCut' },
@@ -39,6 +41,7 @@ export default function ProjectHub() {
     concepts: !!docs.creative?.approved,
     script: !!docs.script?.approved,
     storyboard: (docs.scenes?.items.length ?? 0) > 0,
+    assets: !!docs.assets && assetsProgress(docs.assets).total > 0 && assetsProgress(docs.assets).done === assetsProgress(docs.assets).total,
     prompts: (docs.scenes?.items ?? []).some((s) => s.flowPrompts.standard),
     production: (docs.scenes?.items ?? []).length > 0 && (docs.scenes?.items ?? []).every((s) => s.tracker === 'final'),
     capcut: !!docs.capcut,

@@ -5,6 +5,7 @@ import { lintAll } from '@/domain/linter';
 import type { Brief, Variant } from '@/types';
 import type { ExportBundle, ExportSection } from './bundle';
 import { capcutText } from './capcutGuide';
+import { assetsText } from '@/domain/assets';
 
 const esc = (s: string) => s.replace(/\|/g, '\\|').replace(/\n/g, ' ');
 const list = (items: string[]) => (items.length ? items.map((i) => `- ${i}`).join('\n') : '-');
@@ -153,6 +154,10 @@ export function toMarkdown(
     );
   }
 
+  if (has('assets') && bundle.assets) {
+    out.push('## Prompt Aset Flow (buat dulu: karakter → tempat → produk)', '```text', assetsText(bundle.assets), '```');
+  }
+
   if (has('prompts') && bundle.scenes.length) {
     const variants = opts.variants ?? bundle.brief.output.variants;
     out.push('## Prompt Google Flow');
@@ -176,7 +181,7 @@ export function toMarkdown(
   }
 
   if (has('lint') && bundle.scenes.length) {
-    const res = lintAll({ brief: bundle.brief, bibles: bundle.bibles, scenes: bundle.scenes }, opts.lintDisabled);
+    const res = lintAll({ brief: bundle.brief, bibles: bundle.bibles, scenes: bundle.scenes, assets: bundle.assets }, opts.lintDisabled);
     const rows = bundle.scenes.flatMap((s, i) =>
       (res[s.id] ?? []).map((iss) => `- Scene ${i + 1} · ${iss.ruleId} (${iss.severity}): ${iss.message}`),
     );

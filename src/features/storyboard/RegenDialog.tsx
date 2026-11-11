@@ -21,6 +21,7 @@ export function RegenDialog({ scene, onOpenChange }: { scene: Scene | null; onOp
     const project = st.project;
     const scenes = st.docs.scenes?.items ?? [];
     const bibles = st.docs.bibles;
+    const assets = st.docs.assets;
     if (!project || !scene || !bibles) {
       toast.error('Storyboard dan Bible diperlukan untuk regenerasi.');
       return;
@@ -28,7 +29,7 @@ export function RegenDialog({ scene, onOpenChange }: { scene: Scene | null; onOp
     onOpenChange(false);
     const before = scenes.reduce((a, s) => a + s.durationSec, 0);
     const res = await run('scene_regen', (opts) =>
-      aiService.regenerateScene({ brief: project.brief, scenes, bibles }, scene.id, instruction, opts),
+      aiService.regenerateScene({ brief: project.brief, scenes, bibles, assets }, scene.id, instruction, opts),
     );
     if (!res) return;
     // Ambil hasil untuk scene ini saja dan gabungkan ke state TERKINI (scene lain tidak berubah).

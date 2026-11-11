@@ -2,6 +2,18 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.3.0] - 2026-11-12
+
+### Ditambahkan
+- **Halaman "Karakter & Tempat"** (tahap baru antara Storyboard dan Prompt): prompt gambar referensi per karakter (seluruh badan + close-up wajah), per tempat (tanpa orang, maks 5 lokasi unik dari brief dan storyboard), dan produk. Disusun otomatis dari Character/Visual Bible tanpa panggilan AI; bisa diedit, dikembalikan ke otomatis, disalin, dan ditandai "sudah dibuat di Flow". Gambar referensi dari brief bisa diunduh untuk diunggah ke Flow.
+- **"Nama di Flow"** per karakter/tempat/produk, dipakai persis di prompt scene.
+- **Mode "Karakter & tempat dibuat di Flow (sebut nama)"** (Langkah 8, default untuk project baru): prompt scene (Panggilan 3 dan regenerasi) menyebut nama aset Flow + aksi, kamera, cahaya (40–90 kata), tanpa mengulang deskripsi wajah/tubuh. Mode lama "Deskripsi lengkap di setiap prompt" tetap tersedia.
+- Urutan kerja karakter → tempat → produk → scene di halaman Prompt (banner progres aset), Salin/ekspor TXT, dan ekspor Markdown (bagian baru "Prompt aset Flow").
+- Linter L02/L03 dan perbaikan otomatisnya memeriksa nama aset Flow saat mode aset aktif.
+
+### Diubah
+- Tombol di Storyboard kini mengarah ke "Karakter & Tempat" sebelum Prompt.
+
 ## [1.2.0] - 2026-11-09
 
 ### Ditambahkan

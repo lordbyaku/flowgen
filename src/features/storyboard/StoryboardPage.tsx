@@ -138,8 +138,8 @@ export default function StoryboardPage() {
           <h2 className="text-xl font-semibold">Storyboard</h2>
           <p className="text-sm text-muted-foreground">Edit, urutkan (seret atau tombol panah), regenerate per scene, lalu approve.</p>
         </div>
-        <Button onClick={() => navigate(`/projects/${project.id}/prompts`)}>
-          <Sparkles /> Lanjut ke Prompt
+        <Button onClick={() => navigate(`/projects/${project.id}/assets`)}>
+          <Sparkles /> Lanjut ke Karakter & Tempat
         </Button>
       </div>
       <AiErrorPanel />

@@ -253,6 +253,7 @@ export function createEmptyBrief(): Brief {
       variants: ['standard'],
       promptLength: 'detailed',
       flowMode: 'text_to_video',
+      characterRef: 'flow_assets',
       sendReferenceImages: true,
     },
   };

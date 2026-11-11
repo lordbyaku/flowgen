@@ -16,6 +16,7 @@ import { LABELS } from '@/config/enums';
 import { aiService } from '@/ai/aiService';
 import { applyLintFixes, FIX_LABEL, isFixable, lintScene, worstSeverity, type FixableRule, type LintIssue } from '@/domain/linter';
 import { copyAllText, copyText, frameCopyText } from '@/domain/promptText';
+import { assetsProgress, characterRefOf } from '@/domain/assets';
 import { pushVersion, restoreVersion } from '@/domain/sceneVersions';
 import { countWords, cn } from '@/lib/utils';
 import { useAiStatusStore } from '@/stores/aiStatusStore';
@@ -95,7 +96,8 @@ function PromptCard({ scene, index, variants, onRegen }: { scene: Scene; index: 
   const [compare, setCompare] = React.useState(false);
   const [snip, setSnip] = React.useState(false);
 
-  const lintCtx = { brief: project.brief, bibles, scenes: allScenes, variant };
+  const assets = useProjectStore((s) => s.docs.assets);
+  const lintCtx = { brief: project.brief, bibles, scenes: allScenes, variant, assets };
   const issues = lintScene(scene, lintCtx, project.lintDisabled);
   const fix = (rules: FixableRule[]) => {
     const fixed = applyLintFixes(scene, lintCtx, rules, variant);
@@ -243,11 +245,36 @@ function PromptCard({ scene, index, variants, onRegen }: { scene: Scene; index: 
   );
 }
 
+/** Urutan kerja di Flow: karakter → tempat → story. */
+function FlowOrderBanner({ projectId }: { projectId: string }) {
+  const brief = useProjectStore((s) => s.project!.brief);
+  const assets = useProjectStore((s) => s.docs.assets);
+  const prog = assetsProgress(assets);
+  if (characterRefOf(brief) !== 'flow_assets') return null;
+  const ready = prog.total > 0 && prog.done === prog.total;
+  return (
+    <Alert
+      variant={ready ? 'success' : 'warning'}
+      title={ready ? 'Aset Flow siap — lanjutkan scene satu per satu' : `Buat karakter & tempat di Flow dulu (${prog.done}/${prog.total})`}
+      action={
+        !ready && (
+          <Button asChild size="sm" variant="outline">
+            <Link to={`/projects/${projectId}/assets`}>Ke Karakter & Tempat</Link>
+          </Button>
+        )
+      }
+    >
+      Prompt di bawah menyebut nama aset Flow ({[...(assets?.characters ?? []).map((c) => c.flowName), ...(assets?.locations ?? []).map((l) => l.flowName)].filter(Boolean).join(', ') || 'belum ada'}). Bila nama aset diubah, buat ulang prompt scene.
+    </Alert>
+  );
+}
+
 export default function PromptsPage() {
   const project = useProjectStore((s) => s.project)!;
   const scenesDoc = useProjectStore((s) => s.docs.scenes);
   const bibles = useProjectStore((s) => s.docs.bibles);
   const capcut = useProjectStore((s) => s.docs.capcut);
+  const assets = useProjectStore((s) => s.docs.assets);
   const setDoc = useProjectStore((s) => s.setDoc);
   const updateScenes = useProjectStore((s) => s.updateScenes);
   const patchProject = useProjectStore((s) => s.patchProject);
@@ -260,7 +287,7 @@ export default function PromptsPage() {
 
   const generate = async () => {
     if (!bibles) return toast.error('Character/Visual Bible belum ada. Buat naskah & storyboard dulu.');
-    const r = await run('scene_prompts', (opts) => aiService.generateScenePrompts({ brief: project.brief, scenes, bibles }, opts));
+    const r = await run('scene_prompts', (opts) => aiService.generateScenePrompts({ brief: project.brief, scenes, bibles, assets }, opts));
     if (!r) return;
     // Gabungkan hanya scene yang memang diproses, ke state terkini.
     const byId = new Map(r.scenes.map((s) => [s.id, s]));
@@ -294,7 +321,7 @@ export default function PromptsPage() {
         <div>
           <h2 className="text-xl font-semibold">Prompt Google Flow</h2>
           <p className="text-sm text-muted-foreground">Panggilan AI 3: prompt per scene (Inggris, mandiri) + panduan CapCut. Batch 6 scene.</p>
-          <CostHint est={aiService.estimate('prompts', { brief: project.brief, scenes, bibles })} />
+          <CostHint est={aiService.estimate('prompts', { brief: project.brief, scenes, bibles, assets })} />
         </div>
         <div className="flex flex-wrap gap-2">
           {hasPrompts && <CopyButton label="Salin Semua" getText={() => copyAllText(scenes)} />}
@@ -303,6 +330,7 @@ export default function PromptsPage() {
           </Button>
         </div>
       </div>
+      <FlowOrderBanner projectId={project.id} />
       <DurationBar scenes={scenes} target={project.brief.project.durationSec} />
       <Alert variant="info" title="Teks overlay dibuat di CapCut">
         Prompt tidak meminta teks di dalam video karena teks hasil AI sering rusak. Batas klip Flow saat ini dianggap 8 detik — verifikasi di Flow.

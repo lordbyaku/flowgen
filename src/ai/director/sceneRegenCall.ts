@@ -1,13 +1,20 @@
 import { MAX_OUTPUT_TOKENS, MAX_SCENE_SEC, MIN_SCENE_SEC, TEMPERATURE } from '@/config/constants';
 import { SceneRegenOutputSchema } from '@/schemas/storyboard.schema';
 import { buildNegative } from '@/domain/promptText';
-import type { BiblesDoc, Brief, Scene, SceneRegenOutput } from '@/types';
+import type { AssetsDoc, BiblesDoc, Brief, Scene, SceneRegenOutput } from '@/types';
 import { briefDigest } from './briefSerializer';
-import { biblesBlock, promptFormatRules, sceneBlock } from './sceneContext';
+import { promptFormatRules, sceneBlock, sceneContextBlock } from './sceneContext';
 import { framePromptsFor, pushVersion } from './scenePromptCall';
 import { buildSystemPrompt } from './systemPrompts';
 
-export function buildSceneRegenCall(brief: Brief, scenes: Scene[], sceneId: string, bibles: BiblesDoc, instruction?: string) {
+export function buildSceneRegenCall(
+  brief: Brief,
+  scenes: Scene[],
+  sceneId: string,
+  bibles: BiblesDoc,
+  instruction?: string,
+  assets?: AssetsDoc | null,
+) {
   const sorted = [...scenes].sort((a, b) => a.order - b.order);
   const idx = sorted.findIndex((s) => s.id === sceneId);
   if (idx < 0) throw new Error('Scene tidak ditemukan');
@@ -17,12 +24,12 @@ export function buildSceneRegenCall(brief: Brief, scenes: Scene[], sceneId: stri
   const user = [
     briefDigest(brief),
     '',
-    biblesBlock(bibles),
+    sceneContextBlock(brief, bibles, assets),
     '',
     `<previous_scene>${prev ? `${prev.title} — VO: ${prev.voiceOver || '-'}` : '(none — this is the first scene, it must contain the hook)'}</previous_scene>`,
     `<next_scene>${next ? `${next.title} — VO: ${next.voiceOver || '-'}` : '(none — this is the last scene, it must contain the CTA)'}</next_scene>`,
     '<current_scene>',
-    sceneBlock(cur, idx),
+    sceneBlock(cur, idx, assets),
     `  voiceOver: ${cur.voiceOver || '(none)'}`,
     `  textOverlay: ${cur.textOverlay || '(none)'}`,
     '</current_scene>',
@@ -33,7 +40,7 @@ export function buildSceneRegenCall(brief: Brief, scenes: Scene[], sceneId: stri
     `TASK: Regenerate ONLY the current scene. Return scene (all storyboard fields), flowPrompts, ${brief.output.flowMode !== 'text_to_video' ? 'framePrompts (start' + (brief.output.flowMode === 'frames' ? ', end' : '') + '), ' : ''}and negativePrompt.`,
     `Keep durationSec = ${cur.durationSec} unless the user instruction explicitly asks to change it (integer ${MIN_SCENE_SEC}-${MAX_SCENE_SEC}).`,
     `Keep order = ${cur.order} and characterIds unless instructed.`,
-    promptFormatRules(brief, brief.output.variants),
+    promptFormatRules(brief, brief.output.variants, assets),
   ].join('\n');
   return {
     task: 'scene_regen' as const,

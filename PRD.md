@@ -1323,3 +1323,11 @@ Menggantikan larangan "API key tidak boleh ada di Firestore" (Bagian 2, 3.2, 14,
 - Tetap berlaku: key tidak pernah ada di source code, `.env`, log, pesan error, URL, ekspor, atau analytics.
 - Kriteria Bagian 16 "Tidak ada key di Firestore" berlaku untuk mode `persistent` dan `session`; untuk mode `cloud` diganti menjadi "key hanya di dokumen `private/aiKeys` milik pemilik dan tidak terbaca akun lain".
 
+# Perubahan v1.3 (2026-11-12): aset Flow dulu, baru story
+
+- Tahap baru **Karakter & Tempat** di antara Storyboard dan Prompt (rute `/projects/:id/assets`).
+- Dokumen Firestore baru `users/{uid}/projects/{pid}/docs/assets`: `{ characters[{id,name,flowName,fullBodyPrompt,closeUpPrompt,done,edited}], locations[{id,name,flowName,description,prompt,done,edited}], product{name,flowName,prompt,done,edited}|null, updatedAt }`.
+- `Brief.output.characterRef`: `'flow_assets'` (default baru) atau `'description'` (perilaku Bagian 8/23.5). Pada `flow_assets`, prompt scene menyebut nama aset Flow dan tidak mengulang Character Master Description; Bagian 23.5 aturan 8 ("ulangi deskripsi lengkap") tidak berlaku untuk mode ini.
+- Linter L02/L03 pada mode `flow_assets` memeriksa kemunculan nama aset Flow.
+- Urutan ekspor/salin: aset (karakter → tempat → produk) sebelum scene.
+

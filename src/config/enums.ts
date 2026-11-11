@@ -69,6 +69,7 @@ export const TEXT_LANGUAGES = ['id', 'en'] as const;
 export const VARIANTS = ['standard', 'cinematic', 'premium'] as const;
 export const PROMPT_LENGTHS = ['short', 'detailed'] as const;
 export const FLOW_MODES = ['text_to_video', 'image_to_video', 'frames'] as const;
+export const CHARACTER_REFS = ['flow_assets', 'description'] as const;
 export const ROUTINGS = ['round_robin', 'priority', 'single'] as const;
 export const VAULT_MODES = ['persistent', 'session', 'cloud'] as const;
 export const PROJECT_STATUSES = ['draft', 'in_progress', 'completed'] as const;
@@ -228,6 +229,10 @@ export const LABELS = {
   variant: { standard: 'Standard', cinematic: 'Cinematic', premium: 'Premium Commercial' },
   promptLength: { short: 'Ringkas', detailed: 'Detail' },
   flowMode: { text_to_video: 'Teks ke video', image_to_video: 'Gambar ke video', frames: 'Frame awal-akhir' },
+  characterRef: {
+    flow_assets: 'Karakter & tempat dibuat di Flow (sebut nama)',
+    description: 'Deskripsi lengkap di setiap prompt',
+  },
   routing: { round_robin: 'Round Robin', priority: 'Prioritas', single: 'Satu Key' },
   vaultMode: { persistent: 'Persisten di browser (terenkripsi)', session: 'Hanya sesi (memori)', cloud: 'Tersimpan di akun (sinkron)' },
   projectStatus: { draft: 'Draft', in_progress: 'Berjalan', completed: 'Selesai' },

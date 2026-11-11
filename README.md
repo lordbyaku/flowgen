@@ -6,6 +6,7 @@ Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.3). Keputusan implementasi: [`docs/D
 
 | Versi | Tanggal | Catatan |
 |---|---|---|
+| 1.3.0 | 2026-11-12 | Halaman Karakter & Tempat: prompt aset Flow dulu (karakter → tempat → produk), prompt scene menyebut nama aset |
 | 1.2.0 | 2026-11-09 | API key tersimpan di akun (sinkron antar device, tanpa passphrase) |
 | 1.1.1 | 2026-11-09 | Dukungan format API key Gemini baru `AQ.…`; token debug App Check tidak lagi ikut ke bundle produksi |
 | 1.1.0 | 2026-11-08 | Gambar referensi multimodal, prompt frame mode gambar, perbaikan otomatis linter, estimasi biaya, uji skema JSON, cadangan saat tab ditutup, Firebase lazy |
@@ -16,9 +17,10 @@ Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.3). Keputusan implementasi: [`docs/D
 1. Isi Brief (wizard 8 langkah + Review, autosave, skor kelengkapan, preset, template).
 2. Buat & pilih konsep (Panggilan AI 1).
 3. Buat naskah, storyboard, Character Bible, Visual Bible (Panggilan AI 2), lalu review.
-4. Buat prompt Flow per scene + panduan CapCut (Panggilan AI 3, batch 6 scene). Salin ke Google Flow.
-5. Tandai status scene di Production Tracker.
-6. Susun klip di CapCut mengikuti panduan; ekspor paket ke Markdown/TXT/Clipboard.
+4. **Karakter & Tempat**: salin prompt aset ke Google Flow dan buat karakter, tempat, dan produk di sana lebih dulu (beri nama yang sama dengan "Nama di Flow").
+5. Buat prompt scene + panduan CapCut (Panggilan AI 3, batch 6 scene). Prompt menyebut nama aset Flow; salin scene satu per satu ke Flow.
+6. Tandai status scene di Production Tracker.
+7. Susun klip di CapCut mengikuti panduan; ekspor paket ke Markdown/TXT/Clipboard.
 
 ## Tech stack
 
@@ -93,6 +95,10 @@ Mode akun menyimpan key sebagai teks biasa yang dilindungi Security Rules: siapa
 - Drag-and-drop urutan scene (dnd-kit, bisa dengan keyboard).
 - Preset tambahan (Kecantikan, Properti, Promo Musiman) & aturan linter aktif/nonaktif per project.
 - Uji E2E Playwright dengan Gemini dipalsukan.
+
+**Peningkatan v1.3**
+- Halaman Karakter & Tempat: prompt gambar referensi karakter (seluruh badan + close-up), tempat (tanpa orang), dan produk; nama aset di Flow; status "sudah dibuat".
+- Mode prompt scene berbasis nama aset Flow (lebih pendek, karakter lebih konsisten); mode deskripsi lengkap tetap tersedia.
 
 **Peningkatan v1.1**
 - Gambar referensi lokal dikirim ke Gemini (multimodal) saat membuat Character & Visual Bible.

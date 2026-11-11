@@ -61,6 +61,13 @@ export function Step8Output() {
         label="Kirim gambar referensi lokal ke AI"
         hint="Gambar produk/karakter yang diunggah sebagai file ikut dibaca Gemini saat membuat Character & Visual Bible (maks 6, diperkecil 1024 px). Gambar URL tidak dikirim. Jangan unggah gambar rahasia."
       />
+      <EnumField
+        path="output.characterRef"
+        label="Karakter & tempat di prompt scene"
+        options={optionsFrom(LABELS.characterRef)}
+        clearable={false}
+        hint="Pilih 'dibuat di Flow' bila Anda membuat karakter/tempat dulu di Google Flow: prompt scene cukup menyebut namanya (lebih pendek, karakter lebih konsisten)."
+      />
       <EnumField path="output.flowMode" label="Mode di Google Flow" options={optionsFrom(LABELS.flowMode)} clearable={false} hint="Verifikasi fitur terbaru di Google Flow" />
     </StepSection>
   );

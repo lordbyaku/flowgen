@@ -7,7 +7,7 @@ import type { Brief, DocName, Project, ProjectDocs, Scene } from '@/types';
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 type ProjectField = keyof Omit<Project, 'id'>;
 
-const EMPTY_DOCS: ProjectDocs = { creative: null, script: null, bibles: null, scenes: null, capcut: null };
+const EMPTY_DOCS: ProjectDocs = { creative: null, script: null, bibles: null, scenes: null, capcut: null, assets: null };
 
 interface ProjectState {
   uid: string | null;

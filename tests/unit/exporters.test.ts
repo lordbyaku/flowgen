@@ -58,6 +58,7 @@ function docs(): ProjectDocs {
       updatedAt: 1,
       checklist: {},
     },
+    assets: null,
   };
 }
 

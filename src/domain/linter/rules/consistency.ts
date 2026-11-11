@@ -1,5 +1,8 @@
+import { isFlowAssetsMode } from '@/domain/assets';
 import type { LintRule } from '../types';
 import { coverage, keywords, uniqueWords } from '../text';
+
+const mentions = (prompt: string, name: string) => name.trim() !== '' && prompt.toLowerCase().includes(name.trim().toLowerCase());
 
 export const L02: LintRule = {
   id: 'L02',
@@ -7,6 +10,13 @@ export const L02: LintRule = {
   title: 'Karakter tidak dijelaskan lengkap',
   check: (scene, ctx, prompt) => {
     if (scene.characterIds.length === 0 || !ctx.bibles) return [];
+    if (isFlowAssetsMode(ctx.brief, ctx.assets)) {
+      const assets = ctx.assets;
+      return scene.characterIds
+        .map((cid) => assets.characters.find((c) => c.id === cid))
+        .filter((c): c is NonNullable<typeof c> => !!c && !mentions(prompt, c.flowName))
+        .map((c) => `Nama karakter Flow "${c.flowName}" tidak disebut di prompt.`);
+    }
     const out: string[] = [];
     for (const cid of scene.characterIds) {
       const bible = ctx.bibles.characters.find((c) => c.id === cid);
@@ -30,6 +40,9 @@ export const L03: LintRule = {
   title: 'Detail produk hilang',
   check: (_scene, ctx, prompt) => {
     if (!ctx.brief.product.mustBeVisible || !ctx.bibles) return [];
+    if (isFlowAssetsMode(ctx.brief, ctx.assets) && ctx.assets.product) {
+      return mentions(prompt, ctx.assets.product.flowName) ? [] : [`Nama produk Flow "${ctx.assets.product.flowName}" tidak disebut di prompt.`];
+    }
     const kw = keywords(ctx.bibles.visual.productAppearanceEn);
     if (kw.length === 0) return ['Visual Bible belum memuat deskripsi produk (productAppearanceEn).'];
     const ratio = coverage(kw, prompt);

@@ -20,3 +20,5 @@ Semua item diimplementasikan lewat konstanta atau satu file adapter. Status: **b
 | Perkiraan token gambar | `TOKENS_PER_IMAGE` | 258 | Bandingkan `usageMetadata.promptTokenCount` | Belum |
 | Alur frame awal/akhir di Flow | `frameModeRules()` di `sceneContext.ts` | Prompt gambar diam + prompt gerak | Buat gambar dari prompt frame, unggah ke Flow, nilai konsistensi | Belum |
 | Format API key Gemini | `GEMINI_KEY_PATTERNS` di `src/ai/sanitize.ts`, `scripts/check-secrets.mjs` | `AIza…` (35) dan `AQ.…` (≥20) | Bandingkan dengan key baru di AI Studio; bila format berubah lagi, ubah pola di dua tempat itu | Format `AQ.` dikonfirmasi pemilik (2026-11-09) |
+| Cara Flow menyebut karakter/tempat yang sudah dibuat (model Omni, Text to Video) | "Nama di Flow" di halaman Karakter & Tempat; `flowAssetRules()` di `sceneContext.ts` | Nama polos (mis. `Bu Sari`) | Buat satu karakter di Flow, tempel prompt scene, cek apakah karakter terpakai; bila Flow butuh awalan (mis. `@`), tulis di Nama di Flow lalu buat ulang prompt scene | Belum |
+| Panjang prompt scene ideal untuk Omni | `flowAssetRules()` | 40–90 kata | Bandingkan hasil prompt pendek vs panjang | Belum |
