@@ -21,6 +21,8 @@ import { useAuthStore } from '@/stores/authStore';
 import { useAiStatusStore } from '@/stores/aiStatusStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { useAiAction } from '@/features/shared/useAiAction';
+import { usePastPerformance } from '@/features/shared/usePastPerformance';
+import { PerformanceInsights } from '@/features/publish/PerformanceInsights';
 import type { Concept, ConceptRound, CreativeDoc } from '@/types';
 
 const FIELDS: { key: keyof Concept; label: string; multiline?: boolean }[] = [
@@ -127,10 +129,12 @@ export default function ConceptPage() {
   const run = useAiAction();
   const navigate = useNavigate();
   const blockers = computeCompleteness(project.brief).blockers;
+  const past = usePastPerformance(project.brief.project.brandId || undefined);
+  const [useLearnings, setUseLearnings] = React.useState(true);
 
   const generate = async () => {
     const brand = uid && project.brief.project.brandId ? await getBrand(uid, project.brief.project.brandId) : null;
-    const round = await run('concepts', (opts) => aiService.generateConcepts(project.brief, brand, opts));
+    const round = await run('concepts', (opts) => aiService.generateConcepts(project.brief, brand, opts, useLearnings ? past.learnings : undefined));
     if (!round) return; // output lama dipertahankan
     const history: ConceptRound[] = creative
       ? [
@@ -223,6 +227,21 @@ export default function ConceptPage() {
         </Alert>
       )}
       <AiErrorPanel onRetry={generate} />
+
+      {past.learnings.length > 0 && (
+        <Card>
+          <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0">
+            <CardTitle>Pelajaran dari {past.entries.length} hasil posting sebelumnya</CardTitle>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={useLearnings} onChange={(e) => setUseLearnings(e.target.checked)} />
+              Kirim ke AI saat membuat konsep
+            </label>
+          </CardHeader>
+          <CardContent>
+            <PerformanceInsights entries={past.entries} groups={['hookStyle', 'angle']} />
+          </CardContent>
+        </Card>
+      )}
 
       {!creative ? (
         <EmptyState

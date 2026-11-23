@@ -17,6 +17,8 @@ import { useAuthStore } from '@/stores/authStore';
 import { useVaultStore } from '@/vault/vaultStore';
 import { useUsage } from '@/features/provider/UsagePanel';
 import type { Project } from '@/types';
+import { collectEntries } from '@/domain/performance';
+import { PerformanceInsights } from '@/features/publish/PerformanceInsights';
 
 function Stat({ icon: Icon, label, value, to }: { icon: React.ComponentType<{ className?: string }>; label: string; value: React.ReactNode; to?: string }) {
   const body = (
@@ -63,6 +65,7 @@ export default function DashboardPage() {
   if (error) return <ErrorState description="Gagal memuat dashboard." onRetry={load} />;
   if (!projects) return <LoadingState />;
 
+  const perf = collectEntries(projects);
   const drafts = projects.filter((p) => p.status === 'draft').length;
   const done = projects.filter((p) => p.status === 'completed').length;
   const activeKeys = keys.filter((k) => k.enabled).length;
@@ -109,6 +112,18 @@ export default function DashboardPage() {
         <Stat icon={CheckCircle2} label="Selesai" value={done} to="/projects" />
         <Stat icon={Building2} label="Brand" value={brandCount} to="/brands" />
       </div>
+
+      {perf.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Performa konten</CardTitle>
+            <CardDescription>Dari {perf.length} hasil posting yang dicatat di tahap Posting (20 project terbaru).</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PerformanceInsights entries={perf} />
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">

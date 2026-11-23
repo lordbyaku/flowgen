@@ -4,12 +4,14 @@ import { newShortId } from '@/lib/ids';
 import type { Brand, Brief, ConceptCallOutput, ConceptRound } from '@/types';
 import { serializeBrief } from './briefSerializer';
 import { buildSystemPrompt } from './systemPrompts';
+import { pastPerformanceBlock } from './performanceBlock';
 
-export function buildConceptCall(brief: Brief, brand?: Brand | null) {
+export function buildConceptCall(brief: Brief, brand?: Brand | null, learnings?: string[]) {
   const n = brief.strategy.conceptAlternatives;
   const user = [
     serializeBrief(brief, brand),
     '',
+    ...pastPerformanceBlock(learnings),
     'TASK (Call 1 — Strategy and Concepts):',
     '1. Write a short product and market analysis in Indonesian (analysis.product, analysis.market).',
     '2. Decide the strongest campaign angle and explain why in Indonesian (analysis.strongestAngle).',

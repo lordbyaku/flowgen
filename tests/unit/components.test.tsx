@@ -26,7 +26,7 @@ function setProject(brief = createEmptyBrief()) {
     completeness: 0,
     step: 1,
     stage: 'brief',
-    lintDisabled: [],
+    lintDisabled: [], performance: [],
     createdAt: 1,
     updatedAt: 1,
   };

@@ -23,6 +23,7 @@ import type { CapcutDocSchema, CapcutGuideSchema } from '@/schemas/capcut.schema
 import type {
   BrandSchema,
   BriefTemplateSchema,
+  PerformanceEntrySchema,
   ProjectSchema,
   PromptSnippetSchema,
   UserPreferencesSchema,
@@ -75,6 +76,7 @@ export type CapcutGuide = z.infer<typeof CapcutGuideSchema>;
 export type CapcutDoc = z.infer<typeof CapcutDocSchema>;
 export type Project = z.infer<typeof ProjectSchema>;
 export type Brand = z.infer<typeof BrandSchema>;
+export type PerformanceEntry = z.infer<typeof PerformanceEntrySchema>;
 export type BriefTemplate = z.infer<typeof BriefTemplateSchema>;
 export type PromptSnippet = z.infer<typeof PromptSnippetSchema>;
 export type UserPreferences = z.infer<typeof UserPreferencesSchema>;

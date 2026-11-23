@@ -1,6 +1,32 @@
 import { z } from 'zod';
 import { DERIVATIONS, PROJECT_STAGES, PROJECT_STATUSES } from '@/config/enums';
 import { BriefSchema } from './brief.schema';
+import { AngleSchema, HookStyleSchema, PlatformSchema } from './common';
+
+const Count = z.number().int().min(0).max(1e10);
+
+/** Hasil satu video yang sudah diposting (v1.4). Gaya hook/angle/teks hook disimpan sebagai snapshot. */
+export const PerformanceEntrySchema = z.object({
+  id: z.string().min(1),
+  platform: PlatformSchema,
+  postedAt: z.number(),
+  url: z.string().max(500).default(''),
+  /** 'main' = hook utama (scene 1), selain itu id varian hook. */
+  version: z.string().max(80),
+  versionLabel: z.string().max(200),
+  hookStyle: HookStyleSchema.optional(),
+  angle: AngleSchema.optional(),
+  hookText: z.string().max(300).default(''),
+  views: Count,
+  likes: Count,
+  comments: Count,
+  shares: Count,
+  saves: Count,
+  avgWatchSec: z.number().min(0).max(3600).optional(),
+  retention3sPct: z.number().min(0).max(100).optional(),
+  note: z.string().max(500).default(''),
+  updatedAt: z.number(),
+});
 
 export const ProjectSchema = z.object({
   id: z.string().min(1),
@@ -15,6 +41,8 @@ export const ProjectSchema = z.object({
   /** ID aturan linter yang dimatikan untuk project ini (Fase 2). */
   lintDisabled: z.array(z.string()).default([]),
   presetId: z.string().optional(),
+  /** Hasil posting (maks 30). */
+  performance: z.array(PerformanceEntrySchema).max(30).default([]),
   /** Project sumber untuk konten turunan (v1.4). */
   parentId: z.string().optional(),
   derivation: z.enum(DERIVATIONS).optional(),

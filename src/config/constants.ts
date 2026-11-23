@@ -38,6 +38,9 @@ export const AI_IMAGE_MAX_DIM = 1024;
 export const TOKENS_PER_IMAGE = 258;
 export const TEMPERATURE = { concepts: 0.9, script: 0.7, prompts: 0.5, regen: 0.6, assist: 0.3, publish: 0.8, hooks: 0.9, fix: 0.4 };
 export const HOOK_VARIANT_COUNT = 3;
+export const MAX_PERFORMANCE_ENTRIES = 30;
+/** Minimal entri performa sebelum wawasan dikirim ke AI. */
+export const MIN_PERFORMANCE_FOR_AI = 2;
 export const MAX_HASHTAGS = 15;
 export const KEY_TEST_MAX_OUTPUT_TOKENS = 8;
 export const SCENE_PROMPT_BATCH = 6;

@@ -24,7 +24,7 @@ function project(): Project {
     completeness: 90,
     step: 9,
     stage: 'prompts',
-    lintDisabled: [],
+    lintDisabled: [], performance: [],
     createdAt: 1,
     updatedAt: 2,
   };

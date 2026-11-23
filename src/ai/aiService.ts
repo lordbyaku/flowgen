@@ -109,11 +109,11 @@ export function createAiService(deps: {
       });
     },
 
-    generateConcepts(brief: Brief, brand: Brand | null, opts: CallOptions = {}): Promise<Result<ConceptRound>> {
+    generateConcepts(brief: Brief, brand: Brand | null, opts: CallOptions = {}, learnings?: string[]): Promise<Result<ConceptRound>> {
       const blocked = guardBrief(brief);
       if (blocked) return Promise.resolve({ ok: false, error: blocked });
       return safe(async () => {
-        const { data } = await structuredCall(router, { ...buildConceptCall(brief, brand), ...opts });
+        const { data } = await structuredCall(router, { ...buildConceptCall(brief, brand, learnings), ...opts });
         return toConceptRound(data, brief, now());
       });
     },
@@ -199,7 +199,15 @@ export function createAiService(deps: {
 
     /** Varian hook: scene pembuka alternatif (default 3) untuk uji A/B. */
     generateHookVariants(
-      input: { brief: Brief; scenes: Scene[]; bibles: BiblesDoc | null; assets?: AssetsDoc | null; concept?: Concept | null; avoidStyles?: string[] },
+      input: {
+        brief: Brief;
+        scenes: Scene[];
+        bibles: BiblesDoc | null;
+        assets?: AssetsDoc | null;
+        concept?: Concept | null;
+        avoidStyles?: string[];
+        learnings?: string[];
+      },
       opts: CallOptions = {},
     ): Promise<Result<HookVariant[]>> {
       const bibles = input.bibles;

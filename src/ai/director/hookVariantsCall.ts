@@ -9,10 +9,18 @@ import { briefDigest } from './briefSerializer';
 import { promptFormatRules, sceneBlock, sceneContextBlock } from './sceneContext';
 import { framePromptsFor } from './scenePromptCall';
 import { buildSystemPrompt } from './systemPrompts';
+import { pastPerformanceBlock } from './performanceBlock';
 
 export function buildHookVariantsCall(
   brief: Brief,
-  input: { scenes: Scene[]; bibles: BiblesDoc; assets?: AssetsDoc | null; concept?: Concept | null; avoidStyles?: string[] },
+  input: {
+    scenes: Scene[];
+    bibles: BiblesDoc;
+    assets?: AssetsDoc | null;
+    concept?: Concept | null;
+    avoidStyles?: string[];
+    learnings?: string[];
+  },
 ) {
   const sorted = [...input.scenes].sort((a, b) => a.order - b.order);
   const first = sorted[0];
@@ -34,6 +42,7 @@ export function buildHookVariantsCall(
     second
       ? ['<next_scene note="every hook must cut naturally into this scene">', sceneBlock(second, 1, input.assets), `  voiceOver: ${second.voiceOver || '(none)'}`, '</next_scene>'].join('\n')
       : '',
+    ...pastPerformanceBlock(input.learnings),
     '',
     `TASK (Hook variants — ${HOOK_VARIANT_COUNT} alternative opening scenes for A/B testing):`,
     `- Return hooks: EXACTLY ${HOOK_VARIANT_COUNT} items, each with a DIFFERENT hookStyle (enum). Prefer: ${preferred.join(', ')}.`,

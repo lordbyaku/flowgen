@@ -10,9 +10,11 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [S
 - **Perbaiki prompt dari hasil Flow**: tombol "Hasil Flow gagal?" di kartu Prompt dan Production Tracker. Pilih masalahnya (wajah/pakaian berubah, produk salah, teks/logo rusak, orang tambahan, gerak aneh, kamera, tempat, lainnya) dan tulis catatan, lalu panggilan AI baru `prompt_fix` menulis ulang prompt varian itu saja (+ frame dan negatif) tanpa mengubah naskah atau durasi. Versi lama masuk riwayat ("Perbaikan hasil Flow"), dan ringkasan perubahan tampil di kartu.
 - **Mode Produksi untuk HP** (`/projects/:id/shoot`, tombol di Prompt dan Production Tracker): satu item per layar (aset Flow → scene → varian hook) dengan tombol salin besar (frame gambar dulu, lalu prompt video), "Sudah dibuat di Flow" yang menandai status lalu lanjut otomatis ke item berikutnya yang belum selesai, "Hasil gagal, perbaiki prompt", dan navigasi Sebelumnya/Lanjut di bawah layar. Posisi item tersimpan di URL.
 - **Konten turunan** (kartu baru di Ringkasan project, tanpa panggilan AI, selalu menjadi project baru): **Seri** 2–5 bagian dengan angle berbeda (Bible dan aset Flow disalin, jadi karakter/tempat yang sudah dibuat dipakai lagi), **Versi pendek** dari scene terpilih (prompt dan status produksi disalin agar klip yang sudah dirender bisa dipakai ulang; timeline CapCut dan teks overlay dihitung ulang; peringatan bila hook/CTA tidak ikut), dan **Rasio lain** (storyboard disalin, prompt scene dikosongkan, prompt aset memakai rasio baru). Project turunan diberi lencana "Turunan" dan tautan ke sumbernya.
+- **Catatan performa** (bagian baru di tahap Posting): catat hasil tiap video per platform dan versi (hook utama atau varian hook), berisi views, like, komentar, share, simpan, rata-rata durasi tonton, retensi 3 detik, URL, dan catatan (maks 30 per project). Ada engagement rate dan penanda "versi terbaik". Dashboard menampilkan ringkasan per gaya hook, angle, dan platform. Bila ada ≥2 hasil, ringkasannya dikirim sebagai data ke pembuatan konsep dan varian hook (bisa dimatikan di halaman Konsep).
 
 ### Diubah
 - Tombol "Lanjutkan produksi" di Ringkasan project kini membuka Mode Produksi.
+- Duplikat project tidak ikut menyalin catatan performa.
 
 ## [1.3.1] - 2026-11-23
 

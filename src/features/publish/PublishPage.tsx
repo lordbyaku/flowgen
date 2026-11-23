@@ -19,6 +19,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useAiStatusStore } from '@/stores/aiStatusStore';
 import { useProjectStore } from '@/stores/projectStore';
 import type { PublishPlatform } from '@/types';
+import { PerformanceSection } from './PerformanceSection';
 
 function PlatformPack({ p }: { p: PublishPlatform }) {
   return (
@@ -178,6 +179,8 @@ export default function PublishPage() {
           </CardContent>
         </Card>
       )}
+
+      <PerformanceSection />
     </div>
   );
 }

@@ -23,7 +23,7 @@ Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.3). Keputusan implementasi: [`docs/D
 6. Opsional: buat **Varian Hook** (3 scene pembuka alternatif) dan render juga di Flow.
 7. Tandai status scene di Production Tracker, atau pakai **Mode Produksi** di HP (satu scene per layar).
 8. Susun klip di CapCut mengikuti panduan; ekspor paket ke Markdown/TXT/Clipboard.
-9. **Posting**: buat paket caption/hashtag/cover per platform lalu salin saat mengunggah.
+9. **Posting**: buat paket caption/hashtag/cover per platform lalu salin saat mengunggah. Setelah tayang, catat hasilnya di bagian Performa.
 
 ## Tech stack
 
@@ -105,6 +105,7 @@ Mode akun menyimpan key sebagai teks biasa yang dilindungi Security Rules: siapa
 - Perbaiki prompt dari hasil Flow: pilih masalah klip (wajah berubah, produk salah, teks muncul, gerak aneh, dll.) lalu AI menulis ulang prompt scene itu saja (panggilan AI `prompt_fix`).
 - Mode Produksi untuk HP: satu item per layar (aset → scene → varian hook), salin besar, tandai sudah dibuat, lanjut otomatis.
 - Konten turunan tanpa AI: seri (angle berbeda, karakter sama), versi pendek dari scene terpilih (klip dipakai ulang), dan rasio lain (cukup ulang prompt scene).
+- Catatan performa per video (views, interaksi, retensi 3 detik): ringkasan per gaya hook/angle di Dashboard, dan dipakai AI sebagai pelajaran untuk konsep dan varian hook berikutnya.
 
 **Peningkatan v1.3**
 - Halaman Karakter & Tempat: prompt gambar referensi karakter (seluruh badan + close-up), tempat (tanpa orang), dan produk; nama aset di Flow; status "sudah dibuat".

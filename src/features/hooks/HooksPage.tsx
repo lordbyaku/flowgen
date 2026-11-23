@@ -15,6 +15,7 @@ import { aiService } from '@/ai/aiService';
 import { hookCopyText, hookLetter, isHookProduced, mergeHooks, openingScene } from '@/domain/hooks';
 import { frameCopyText } from '@/domain/promptText';
 import { useAiAction } from '@/features/shared/useAiAction';
+import { usePastPerformance } from '@/features/shared/usePastPerformance';
 import { useAiStatusStore } from '@/stores/aiStatusStore';
 import { useProjectStore } from '@/stores/projectStore';
 import type { HookVariant, TrackerStatus } from '@/types';
@@ -109,6 +110,7 @@ export default function HooksPage() {
   const opening = openingScene(scenes);
   const hooks = docs.hooks;
   const concept = docs.creative?.concepts.find((c) => c.id === docs.creative?.selectedConceptId) ?? null;
+  const past = usePastPerformance(project.brief.project.brandId || undefined);
   const stale = !!hooks && !!opening && hooks.baseSceneId !== opening.id;
 
   const generate = async () => {
@@ -116,7 +118,7 @@ export default function HooksPage() {
     const produced = hooks && !stale ? hooks.items.filter(isHookProduced) : [];
     const r = await run('hook_variants', (opts) =>
       aiService.generateHookVariants(
-        { brief: project.brief, scenes, bibles: docs.bibles, assets: docs.assets, concept, avoidStyles: produced.map((h) => h.hookStyle) },
+        { brief: project.brief, scenes, bibles: docs.bibles, assets: docs.assets, concept, avoidStyles: produced.map((h) => h.hookStyle), learnings: past.learnings },
         opts,
       ),
     );
@@ -148,6 +150,9 @@ export default function HooksPage() {
         <div>
           <h2 className="text-xl font-semibold">Varian Hook</h2>
           <p className="text-sm text-muted-foreground">Scene pembuka alternatif dengan gaya hook berbeda. Badan video tetap sama.</p>
+          {past.learnings.length > 0 && (
+            <p className="text-xs text-muted-foreground">Memakai pelajaran dari {past.entries.length} hasil posting sebelumnya.</p>
+          )}
           <CostHint est={aiService.estimate('hooks', { brief: project.brief, scenes, bibles: docs.bibles, assets: docs.assets, concept })} />
         </div>
         <Button onClick={generate} disabled={!!running} loading={running === 'hook_variants'} variant={items.length ? 'outline' : 'default'}>

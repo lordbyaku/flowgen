@@ -5,6 +5,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { buildAssets } from '@/domain/assets';
 import { buildShootQueue, firstPending, nextPending } from '@/domain/shootQueue';
 import ShootPage from '@/features/tracker/ShootPage';
+import PublishPage from '@/features/publish/PublishPage';
 import { useProjectStore } from '@/stores/projectStore';
 import type { HooksDoc, Project, Scene } from '@/types';
 import { GOOD_PROMPT, makeBibles, makeBrief, makeScene } from './helpers';
@@ -93,5 +94,42 @@ describe('Halaman Mode Produksi', () => {
     fireEvent.click(screen.getByRole('button', { name: /Sudah dibuat di Flow/ }));
     expect(useProjectStore.getState().docs.scenes?.items.find((s) => s.id === 'b')?.tracker).toBe('clip_generated');
     expect(await screen.findByText('Hook A: Tanya')).toBeInTheDocument();
+  });
+});
+
+describe('Halaman Posting: catat performa', () => {
+  it('menyimpan hasil posting ke project dengan snapshot versi dan gaya hook', async () => {
+    const project = {
+      id: 'p2', schemaVersion: 1, name: 'P', brandId: '', status: 'draft', brief: makeBrief({ strategy: { hookStyles: ['question'] } }), completeness: 0,
+      step: 1, stage: 'production', lintDisabled: [], performance: [], createdAt: 1, updatedAt: 1,
+    } as Project;
+    const script = {
+      hook: 'Masih catat di buku?', problem: '', productIntro: '', mainBenefit: '', closing: '', cta: '', voiceOver: '', estimatedDurationSec: 0, wordCount: 0,
+      approved: true, updatedAt: 0,
+    };
+    useProjectStore.setState({
+      project,
+      projectId: 'p2',
+      uid: 'demo-user',
+      docs: { creative: null, script, bibles: makeBibles(), scenes: { items: scenes(), updatedAt: 1 }, capcut: null, assets: null, publish: null, hooks: null },
+    });
+    render(
+      <TooltipProvider>
+        <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <Routes>
+            <Route path="*" element={<PublishPage />} />
+          </Routes>
+        </MemoryRouter>
+      </TooltipProvider>,
+    );
+    fireEvent.click(await screen.findByRole('button', { name: /Catat hasil/ }));
+    fireEvent.change(screen.getByLabelText('Views'), { target: { value: '1500' } });
+    fireEvent.change(screen.getByLabelText('Like'), { target: { value: '90' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Simpan' }));
+    const perf = useProjectStore.getState().project!.performance;
+    expect(perf).toHaveLength(1);
+    expect(perf[0]).toMatchObject({ version: 'main', versionLabel: 'Hook utama (scene 1)', hookStyle: 'question', views: 1500, likes: 90 });
+    expect(perf[0].hookText).toBe('Masih catat di buku?');
+    expect(await screen.findByText('1.500 views')).toBeInTheDocument();
   });
 });

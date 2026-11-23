@@ -62,7 +62,7 @@ describe('Aset Flow: karakter → tempat → produk', () => {
     const t = assetsText(a);
     expect(t.indexOf('=== KARAKTER 1')).toBeLessThan(t.indexOf('=== TEMPAT 1'));
     expect(t.indexOf('=== TEMPAT 1')).toBeLessThan(t.indexOf('=== PRODUK'));
-    const project = { id: 'p', schemaVersion: 1, name: 'P', brandId: '', status: 'draft', brief: flowBrief(), completeness: 0, step: 1, stage: 'prompts', lintDisabled: [], createdAt: 1, updatedAt: 1 } as Project;
+    const project = { id: 'p', schemaVersion: 1, name: 'P', brandId: '', status: 'draft', brief: flowBrief(), completeness: 0, step: 1, stage: 'prompts', lintDisabled: [], performance: [], createdAt: 1, updatedAt: 1 } as Project;
     const bundle = toExportBundle(project, { creative: null, script: null, bibles: makeBibles(), scenes: { items: scenes(), updatedAt: 1 }, capcut: null, assets: a, publish: null, hooks: null });
     const txt = promptsTxt(bundle);
     expect(txt.indexOf('=== KARAKTER 1')).toBeLessThan(txt.indexOf('=== SCENE 1'));
@@ -125,7 +125,7 @@ describe('Linter di mode aset Flow', () => {
 
 describe('Halaman Karakter & Tempat', () => {
   it('menyusun aset otomatis dari Bible dan menampilkan urutan karakter → tempat → produk', async () => {
-    const project = { id: 'p1', schemaVersion: 1, name: 'P', brandId: '', status: 'draft', brief: flowBrief(), completeness: 0, step: 1, stage: 'prompts', lintDisabled: [], createdAt: 1, updatedAt: 1 } as Project;
+    const project = { id: 'p1', schemaVersion: 1, name: 'P', brandId: '', status: 'draft', brief: flowBrief(), completeness: 0, step: 1, stage: 'prompts', lintDisabled: [], performance: [], createdAt: 1, updatedAt: 1 } as Project;
     useProjectStore.setState({
       project,
       projectId: 'p1',
