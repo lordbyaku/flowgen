@@ -7,6 +7,7 @@ import type { ExportBundle, ExportSection } from './bundle';
 import { capcutText } from './capcutGuide';
 import { assetsText } from '@/domain/assets';
 import { publishText } from '@/domain/publish';
+import { hooksText } from '@/domain/hooks';
 
 const esc = (s: string) => s.replace(/\|/g, '\\|').replace(/\n/g, ' ');
 const list = (items: string[]) => (items.length ? items.map((i) => `- ${i}`).join('\n') : '-');
@@ -173,6 +174,9 @@ export function toMarkdown(
       if (s.framePrompts?.end) out.push('**Frame akhir (gambar)**', '```text', s.framePrompts.end, '```');
     });
   }
+
+  if (has('hooks') && bundle.hooks?.items.length)
+    out.push('## Varian Hook (ganti scene 1 per varian di CapCut)', '```text', hooksText(bundle.hooks), '```');
 
   if (has('capcut') && bundle.capcut) out.push('## Panduan CapCut', capcutText(bundle.capcut, bundle.scenes));
 

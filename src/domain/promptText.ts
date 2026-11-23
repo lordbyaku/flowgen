@@ -45,7 +45,7 @@ export function copyText(scene: Scene, variant: Variant = 'standard'): string {
 }
 
 /** Prompt gambar frame (awal/akhir) + baris Avoid tanpa teks di gambar. */
-export function frameCopyText(scene: Scene, which: 'start' | 'end'): string {
+export function frameCopyText(scene: Pick<Scene, 'framePrompts'>, which: 'start' | 'end'): string {
   const p = scene.framePrompts?.[which]?.trim() ?? '';
   return p ? `${p}\n\nAvoid: text, letters, watermark, distorted logo, deformed hands` : '';
 }

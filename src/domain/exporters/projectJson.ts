@@ -7,6 +7,7 @@ import { ScenesDocSchema } from '@/schemas/scene.schema';
 import { CapcutDocSchema } from '@/schemas/capcut.schema';
 import { AssetsDocSchema } from '@/schemas/assets.schema';
 import { PublishDocSchema } from '@/schemas/publish.schema';
+import { HooksDocSchema } from '@/schemas/hooks.schema';
 import { slugify } from '@/lib/utils';
 import { yyyymmdd } from '@/lib/format';
 import type { ExportBundle } from './bundle';
@@ -27,6 +28,7 @@ const ProjectFileSchema = z.object({
     capcut: CapcutDocSchema.nullable(),
     assets: AssetsDocSchema.nullable().default(null),
     publish: PublishDocSchema.nullable().default(null),
+    hooks: HooksDocSchema.nullable().default(null),
   }),
 });
 export type ProjectFile = z.infer<typeof ProjectFileSchema>;
@@ -46,6 +48,7 @@ export function projectToJson(b: ExportBundle): string {
       capcut: b.capcut,
       assets: b.assets,
       publish: b.publish,
+      hooks: b.hooks,
     },
   };
   return JSON.stringify(file, null, 2);

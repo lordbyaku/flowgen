@@ -3,8 +3,12 @@ import { createAiService } from '@/ai/aiService';
 import type { AIRouter } from '@/ai/router/aiRouter';
 import { buildPublishCall, normalizeHashtags, toPublishDoc } from '@/ai/director/publishCall';
 import { captionWithHashtags, publishText } from '@/domain/publish';
+import { buildHookVariantsCall, toHookVariants } from '@/ai/director/hookVariantsCall';
+import { hookCopyText, hooksText, mergeHooks, openingScene } from '@/domain/hooks';
+import { toMarkdown } from '@/domain/exporters/markdown';
+import type { HookVariant } from '@/types';
 import type { ScriptDoc } from '@/types';
-import { makeBrief, makeScene } from './helpers';
+import { makeBibles, makeBrief, makeScene } from './helpers';
 
 function fakeRouter(texts: string[]) {
   const run = vi.fn(async () => ({ text: texts.shift() ?? '', model: 'm', httpStatus: 200, latencyMs: 1, keyId: 'k', keyLabel: 'K' }));
@@ -91,5 +95,81 @@ describe('Paket posting (v1.4)', () => {
     expect(t).toContain('Judul: Judul');
     expect(t).toContain('Komentar pin:');
     expect(t).toContain('=== Tips posting ===');
+  });
+});
+
+const hookOut = (style: string, extra: Record<string, unknown> = {}) => ({
+  hookStyle: style,
+  title: 'Judul',
+  visualDescription: 'Visual',
+  characterAction: 'Aksi',
+  voiceOver: ' Kamu rugi tiap hari? ',
+  textOverlay: ' Rugi tiap hari? ',
+  flowPrompt: ' Prompt hook. Aspect ratio 9:16. ',
+  negativePrompt: 'blurry',
+  rationale: 'Alasan',
+  ...extra,
+});
+
+describe('Varian hook (v1.4)', () => {
+  const scenes = [makeScene({ id: 's1', order: 0, durationSec: 4 }), makeScene({ id: 's2', order: 1, title: 'Masalah', voiceOver: 'Sering salah hitung' })];
+
+  it('prompt: 3 gaya berbeda, durasi scene 1, menyambung ke scene 2, batas kata VO, gaya yang sudah diproduksi dihindari', () => {
+    const brief = makeBrief({ strategy: { hookStyles: ['question', 'number'] } });
+    const c = buildHookVariantsCall(brief, { scenes, bibles: makeBibles(), avoidStyles: ['number'] });
+    expect(c.task).toBe('hook_variants');
+    expect(c.userPrompt).toContain('EXACTLY 3 items');
+    expect(c.userPrompt).toContain('Prefer: question, number.');
+    expect(c.userPrompt).toContain('same duration (4s)');
+    expect(c.userPrompt).toContain('<next_scene');
+    expect(c.userPrompt).toMatch(/max \d+ words/);
+    expect(c.userPrompt).toContain('already produced): number.');
+  });
+
+  it('toHookVariants: id unik, negatif dasar, VO/overlay dikosongkan bila audio mati, frame hanya untuk mode gambar', () => {
+    const brief = makeBrief({ audio: { voiceOver: false, textOverlay: true }, output: { flowMode: 'image_to_video' } });
+    const hs = toHookVariants({ hooks: [hookOut('question', { startFrame: 'Still frame' }), hookOut('number')] } as never, brief, 7);
+    expect(hs).toHaveLength(2);
+    expect(new Set(hs.map((h) => h.id)).size).toBe(2);
+    expect(hs[0].voiceOver).toBe('');
+    expect(hs[0].textOverlay).toBe('Rugi tiap hari?');
+    expect(hs[0].flowPrompt).toBe('Prompt hook. Aspect ratio 9:16.');
+    expect(hs[0].negativePrompt).toContain('on-screen text');
+    expect(hs[0].framePrompts).toEqual({ start: 'Still frame' });
+    expect(hs[0].tracker).toBe('prompt_ready');
+    const t2v = toHookVariants({ hooks: [hookOut('question', { startFrame: 'x' })] } as never, makeBrief({ output: { flowMode: 'text_to_video' } }), 1);
+    expect(t2v[0].framePrompts).toBeUndefined();
+  });
+
+  it('mergeHooks: yang sudah diproduksi dipertahankan; dasar berbeda = ganti semua; maks 6', () => {
+    const brief = makeBrief();
+    const [a, b] = toHookVariants({ hooks: [hookOut('question'), hookOut('number')] } as never, brief, 1);
+    const prev = { baseSceneId: 's1', items: [{ ...a, tracker: 'clip_generated' as const }, b], updatedAt: 1 };
+    const fresh = toHookVariants({ hooks: [hookOut('bold_statement'), hookOut('pattern_interrupt'), hookOut('shocking_visual')] } as never, brief, 2);
+    const m = mergeHooks(prev, fresh, 's1', 3);
+    expect(m.items.map((h) => h.hookStyle)).toEqual(['question', 'bold_statement', 'pattern_interrupt', 'shocking_visual']);
+    expect(mergeHooks(prev, fresh, 'sX', 3).items).toHaveLength(3);
+    const many: HookVariant[] = Array.from({ length: 5 }, () => ({ ...a, tracker: 'final' as const }));
+    expect(mergeHooks({ baseSceneId: 's1', items: many, updatedAt: 0 }, fresh, 's1', 4).items).toHaveLength(6);
+  });
+
+  it('aiService menolak tanpa Bible/scene; ekspor Markdown memuat varian', async () => {
+    const { router, run } = fakeRouter([JSON.stringify({ hooks: [hookOut('question')] })]);
+    const svc = createAiService({ provider: {} as never, keys: {} as never, router });
+    const brief = makeBrief();
+    expect((await svc.generateHookVariants({ brief, scenes, bibles: null })).ok).toBe(false);
+    expect(run).not.toHaveBeenCalled();
+    const r = await svc.generateHookVariants({ brief, scenes, bibles: makeBibles() });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(openingScene(scenes)?.id).toBe('s1');
+    expect(hookCopyText(r.value[0])).toMatch(/^Prompt hook\. Aspect ratio 9:16\.\n\nAvoid: on-screen text/);
+    const doc = mergeHooks(null, r.value, 's1', 1);
+    expect(hooksText(doc)).toContain('=== HOOK A');
+    const md = toMarkdown(
+      { name: 'P', createdAt: 0, updatedAt: 0, brief, creative: null, script: null, bibles: null, scenes, capcut: null, assets: null, publish: null, hooks: doc },
+      ['hooks'],
+    );
+    expect(md).toContain('## Varian Hook');
   });
 });

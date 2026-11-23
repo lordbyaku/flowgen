@@ -17,6 +17,7 @@ import { buildScriptStoryboardCall, mapScriptStoryboard } from '@/ai/director/sc
 import { applyPromptItems, buildScenePromptBatches } from '@/ai/director/scenePromptCall';
 import { applySceneRegen, buildSceneRegenCall } from '@/ai/director/sceneRegenCall';
 import { buildPublishCall, toPublishDoc } from '@/ai/director/publishCall';
+import { buildHookVariantsCall, toHookVariants } from '@/ai/director/hookVariantsCall';
 import { MSG, messageFor } from '@/ai/messages';
 import { computeCompleteness } from '@/domain/completeness';
 import { buildTimelineFromScenes } from '@/domain/exporters/capcutGuide';
@@ -29,6 +30,7 @@ import type {
   Brief,
   BriefAssistQuestion,
   CapcutGuide,
+  HookVariant,
   Concept,
   ConceptRound,
   KeyStatus,
@@ -177,6 +179,20 @@ export function createAiService(deps: {
       });
     },
 
+    /** Varian hook: scene pembuka alternatif (default 3) untuk uji A/B. */
+    generateHookVariants(
+      input: { brief: Brief; scenes: Scene[]; bibles: BiblesDoc | null; assets?: AssetsDoc | null; concept?: Concept | null; avoidStyles?: string[] },
+      opts: CallOptions = {},
+    ): Promise<Result<HookVariant[]>> {
+      const bibles = input.bibles;
+      if (!bibles || input.scenes.length === 0)
+        return Promise.resolve({ ok: false, error: { code: 'validation', message: 'Buat naskah & storyboard dulu sebelum membuat varian hook.' } });
+      return safe(async () => {
+        const { data } = await structuredCall(router, { ...buildHookVariantsCall(input.brief, { ...input, bibles }), ...opts });
+        return toHookVariants(data, input.brief, now());
+      });
+    },
+
     /** Paket posting (caption, hashtag, judul, cover, komentar pin) per platform brief. */
     generatePublishPack(
       input: { brief: Brief; brand?: Brand | null; concept?: Concept | null; script: ScriptDoc | null; scenes: Scene[] },
@@ -262,7 +278,7 @@ export function createAiService(deps: {
 
     /** Perkiraan biaya sebelum generate (lokal, tanpa panggilan). Perbaikan JSON dapat menambah 1 panggilan. */
     estimate(
-      kind: 'concepts' | 'script' | 'prompts' | 'publish',
+      kind: 'concepts' | 'script' | 'prompts' | 'publish' | 'hooks',
       input: {
         brief: Brief;
         concept?: Concept | null;
@@ -273,6 +289,11 @@ export function createAiService(deps: {
       },
     ): CallEstimate {
       const { brief } = input;
+      if (kind === 'hooks') {
+        if (!input.bibles || !input.scenes?.length) return { calls: 0, inputTokens: 0, maxOutputTokens: 0, images: 0 };
+        const c = buildHookVariantsCall(brief, { scenes: input.scenes, bibles: input.bibles, assets: input.assets, concept: input.concept });
+        return { calls: 1, inputTokens: estTokens(c) + 200, maxOutputTokens: c.maxOutputTokens, images: 0 };
+      }
       if (kind === 'publish') {
         if (!input.script) return { calls: 0, inputTokens: 0, maxOutputTokens: 0, images: 0 };
         const c = buildPublishCall(brief, { concept: input.concept, script: input.script, scenes: input.scenes ?? [] });

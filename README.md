@@ -20,9 +20,10 @@ Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.3). Keputusan implementasi: [`docs/D
 3. Buat naskah, storyboard, Character Bible, Visual Bible (Panggilan AI 2), lalu review.
 4. **Karakter & Tempat**: salin prompt aset ke Google Flow dan buat karakter, tempat, dan produk di sana lebih dulu (beri nama yang sama dengan "Nama di Flow").
 5. Buat prompt scene + panduan CapCut (Panggilan AI 3, batch 6 scene). Prompt menyebut nama aset Flow; salin scene satu per satu ke Flow.
-6. Tandai status scene di Production Tracker.
-7. Susun klip di CapCut mengikuti panduan; ekspor paket ke Markdown/TXT/Clipboard.
-8. **Posting**: buat paket caption/hashtag/cover per platform lalu salin saat mengunggah.
+6. Opsional: buat **Varian Hook** (3 scene pembuka alternatif) dan render juga di Flow.
+7. Tandai status scene di Production Tracker.
+8. Susun klip di CapCut mengikuti panduan; ekspor paket ke Markdown/TXT/Clipboard.
+9. **Posting**: buat paket caption/hashtag/cover per platform lalu salin saat mengunggah.
 
 ## Tech stack
 
@@ -100,6 +101,7 @@ Mode akun menyimpan key sebagai teks biasa yang dilindungi Security Rules: siapa
 
 **Peningkatan v1.4**
 - Tahap Posting: caption, hashtag, judul, teks cover, dan komentar pin per platform (panggilan AI `publish_pack`), siap salin.
+- Varian Hook: 3 scene pembuka alternatif (gaya hook berbeda) untuk uji A/B tanpa merender ulang badan video (panggilan AI `hook_variants`).
 
 **Peningkatan v1.3**
 - Halaman Karakter & Tempat: prompt gambar referensi karakter (seluruh badan + close-up), tempat (tanpa orang), dan produk; nama aset di Flow; status "sudah dibuat".

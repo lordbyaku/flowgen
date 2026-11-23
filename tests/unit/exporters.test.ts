@@ -59,7 +59,7 @@ function docs(): ProjectDocs {
       checklist: {},
     },
     assets: null,
-    publish: null,
+    publish: null, hooks: null,
   };
 }
 
