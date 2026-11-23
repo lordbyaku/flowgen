@@ -48,6 +48,7 @@ export const router = createBrowserRouter(
                 { path: 'assets', element: lazyPage(() => import('@/features/assets/AssetsPage')) },
                 { path: 'prompts', element: lazyPage(() => import('@/features/prompts/PromptsPage')) },
                 { path: 'hooks', element: lazyPage(() => import('@/features/hooks/HooksPage')) },
+                { path: 'shoot', element: lazyPage(() => import('@/features/tracker/ShootPage')) },
                 { path: 'production', element: lazyPage(() => import('@/features/tracker/TrackerPage')) },
                 { path: 'capcut', element: lazyPage(() => import('@/features/capcut/CapcutPage')) },
                 { path: 'publish', element: lazyPage(() => import('@/features/publish/PublishPage')) },

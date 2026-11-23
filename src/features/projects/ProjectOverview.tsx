@@ -28,7 +28,7 @@ export default function ProjectOverview() {
         ? { to: 'script', label: 'Review naskah' }
         : !scenes.some((s) => s.flowPrompts.standard)
           ? { to: 'prompts', label: 'Buat prompt Flow' }
-          : { to: 'production', label: 'Lanjutkan produksi' }
+          : { to: 'shoot', label: 'Lanjutkan produksi' }
     : { to: 'brief', label: 'Lengkapi brief' };
 
   return (

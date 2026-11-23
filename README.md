@@ -21,7 +21,7 @@ Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.3). Keputusan implementasi: [`docs/D
 4. **Karakter & Tempat**: salin prompt aset ke Google Flow dan buat karakter, tempat, dan produk di sana lebih dulu (beri nama yang sama dengan "Nama di Flow").
 5. Buat prompt scene + panduan CapCut (Panggilan AI 3, batch 6 scene). Prompt menyebut nama aset Flow; salin scene satu per satu ke Flow.
 6. Opsional: buat **Varian Hook** (3 scene pembuka alternatif) dan render juga di Flow.
-7. Tandai status scene di Production Tracker.
+7. Tandai status scene di Production Tracker, atau pakai **Mode Produksi** di HP (satu scene per layar).
 8. Susun klip di CapCut mengikuti panduan; ekspor paket ke Markdown/TXT/Clipboard.
 9. **Posting**: buat paket caption/hashtag/cover per platform lalu salin saat mengunggah.
 
@@ -103,6 +103,7 @@ Mode akun menyimpan key sebagai teks biasa yang dilindungi Security Rules: siapa
 - Tahap Posting: caption, hashtag, judul, teks cover, dan komentar pin per platform (panggilan AI `publish_pack`), siap salin.
 - Varian Hook: 3 scene pembuka alternatif (gaya hook berbeda) untuk uji A/B tanpa merender ulang badan video (panggilan AI `hook_variants`).
 - Perbaiki prompt dari hasil Flow: pilih masalah klip (wajah berubah, produk salah, teks muncul, gerak aneh, dll.) lalu AI menulis ulang prompt scene itu saja (panggilan AI `prompt_fix`).
+- Mode Produksi untuk HP: satu item per layar (aset → scene → varian hook), salin besar, tandai sudah dibuat, lanjut otomatis.
 
 **Peningkatan v1.3**
 - Halaman Karakter & Tempat: prompt gambar referensi karakter (seluruh badan + close-up), tempat (tanpa orang), dan produk; nama aset di Flow; status "sudah dibuat".

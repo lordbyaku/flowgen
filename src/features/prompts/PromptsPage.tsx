@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { AlertCircle, AlertTriangle, BookMarked, CheckCircle2, History, ImageIcon, Info, Pencil, RefreshCw, Sparkles, Wand2, Wrench } from 'lucide-react';
+import { AlertCircle, AlertTriangle, BookMarked, CheckCircle2, History, ImageIcon, Info, Pencil, RefreshCw, Smartphone, Sparkles, Wand2, Wrench } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -333,6 +333,13 @@ export default function PromptsPage() {
           <CostHint est={aiService.estimate('prompts', { brief: project.brief, scenes, bibles, assets })} />
         </div>
         <div className="flex flex-wrap gap-2">
+          {hasPrompts && (
+            <Button asChild variant="outline">
+              <Link to={`/projects/${project.id}/shoot`}>
+                <Smartphone /> Mode Produksi
+              </Link>
+            </Button>
+          )}
           {hasPrompts && <CopyButton label="Salin Semua" getText={() => copyAllText(scenes)} />}
           <Button onClick={generate} disabled={!!running} loading={running === 'scene_prompts'} variant={hasPrompts ? 'outline' : 'default'}>
             {hasPrompts ? <RefreshCw /> : <Sparkles />} {hasPrompts ? 'Buat ulang (scene belum approve)' : 'Buat prompt'}

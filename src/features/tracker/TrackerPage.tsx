@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { KanbanSquare, Wrench } from 'lucide-react';
+import { KanbanSquare, Smartphone, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select, Textarea } from '@/components/ui/input';
@@ -48,9 +48,16 @@ export default function TrackerPage() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-xl font-semibold">Production Tracker</h2>
-        <p className="text-sm text-muted-foreground">Prompt siap → Disalin → Klip dibuat di Flow → Diunduh → Masuk CapCut → Final.</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">Production Tracker</h2>
+          <p className="text-sm text-muted-foreground">Prompt siap → Disalin → Klip dibuat di Flow → Diunduh → Masuk CapCut → Final.</p>
+        </div>
+        <Button asChild>
+          <Link to={`/projects/${project.id}/shoot`}>
+            <Smartphone /> Mode Produksi
+          </Link>
+        </Button>
       </div>
       <Card className="p-4">
         <div className="mb-2 flex justify-between text-sm">
