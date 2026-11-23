@@ -56,6 +56,29 @@ async function mockGemini(page: Page) {
           assumptions: [],
         }),
       });
+    if (prompt.includes('TASK (Hook variants'))
+      return route.fulfill({
+        json: geminiJson({
+          hooks: (['question', 'number', 'pattern_interrupt'] as const).map((hookStyle, i) => ({
+            hookStyle,
+            title: `Hook alternatif ${i + 1}`,
+            visualDescription: 'Bu Sari menatap kamera',
+            characterAction: 'menatap kamera',
+            voiceOver: 'Masih catat jualan di buku?',
+            textOverlay: `Hook ${i + 1}?`,
+            flowPrompt: `Bu Sari looks straight into the camera at the warung counter. Aspect ratio 9:16. hook${i}`,
+            negativePrompt: 'blur',
+            rationale: 'Menghentikan scroll',
+          })),
+        }),
+      });
+    if (prompt.includes('TASK (Posting package'))
+      return route.fulfill({
+        json: geminiJson({
+          platforms: [{ platform: 'tiktok', title: '', captions: [{ style: 'Hook', text: 'Kasir rapi dari HP!' }], hashtags: ['umkm', '#kasir'], coverTexts: ['Kasir rapi'], pinnedComment: 'Komen MAU' }],
+          postingTips: ['Posting jam 19.00'],
+        }),
+      });
     const ids = [...prompt.matchAll(/sceneId: (\S+)/g)].map((m) => m[1]);
     return route.fulfill({
       json: geminiJson({
@@ -126,7 +149,40 @@ test('alur brief → konsep → naskah → prompt → export', async ({ page }) 
   await page.getByRole('button', { name: 'Buat prompt', exact: true }).click();
   await expect(page.getByText(/Prompt Flow dan panduan CapCut dibuat/)).toBeVisible();
 
+  // v1.4: varian hook
+  const hub = page.getByRole('navigation', { name: 'Tahapan project' });
+  await hub.getByRole('link', { name: /Varian Hook/ }).click();
+  await page.getByRole('button', { name: 'Buat 3 varian hook' }).click();
+  await expect(page.getByText(/3 varian hook dibuat/)).toBeVisible();
+  await expect(page.getByText('Hook alternatif 3')).toBeVisible();
+
+  // v1.4: Mode Produksi di layar HP
+  await page.setViewportSize({ width: 390, height: 844 });
+  await hub.getByRole('link', { name: /Produksi/ }).click();
+  await page.getByRole('link', { name: /Mode Produksi/ }).click();
+  await expect(page.getByRole('heading', { name: 'Mode Produksi' })).toBeVisible();
+  if (process.env.E2E_SHOTS) await page.screenshot({ path: `${process.env.E2E_SHOTS}/shoot-1.png`, fullPage: true });
+  await page.getByRole('button', { name: /Salin prompt video|Salin seluruh badan/ }).first().click();
+  await page.getByRole('button', { name: /Sudah dibuat di Flow/ }).click();
+  await expect(page.getByText(/1 selesai/)).toBeVisible();
+  if (process.env.E2E_SHOTS) await page.screenshot({ path: `${process.env.E2E_SHOTS}/shoot-2.png`, fullPage: true });
+  await page.setViewportSize({ width: 1280, height: 800 });
+
+  // v1.4: posting + performa
+  await hub.getByRole('link', { name: /Posting/ }).click();
+  await page.getByRole('button', { name: 'Buat paket posting' }).click();
+  await expect(page.getByText('Kasir rapi dari HP!')).toBeVisible();
+  await expect(page.getByText('#umkm #kasir')).toBeVisible();
+  await page.getByRole('button', { name: /Catat hasil/ }).click();
+  await page.getByLabel('Views').fill('1200');
+  await page.getByLabel('Like').fill('80');
+  await page.getByRole('button', { name: 'Simpan' }).click();
+  await expect(page.getByText('1.200 views')).toBeVisible();
+  if (process.env.E2E_SHOTS) await page.screenshot({ path: `${process.env.E2E_SHOTS}/publish.png`, fullPage: true });
+
   await page.getByRole('link', { name: /Export/ }).click();
   await expect(page.getByText('## Prompt Google Flow')).toBeVisible();
+  await expect(page.getByText('## Varian Hook (ganti scene 1 per varian di CapCut)')).toBeVisible();
+  await expect(page.getByText('## Paket Posting')).toBeVisible();
   expect(await page.content()).not.toContain(FAKE_KEY);
 });

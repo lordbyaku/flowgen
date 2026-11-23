@@ -15,6 +15,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [S
 ### Diubah
 - Tombol "Lanjutkan produksi" di Ringkasan project kini membuka Mode Produksi.
 - Duplikat project tidak ikut menyalin catatan performa.
+- Tes E2E smoke kini juga mencakup varian hook, Mode Produksi di ukuran HP, paket posting, catatan performa, dan bagian ekspor baru. Tanggal posting tampil tanpa jam.
 
 ## [1.3.1] - 2026-11-23
 

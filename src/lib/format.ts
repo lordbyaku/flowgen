@@ -6,6 +6,11 @@ export function formatDateTime(ms?: number): string {
   return format(ms, 'd MMM yyyy HH:mm', { locale: idLocale });
 }
 
+export function formatDate(ms?: number): string {
+  if (!ms) return '-';
+  return format(ms, 'd MMM yyyy', { locale: idLocale });
+}
+
 export function formatTime(ms?: number): string {
   if (!ms) return '-';
   return format(ms, 'HH:mm:ss', { locale: idLocale });

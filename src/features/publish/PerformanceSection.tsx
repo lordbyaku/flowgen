@@ -10,7 +10,7 @@ import { HOOK_STYLES, LABELS, PLATFORMS } from '@/config/enums';
 import { MAX_PERFORMANCE_ENTRIES } from '@/config/constants';
 import { hookLetter, openingScene } from '@/domain/hooks';
 import { engagementRate, formatPct, summarize } from '@/domain/performance';
-import { formatDateTime, formatNumber } from '@/lib/format';
+import { formatDate, formatNumber } from '@/lib/format';
 import { newShortId } from '@/lib/ids';
 import { useProjectStore } from '@/stores/projectStore';
 import type { HookStyle, PerformanceEntry, Platform } from '@/types';
@@ -276,7 +276,7 @@ export function PerformanceSection() {
                       {LABELS.platform[e.platform]} · {e.versionLabel}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {formatDateTime(e.postedAt)}
+                      {formatDate(e.postedAt)}
                       {e.hookStyle ? ` · ${LABELS.hookStyle[e.hookStyle]}` : ''}
                       {e.note ? ` · ${e.note}` : ''}
                     </p>
