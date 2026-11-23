@@ -102,6 +102,7 @@ Mode akun menyimpan key sebagai teks biasa yang dilindungi Security Rules: siapa
 **Peningkatan v1.4**
 - Tahap Posting: caption, hashtag, judul, teks cover, dan komentar pin per platform (panggilan AI `publish_pack`), siap salin.
 - Varian Hook: 3 scene pembuka alternatif (gaya hook berbeda) untuk uji A/B tanpa merender ulang badan video (panggilan AI `hook_variants`).
+- Perbaiki prompt dari hasil Flow: pilih masalah klip (wajah berubah, produk salah, teks muncul, gerak aneh, dll.) lalu AI menulis ulang prompt scene itu saja (panggilan AI `prompt_fix`).
 
 **Peningkatan v1.3**
 - Halaman Karakter & Tempat: prompt gambar referensi karakter (seluruh badan + close-up), tempat (tanpa orang), dan produk; nama aset di Flow; status "sudah dibuat".

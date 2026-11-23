@@ -6,9 +6,10 @@ import { captionWithHashtags, publishText } from '@/domain/publish';
 import { buildHookVariantsCall, toHookVariants } from '@/ai/director/hookVariantsCall';
 import { hookCopyText, hooksText, mergeHooks, openingScene } from '@/domain/hooks';
 import { toMarkdown } from '@/domain/exporters/markdown';
-import type { HookVariant } from '@/types';
-import type { ScriptDoc } from '@/types';
-import { makeBibles, makeBrief, makeScene } from './helpers';
+import { applyPromptFix, buildPromptFixCall } from '@/ai/director/promptFixCall';
+import { restoreVersion } from '@/domain/sceneVersions';
+import type { AssetsDoc, HookVariant, ScriptDoc } from '@/types';
+import { GOOD_PROMPT, makeBibles, makeBrief, makeScene } from './helpers';
 
 function fakeRouter(texts: string[]) {
   const run = vi.fn(async () => ({ text: texts.shift() ?? '', model: 'm', httpStatus: 200, latencyMs: 1, keyId: 'k', keyLabel: 'K' }));
@@ -171,5 +172,90 @@ describe('Varian hook (v1.4)', () => {
       ['hooks'],
     );
     expect(md).toContain('## Varian Hook');
+  });
+});
+
+describe('Perbaiki prompt dari hasil Flow (v1.4)', () => {
+  const scene = makeScene({
+    id: 's1',
+    flowPrompts: { standard: GOOD_PROMPT, cinematic: 'Cinematic lama' },
+    negativePrompt: 'blurry',
+    tracker: 'clip_generated',
+    approved: true,
+    voiceOver: 'VO tetap',
+  });
+  const fixOut = { prompt: ' Prompt baru ', negativePrompt: 'different face', changes: ['Nama aset di awal', 'a', 'b', 'c', 'd'] };
+
+  it('prompt memuat prompt lama, masalah + arahan, dan catatan; mode aset Flow memakai arahan nama aset', () => {
+    const brief = makeBrief();
+    const c = buildPromptFixCall(brief, {
+      scenes: [scene],
+      sceneId: 's1',
+      bibles: makeBibles(),
+      variant: 'standard',
+      issues: ['face_changed', 'text_artifacts'],
+      note: 'rambut berubah',
+    });
+    expect(c.task).toBe('prompt_fix');
+    expect(c.userPrompt).toContain(GOOD_PROMPT);
+    expect(c.userPrompt).toContain('- face_changed: The character identity drifted. Put the FULL character master description');
+    expect(c.userPrompt).toContain('- text_artifacts:');
+    expect(c.userPrompt).toContain('rambut berubah');
+    expect(c.userPrompt).toContain('Do not change the storyboard');
+    const assets: AssetsDoc = {
+      characters: [{ id: 'char_1', name: 'Bu Sari', flowName: 'Bu Sari', fullBodyPrompt: '', closeUpPrompt: '', done: true, edited: false }],
+      locations: [],
+      product: null,
+      updatedAt: 0,
+    };
+    const fa = buildPromptFixCall(makeBrief({ output: { characterRef: 'flow_assets' } }), {
+      scenes: [scene],
+      sceneId: 's1',
+      bibles: makeBibles(),
+      assets,
+      variant: 'standard',
+      issues: ['face_changed'],
+    });
+    expect(fa.userPrompt).toContain('exact Flow character name');
+  });
+
+  it('applyPromptFix: hanya varian terpilih, storyboard tetap, status kembali siap, versi "fixed", bisa dipulihkan', () => {
+    const brief = makeBrief({ output: { variants: ['standard', 'cinematic'] } });
+    const fixed = applyPromptFix(scene, fixOut, brief, { variant: 'cinematic', issues: ['face_changed'], note: ' x ' }, 50);
+    expect(fixed.flowPrompts).toEqual({ standard: GOOD_PROMPT, cinematic: 'Prompt baru' });
+    expect(fixed.voiceOver).toBe('VO tetap');
+    expect(fixed.durationSec).toBe(scene.durationSec);
+    expect(fixed.tracker).toBe('prompt_ready');
+    expect(fixed.approved).toBe(false);
+    expect(fixed.negativePrompt).toContain('different face');
+    expect(fixed.negativePrompt).toContain('on-screen text');
+    expect(fixed.lastFix).toEqual({ at: 50, variant: 'cinematic', issues: ['face_changed'], note: 'x', changes: ['Nama aset di awal', 'a', 'b', 'c'] });
+    expect(fixed.versions[0].reason).toBe('fixed');
+  });
+
+  it('frame lama dipertahankan bila AI tidak mengirim frame (mode gambar)', () => {
+    const brief = makeBrief({ output: { flowMode: 'frames' } });
+    const s = { ...scene, framePrompts: { start: 'S lama', end: 'E lama' } };
+    expect(applyPromptFix(s, { ...fixOut, startFrame: 'S baru' }, brief, { variant: 'standard', issues: [] }, 1).framePrompts).toEqual({
+      start: 'S baru',
+      end: 'E lama',
+    });
+    const restored = restoreVersion(applyPromptFix(s, fixOut, brief, { variant: 'standard', issues: [] }, 1), { ...s.versions[0], id: 'v', prompt: GOOD_PROMPT, createdAt: 0, reason: 'generated' }, 2);
+    expect(restored.flowPrompts.standard).toBe(GOOD_PROMPT);
+  });
+
+  it('aiService: tanpa masalah/catatan ditolak tanpa panggilan; sukses hanya mengembalikan scene itu', async () => {
+    const { router, run } = fakeRouter([JSON.stringify(fixOut)]);
+    const svc = createAiService({ provider: {} as never, keys: {} as never, router, now: () => 3 });
+    const brief = makeBrief();
+    const base = { scenes: [scene, makeScene({ id: 's2', order: 1 })], sceneId: 's1', bibles: makeBibles(), variant: 'standard' as const };
+    expect((await svc.fixScenePrompt(brief, { ...base, issues: [] })).ok).toBe(false);
+    expect(run).not.toHaveBeenCalled();
+    const r = await svc.fixScenePrompt(brief, { ...base, issues: ['weird_motion'] });
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.value.id).toBe('s1');
+      expect(r.value.flowPrompts.standard).toBe('Prompt baru');
+    }
   });
 });

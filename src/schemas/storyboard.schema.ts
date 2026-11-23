@@ -42,6 +42,15 @@ export const SceneRegenOutputSchema = z.object({
   negativePrompt: z.string(),
 });
 
+/** Keluaran perbaikan prompt dari hasil Flow (v1.4). */
+export const PromptFixOutputSchema = z.object({
+  prompt: z.string(),
+  startFrame: z.string().optional(),
+  endFrame: z.string().optional(),
+  negativePrompt: z.string(),
+  changes: z.array(z.string()).max(6),
+});
+
 /** Keluaran AI Brief Assistant. */
 export const BriefAssistOutputSchema = z.object({
   questions: z

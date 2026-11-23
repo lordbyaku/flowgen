@@ -7,6 +7,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [S
 ### Ditambahkan
 - **Tahap "Posting"** (`/projects/:id/publish`): paket posting per platform brief (judul, 2–3 caption, maks 15 hashtag, 3 teks cover, komentar pin, dan tips posting) dari satu panggilan AI baru `publish_pack`. Ada tombol salin caption+hashtag, salin semua, dan bagian baru "Paket posting" di ekspor Markdown/JSON.
 - **Tahap "Varian Hook"** (`/projects/:id/hooks`): 3 scene pembuka alternatif dengan gaya hook berbeda (panggilan AI baru `hook_variants`), lengkap dengan VO, teks overlay, prompt Flow, frame (mode gambar), alasan, dan status produksi. Durasi sama dengan scene 1 dan menyambung ke scene 2. "Buat ulang" mempertahankan varian yang sudah diproduksi. Ikut ke ekspor Markdown/JSON.
+- **Perbaiki prompt dari hasil Flow**: tombol "Hasil Flow gagal?" di kartu Prompt dan Production Tracker. Pilih masalahnya (wajah/pakaian berubah, produk salah, teks/logo rusak, orang tambahan, gerak aneh, kamera, tempat, lainnya) dan tulis catatan, lalu panggilan AI baru `prompt_fix` menulis ulang prompt varian itu saja (+ frame dan negatif) tanpa mengubah naskah atau durasi. Versi lama masuk riwayat ("Perbaikan hasil Flow"), dan ringkasan perubahan tampil di kartu.
 
 ## [1.3.1] - 2026-11-23
 

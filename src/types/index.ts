@@ -11,9 +11,10 @@ import type {
 } from '@/schemas/concept.schema';
 import type { ScriptDocSchema } from '@/schemas/script.schema';
 import type { BiblesDocSchema, CharacterBibleSchema, VisualBibleSchema } from '@/schemas/bible.schema';
-import type { SceneDraftSchema, SceneSchema, SceneVersionSchema, ScenesDocSchema } from '@/schemas/scene.schema';
+import type { SceneDraftSchema, SceneFixSchema, SceneSchema, SceneVersionSchema, ScenesDocSchema } from '@/schemas/scene.schema';
 import type {
   BriefAssistOutputSchema,
+  PromptFixOutputSchema,
   ScenePromptItemSchema,
   SceneRegenOutputSchema,
   ScriptStoryboardOutputSchema,
@@ -61,6 +62,9 @@ export type BiblesDoc = z.infer<typeof BiblesDocSchema>;
 export type Scene = z.infer<typeof SceneSchema>;
 export type SceneDraft = z.infer<typeof SceneDraftSchema>;
 export type SceneVersion = z.infer<typeof SceneVersionSchema>;
+export type SceneFix = z.infer<typeof SceneFixSchema>;
+export type PromptFixOutput = z.infer<typeof PromptFixOutputSchema>;
+export type FlowIssue = (typeof C.FLOW_ISSUES)[number];
 export type ScenesDoc = z.infer<typeof ScenesDocSchema>;
 export type ScriptStoryboardOutput = z.infer<typeof ScriptStoryboardOutputSchema>;
 export type ScenePromptItem = z.infer<typeof ScenePromptItemSchema>;

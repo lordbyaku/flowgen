@@ -28,7 +28,7 @@ export const COMPLETENESS_WARN_BELOW = 70; // persen
 export const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
 export const DEFAULT_MODEL_HINT = 'gemini-2.5-flash'; // [VERIFIKASI] hanya fallback; utamakan models.list
 // Dinaikkan dari 19.7 (v1.1): model 2.5 menghitung token berpikir ke dalam batas ini. [VERIFIKASI]
-export const MAX_OUTPUT_TOKENS = { concepts: 8192, script: 16384, prompts: 16384, regen: 4096, assist: 2048, schemaTest: 1024, publish: 6144, hooks: 8192 };
+export const MAX_OUTPUT_TOKENS = { concepts: 8192, script: 16384, prompts: 16384, regen: 4096, assist: 2048, schemaTest: 1024, publish: 6144, hooks: 8192, fix: 4096 };
 /** Budget berpikir minimal untuk tugas JSON. 2.5 Pro tidak bisa 0 (min 128). [VERIFIKASI] */
 export const THINKING_BUDGET = { flash: 0, pro: 128, gemini3Level: 'low' } as const;
 /** Gambar referensi lokal yang dikirim ke AI (multimodal). */
@@ -36,7 +36,7 @@ export const MAX_AI_IMAGES = 6;
 export const AI_IMAGE_MAX_DIM = 1024;
 /** Perkiraan token per gambar untuk estimasi biaya. [VERIFIKASI] */
 export const TOKENS_PER_IMAGE = 258;
-export const TEMPERATURE = { concepts: 0.9, script: 0.7, prompts: 0.5, regen: 0.6, assist: 0.3, publish: 0.8, hooks: 0.9 };
+export const TEMPERATURE = { concepts: 0.9, script: 0.7, prompts: 0.5, regen: 0.6, assist: 0.3, publish: 0.8, hooks: 0.9, fix: 0.4 };
 export const HOOK_VARIANT_COUNT = 3;
 export const MAX_HASHTAGS = 15;
 export const KEY_TEST_MAX_OUTPUT_TOKENS = 8;

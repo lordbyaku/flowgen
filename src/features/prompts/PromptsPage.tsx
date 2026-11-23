@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { AlertCircle, AlertTriangle, BookMarked, CheckCircle2, History, ImageIcon, Info, Pencil, RefreshCw, Sparkles, Wand2 } from 'lucide-react';
+import { AlertCircle, AlertTriangle, BookMarked, CheckCircle2, History, ImageIcon, Info, Pencil, RefreshCw, Sparkles, Wand2, Wrench } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +27,7 @@ import { DurationBar } from '@/features/storyboard/StoryboardPage';
 import type { Scene, Variant } from '@/types';
 import { VersionCompare, versionLabel } from './VersionCompare';
 import { SnippetPicker } from './SnippetPicker';
+import { FixPromptDialog, LastFixNote } from './FixPromptDialog';
 
 const SEV = {
   error: { icon: AlertCircle, variant: 'destructive' as const, label: 'error' },
@@ -95,6 +96,7 @@ function PromptCard({ scene, index, variants, onRegen }: { scene: Scene; index: 
   const [draft, setDraft] = React.useState('');
   const [compare, setCompare] = React.useState(false);
   const [snip, setSnip] = React.useState(false);
+  const [fixing, setFixing] = React.useState(false);
 
   const assets = useProjectStore((s) => s.docs.assets);
   const lintCtx = { brief: project.brief, bibles, scenes: allScenes, variant, assets };
@@ -213,11 +215,17 @@ function PromptCard({ scene, index, variants, onRegen }: { scene: Scene; index: 
             <Button size="sm" variant="outline" onClick={onRegen}>
               <RefreshCw /> Regenerate
             </Button>
+            {scene.flowPrompts.standard && (
+              <Button size="sm" variant="outline" onClick={() => setFixing(true)}>
+                <Wrench /> Hasil Flow gagal?
+              </Button>
+            )}
             <Button size="sm" variant={scene.approved ? 'secondary' : 'default'} onClick={() => save({ ...scene, approved: !scene.approved })}>
               <CheckCircle2 /> {scene.approved ? 'Batalkan approve' : 'Approve'}
             </Button>
           </div>
         )}
+        <LastFixNote scene={scene} />
         {scene.versions[0] && <p className="text-xs text-muted-foreground">Versi terakhir: {versionLabel(scene.versions[0])}</p>}
       </CardContent>
       <VersionCompare
@@ -229,6 +237,7 @@ function PromptCard({ scene, index, variants, onRegen }: { scene: Scene; index: 
           toast.success('Versi dipulihkan');
         }}
       />
+      <FixPromptDialog scene={fixing ? scene : null} onOpenChange={setFixing} defaultVariant={variant} />
       <SnippetPicker
         open={snip}
         onOpenChange={setSnip}

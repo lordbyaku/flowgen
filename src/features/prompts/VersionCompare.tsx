@@ -6,7 +6,7 @@ import { diffWords } from '@/domain/diff';
 import { formatDateTime } from '@/lib/format';
 import type { Scene, SceneVersion } from '@/types';
 
-const REASON: Record<SceneVersion['reason'], string> = { generated: 'Dibuat', edited: 'Diedit', regenerated: 'Regenerasi' };
+const REASON: Record<SceneVersion['reason'], string> = { generated: 'Dibuat', edited: 'Diedit', regenerated: 'Regenerasi', fixed: 'Perbaikan hasil Flow' };
 
 export function versionLabel(v: SceneVersion) {
   return `${formatDateTime(v.createdAt)} · ${REASON[v.reason]}`;

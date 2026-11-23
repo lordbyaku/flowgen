@@ -1,5 +1,6 @@
+import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { KanbanSquare } from 'lucide-react';
+import { KanbanSquare, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select, Textarea } from '@/components/ui/input';
@@ -9,6 +10,7 @@ import { EmptyState } from '@/components/common/states';
 import { LABELS, TRACKER_STATUSES } from '@/config/enums';
 import { copyText } from '@/domain/promptText';
 import { useProjectStore } from '@/stores/projectStore';
+import { FixPromptDialog, LastFixNote } from '@/features/prompts/FixPromptDialog';
 import type { Scene, TrackerStatus } from '@/types';
 
 export function trackerProgress(scenes: Scene[]): number {
@@ -21,6 +23,7 @@ export default function TrackerPage() {
   const updateScenes = useProjectStore((s) => s.updateScenes);
   const patchProject = useProjectStore((s) => s.patchProject);
   const pct = trackerProgress(scenes);
+  const [fixing, setFixing] = React.useState<Scene | null>(null);
 
   const patch = (id: string, p: Partial<Scene>) => {
     updateScenes((cur) => cur.map((s) => (s.id === id ? { ...s, ...p, updatedAt: Date.now() } : s)));
@@ -100,6 +103,12 @@ export default function TrackerPage() {
                         onCopied={() => s.tracker === 'prompt_ready' && patch(s.id, { tracker: 'copied' })}
                       />
                     )}
+                    {s.flowPrompts.standard && s.tracker !== 'prompt_ready' && (
+                      <Button size="sm" variant="ghost" className="w-full" onClick={() => setFixing(s)}>
+                        <Wrench /> Hasil gagal? Perbaiki
+                      </Button>
+                    )}
+                    <LastFixNote scene={s} />
                   </Card>
                 ))}
               </div>
@@ -107,6 +116,7 @@ export default function TrackerPage() {
           );
         })}
       </div>
+      <FixPromptDialog scene={fixing} onOpenChange={(v) => !v && setFixing(null)} />
     </div>
   );
 }

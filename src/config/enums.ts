@@ -57,7 +57,7 @@ export const KEY_STATUSES = [
   'network_error',
   'disabled',
 ] as const;
-export const AI_TASKS = ['key_test', 'brief_assist', 'concepts', 'script_storyboard', 'scene_prompts', 'scene_regen', 'publish_pack', 'hook_variants'] as const;
+export const AI_TASKS = ['key_test', 'brief_assist', 'concepts', 'script_storyboard', 'scene_prompts', 'scene_regen', 'publish_pack', 'hook_variants', 'prompt_fix'] as const;
 export const GENDERS = ['all', 'male', 'female'] as const;
 export const AWARENESS = ['unaware', 'problem_aware', 'solution_aware', 'product_aware'] as const;
 export const SPEECH_STYLES = ['formal', 'casual', 'slang', 'regional'] as const;
@@ -68,6 +68,18 @@ export const VO_STYLES = ['friendly', 'firm', 'warm', 'energetic'] as const;
 export const TEXT_LANGUAGES = ['id', 'en'] as const;
 export const VARIANTS = ['standard', 'cinematic', 'premium'] as const;
 export const PROMPT_LENGTHS = ['short', 'detailed'] as const;
+/** Masalah pada klip hasil Flow (v1.4, Perbaiki prompt). */
+export const FLOW_ISSUES = [
+  'face_changed',
+  'outfit_changed',
+  'product_wrong',
+  'text_artifacts',
+  'extra_people',
+  'weird_motion',
+  'wrong_camera',
+  'wrong_setting',
+  'other',
+] as const;
 export const FLOW_MODES = ['text_to_video', 'image_to_video', 'frames'] as const;
 export const CHARACTER_REFS = ['flow_assets', 'description'] as const;
 export const ROUTINGS = ['round_robin', 'priority', 'single'] as const;
@@ -214,6 +226,7 @@ export const LABELS = {
     scene_regen: 'Regenerasi scene',
     publish_pack: 'Paket posting',
     hook_variants: 'Varian hook',
+    prompt_fix: 'Perbaikan prompt',
   },
   gender: { all: 'Semua', male: 'Pria', female: 'Wanita' },
   awareness: {
@@ -229,6 +242,17 @@ export const LABELS = {
   voStyle: { friendly: 'Ramah', firm: 'Tegas', warm: 'Hangat', energetic: 'Energik' },
   textLanguage: { id: 'Indonesia', en: 'Inggris' },
   variant: { standard: 'Standard', cinematic: 'Cinematic', premium: 'Premium Commercial' },
+  flowIssue: {
+    face_changed: 'Wajah/karakter berubah',
+    outfit_changed: 'Pakaian berubah',
+    product_wrong: 'Produk tidak mirip/salah',
+    text_artifacts: 'Muncul teks atau logo rusak',
+    extra_people: 'Ada orang tambahan',
+    weird_motion: 'Gerakan aneh/tangan rusak',
+    wrong_camera: 'Kamera/shot tidak sesuai',
+    wrong_setting: 'Tempat/suasana salah',
+    other: 'Lainnya (tulis di catatan)',
+  },
   promptLength: { short: 'Ringkas', detailed: 'Detail' },
   flowMode: { text_to_video: 'Teks ke video', image_to_video: 'Gambar ke video', frames: 'Frame awal-akhir' },
   characterRef: {

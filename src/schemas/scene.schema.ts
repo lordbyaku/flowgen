@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { FLOW_ISSUES, VARIANTS } from '@/config/enums';
 import { TrackerStatusSchema } from './common';
 
 export const FlowPromptsSchema = z.object({
@@ -19,7 +20,17 @@ export const SceneVersionSchema = z.object({
   /** Snapshot lengkap scene (Fase 2: pulihkan seluruh scene, bukan hanya prompt). */
   snapshot: z.record(z.unknown()).optional(),
   createdAt: z.number(),
-  reason: z.enum(['generated', 'edited', 'regenerated']),
+  reason: z.enum(['generated', 'edited', 'regenerated', 'fixed']),
+});
+
+/** Perbaikan terakhir dari hasil Flow yang gagal (v1.4). */
+export const SceneFixSchema = z.object({
+  at: z.number(),
+  variant: z.enum(VARIANTS),
+  issues: z.array(z.enum(FLOW_ISSUES)),
+  note: z.string(),
+  /** Ringkasan perubahan dari AI (Indonesia). */
+  changes: z.array(z.string()),
 });
 
 export const SceneSchema = z.object({
@@ -47,6 +58,7 @@ export const SceneSchema = z.object({
   approved: z.boolean(),
   tracker: TrackerStatusSchema,
   trackerNote: z.string().optional(),
+  lastFix: SceneFixSchema.optional(),
   versions: z.array(SceneVersionSchema).max(5),
   updatedAt: z.number(),
 });

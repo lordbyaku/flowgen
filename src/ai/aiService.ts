@@ -18,6 +18,7 @@ import { applyPromptItems, buildScenePromptBatches } from '@/ai/director/scenePr
 import { applySceneRegen, buildSceneRegenCall } from '@/ai/director/sceneRegenCall';
 import { buildPublishCall, toPublishDoc } from '@/ai/director/publishCall';
 import { buildHookVariantsCall, toHookVariants } from '@/ai/director/hookVariantsCall';
+import { applyPromptFix, buildPromptFixCall, type PromptFixInput } from '@/ai/director/promptFixCall';
 import { MSG, messageFor } from '@/ai/messages';
 import { computeCompleteness } from '@/domain/completeness';
 import { buildTimelineFromScenes } from '@/domain/exporters/capcutGuide';
@@ -176,6 +177,23 @@ export function createAiService(deps: {
         const call = buildSceneRegenCall(input.brief, input.scenes, sceneId, input.bibles, instruction, input.assets);
         const { data } = await structuredCall(router, { ...call, ...opts });
         return applySceneRegen(input.scenes, sceneId, data, input.brief, now());
+      });
+    },
+
+    /** Perbaiki prompt satu scene berdasarkan masalah klip hasil Flow. Hanya scene itu yang dikembalikan. */
+    fixScenePrompt(
+      brief: Brief,
+      input: Omit<PromptFixInput, 'bibles'> & { bibles: BiblesDoc | null },
+      opts: CallOptions = {},
+    ): Promise<Result<Scene>> {
+      const bibles = input.bibles;
+      const scene = input.scenes.find((s) => s.id === input.sceneId);
+      if (!bibles || !scene) return Promise.resolve({ ok: false, error: { code: 'validation', message: 'Scene atau Bible tidak ditemukan.' } });
+      if (input.issues.length === 0 && !input.note?.trim())
+        return Promise.resolve({ ok: false, error: { code: 'validation', message: 'Pilih minimal satu masalah atau tulis catatan.' } });
+      return safe(async () => {
+        const { data } = await structuredCall(router, { ...buildPromptFixCall(brief, { ...input, bibles }), ...opts });
+        return applyPromptFix(scene, data, brief, input, now());
       });
     },
 
