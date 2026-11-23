@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PROJECT_STAGES, PROJECT_STATUSES } from '@/config/enums';
+import { DERIVATIONS, PROJECT_STAGES, PROJECT_STATUSES } from '@/config/enums';
 import { BriefSchema } from './brief.schema';
 
 export const ProjectSchema = z.object({
@@ -15,6 +15,9 @@ export const ProjectSchema = z.object({
   /** ID aturan linter yang dimatikan untuk project ini (Fase 2). */
   lintDisabled: z.array(z.string()).default([]),
   presetId: z.string().optional(),
+  /** Project sumber untuk konten turunan (v1.4). */
+  parentId: z.string().optional(),
+  derivation: z.enum(DERIVATIONS).optional(),
   createdAt: z.number(),
   updatedAt: z.number(),
 });

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createAiService } from '@/ai/aiService';
 import type { AIRouter } from '@/ai/router/aiRouter';
 import { buildPublishCall, normalizeHashtags, toPublishDoc } from '@/ai/director/publishCall';
@@ -8,7 +8,12 @@ import { hookCopyText, hooksText, mergeHooks, openingScene } from '@/domain/hook
 import { toMarkdown } from '@/domain/exporters/markdown';
 import { applyPromptFix, buildPromptFixCall } from '@/ai/director/promptFixCall';
 import { restoreVersion } from '@/domain/sceneVersions';
-import type { AssetsDoc, HookVariant, ScriptDoc } from '@/types';
+import { checkCutdown, deriveCutdown, deriveRatio, deriveSeries } from '@/domain/derive';
+import { buildAssets } from '@/domain/assets';
+import { createDerivedProject, createProject, getProject, getProjectDocs } from '@/data/projectRepo';
+import { _setBackendForTests } from '@/data';
+import { createLocalBackend } from '@/data/localBackend';
+import type { AssetsDoc, CapcutDoc, HookVariant, Project, ProjectDocs, Scene, ScriptDoc } from '@/types';
 import { GOOD_PROMPT, makeBibles, makeBrief, makeScene } from './helpers';
 
 function fakeRouter(texts: string[]) {
@@ -257,5 +262,119 @@ describe('Perbaiki prompt dari hasil Flow (v1.4)', () => {
       expect(r.value.id).toBe('s1');
       expect(r.value.flowPrompts.standard).toBe('Prompt baru');
     }
+  });
+});
+
+describe('Konten turunan (v1.4)', () => {
+  const project = (patch: Partial<Project> = {}): Project =>
+    ({
+      id: 'p1', schemaVersion: 1, name: 'Warung', brandId: 'b1', status: 'in_progress', brief: makeBrief({ output: { extraNotes: 'Catatan lama' } }),
+      completeness: 90, step: 9, stage: 'production', lintDisabled: [], performance: [], createdAt: 1, updatedAt: 1, ...patch,
+    }) as Project;
+  const sc = (): Scene[] => [
+    makeScene({ id: 'a', order: 0, title: 'Hook', durationSec: 4, voiceOver: 'Satu', flowPrompts: { standard: GOOD_PROMPT }, tracker: 'downloaded' }),
+    makeScene({ id: 'b', order: 1, title: 'Masalah', durationSec: 6, voiceOver: 'Dua' }),
+    makeScene({ id: 'c', order: 2, title: 'CTA', durationSec: 5, voiceOver: 'Tiga' }),
+  ];
+  const capcut = (): CapcutDoc => ({
+    sceneOrder: ['Hook', 'Masalah', 'CTA'],
+    timeline: [],
+    voiceOverSequence: ['Satu', 'Dua', 'Tiga'],
+    musicMood: 'ceria',
+    sfx: [],
+    transitions: [],
+    rhythm: '',
+    textOverlays: [
+      { scene: 1, text: 'Hook!', position: 'atas', style: 'bold', startSec: 0, endSec: 2 },
+      { scene: 2, text: 'Ribet', position: 'atas', style: 'bold', startSec: 5, endSec: 7 },
+      { scene: 3, text: 'Coba!', position: 'bawah', style: 'bold', startSec: 11, endSec: 14 },
+    ],
+    opening: '',
+    closing: '',
+    checklist: { clips: true },
+    updatedAt: 1,
+  });
+  const docs = (): ProjectDocs => ({
+    creative: null, script: SCRIPT, bibles: makeBibles(), scenes: { items: sc(), updatedAt: 1 }, capcut: capcut(), assets: null, publish: null,
+    hooks: { baseSceneId: 'a', items: [], updatedAt: 1 },
+  });
+
+  it('seri: angle per bagian, aset/Bible disalin, catatan seri ditambahkan, konsep/scene kosong', () => {
+    const d = deriveSeries(project(), docs(), [{ angle: 'demo', focus: 'fitur stok' }, { angle: 'pov', focus: '' }]);
+    expect(d.map((x) => x.name)).toEqual(['Warung — Part 1', 'Warung — Part 2']);
+    expect(d[0].brief.strategy.angles).toEqual(['demo']);
+    expect(d[0].brief.strategy.aiPicksAngle).toBe(false);
+    expect(d[0].brief.project.name).toBe('Warung — Part 1');
+    expect(d[0].brief.output.extraNotes).toContain('Catatan lama');
+    expect(d[0].brief.output.extraNotes).toContain('Seri bagian 1 dari 2. Fokus bagian ini: fitur stok.');
+    expect(d[0].brief.output.extraNotes).toContain('angle: pov');
+    expect(d[0].docs.bibles).toBeTruthy();
+    expect(d[0].docs.scenes).toBeUndefined();
+    expect(d[0].stage).toBe('concepts');
+  });
+
+  it('versi pendek: validasi, scene + status disalin, durasi/VO/timeline/overlay dihitung ulang', () => {
+    expect(checkCutdown(sc(), ['a', 'b', 'c']).valid).toBe(false);
+    expect(checkCutdown(sc(), ['a']).valid).toBe(false);
+    expect(checkCutdown(sc(), ['b'])).toEqual({ durationSec: 6, hasHook: false, hasCta: false, valid: true });
+    const d = deriveCutdown(project(), docs(), ['a', 'c']);
+    expect(d.brief.project.durationSec).toBe(9);
+    expect(d.brief.project.sceneCount).toBe(2);
+    expect(d.docs.scenes?.items.map((s) => [s.id, s.order, s.tracker])).toEqual([['a', 0, 'downloaded'], ['c', 1, 'prompt_ready']]);
+    expect(d.docs.scenes?.items[0].flowPrompts.standard).toBe(GOOD_PROMPT);
+    expect(d.docs.script?.voiceOver).toBe('Satu Tiga');
+    const cc = d.docs.capcut!;
+    expect(cc.timeline.map((t) => [t.scene, t.startSec, t.endSec])).toEqual([[1, 0, 4], [2, 4, 9]]);
+    expect(cc.textOverlays.map((o) => [o.scene, o.text, o.startSec, o.endSec])).toEqual([[1, 'Hook!', 0, 2], [2, 'Coba!', 5, 8]]);
+    expect(cc.checklist).toEqual({});
+    expect(d.docs.hooks?.baseSceneId).toBe('a');
+    expect(deriveCutdown(project(), docs(), ['b', 'c']).docs.hooks).toBeNull();
+    expect(() => deriveCutdown(project(), docs(), ['a', 'b', 'c'])).toThrow();
+  });
+
+  it('rasio lain: prompt scene dikosongkan, storyboard tetap, prompt aset memakai rasio baru', () => {
+    const brief = makeBrief({ output: { characterRef: 'flow_assets' } });
+    const p = project({ brief });
+    const assets = buildAssets(brief, makeBibles(), sc(), null, 1);
+    assets.characters[0].done = true;
+    const d = deriveRatio(p, { ...docs(), assets }, '16:9');
+    expect(d.brief.project.aspectRatio).toBe('16:9');
+    expect(d.name).toBe('Warung (16:9)');
+    const s0 = d.docs.scenes!.items[0];
+    expect(s0.flowPrompts).toEqual({ standard: '' });
+    expect(s0.tracker).toBe('prompt_ready');
+    expect(s0.voiceOver).toBe('Satu');
+    expect(s0.versions).toEqual([]);
+    expect(d.docs.assets?.locations[0].prompt).toContain('Aspect ratio 16:9');
+    expect(d.docs.assets?.characters[0].done).toBe(true);
+    expect(d.stage).toBe('prompts');
+    expect(() => deriveRatio(p, docs(), '9:16')).toThrow();
+  });
+});
+
+describe('createDerivedProject (repo, backend lokal)', () => {
+  beforeAll(() => _setBackendForTests(createLocalBackend()));
+  afterAll(() => _setBackendForTests(null));
+  it('menyimpan project baru dengan parentId/derivation/stage dan dokumen turunan', async () => {
+    const uid = 'derive-user';
+    const src = await createProject(uid, { name: 'Sumber', brandId: 'b1', brief: makeBrief() });
+    const scenes = [
+      makeScene({ id: 'a', order: 0, durationSec: 4 }),
+      makeScene({ id: 'b', order: 1, durationSec: 6 }),
+      makeScene({ id: 'c', order: 2, durationSec: 5 }),
+    ];
+    const srcDocs: ProjectDocs = {
+      creative: null, script: null, bibles: makeBibles(), scenes: { items: scenes, updatedAt: 1 }, capcut: null, assets: null, publish: null, hooks: null,
+    };
+    const draft = deriveCutdown(src, srcDocs, ['a', 'c']);
+    const p = await createDerivedProject(uid, src, draft);
+    const loaded = await getProject(uid, p.id);
+    expect(loaded.ok).toBe(true);
+    if (!loaded.ok) return;
+    expect(loaded.project).toMatchObject({ parentId: src.id, derivation: 'cutdown', stage: 'production', name: 'Sumber (versi 9 dtk)' });
+    expect(loaded.project.brief.project.durationSec).toBe(9);
+    const { docs } = await getProjectDocs(uid, p.id);
+    expect(docs.scenes?.items.map((s) => s.id)).toEqual(['a', 'c']);
+    expect(docs.bibles).toBeTruthy();
   });
 });

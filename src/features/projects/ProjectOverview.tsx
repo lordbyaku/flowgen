@@ -1,5 +1,6 @@
+import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Layers, RectangleHorizontal, Scissors } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/misc';
@@ -11,6 +12,7 @@ import { LINT_RULES } from '@/domain/linter';
 import { formatDateTime } from '@/lib/format';
 import { useProjectStore } from '@/stores/projectStore';
 import type { Project } from '@/types';
+import { DeriveDialog, type DeriveKind } from './DeriveDialog';
 
 export default function ProjectOverview() {
   const project = useProjectStore((s) => s.project)!;
@@ -20,6 +22,7 @@ export default function ProjectOverview() {
   const scenes = docs.scenes?.items ?? [];
   const finals = scenes.filter((s) => s.tracker === 'final').length;
   const concept = docs.creative?.concepts.find((x) => x.id === docs.creative?.selectedConceptId);
+  const [derive, setDerive] = React.useState<DeriveKind | null>(null);
 
   const next = !c.blockers.length
     ? !docs.creative?.approved
@@ -89,10 +92,36 @@ export default function ProjectOverview() {
           <p>
             Tahap: <Badge variant="secondary">{LABELS.stage[project.stage]}</Badge>
           </p>
+          {project.derivation && project.parentId && (
+            <p>
+              Turunan: <Badge variant="outline">{LABELS.derivation[project.derivation]}</Badge>{' '}
+              <Link className="text-primary underline" to={`/projects/${project.parentId}`}>
+                Buka sumber
+              </Link>
+            </p>
+          )}
           <p className="text-muted-foreground">Dibuat {formatDateTime(project.createdAt)}</p>
           <p className="text-muted-foreground">Diubah {formatDateTime(project.updatedAt)}</p>
         </CardContent>
       </Card>
+      <Card className="md:col-span-3">
+        <CardHeader>
+          <CardTitle>Konten turunan</CardTitle>
+          <p className="text-sm text-muted-foreground">Satu project jadi banyak konten tanpa panggilan AI. Hasilnya selalu project baru; project ini tidak berubah.</p>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => setDerive('series')} disabled={c.blockers.length > 0}>
+            <Layers /> Buat seri (angle berbeda)
+          </Button>
+          <Button variant="outline" onClick={() => setDerive('cutdown')} disabled={scenes.length < 2}>
+            <Scissors /> Versi pendek (pilih scene)
+          </Button>
+          <Button variant="outline" onClick={() => setDerive('ratio')} disabled={scenes.length === 0}>
+            <RectangleHorizontal /> Rasio lain
+          </Button>
+        </CardContent>
+      </Card>
+      <DeriveDialog kind={derive} onOpenChange={(v) => !v && setDerive(null)} />
       <Card className="md:col-span-3">
         <CardHeader>
           <CardTitle>Aturan Prompt Linter</CardTitle>

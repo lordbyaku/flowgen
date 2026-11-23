@@ -114,6 +114,7 @@ export default function ProjectsPage() {
                   <Badge variant={p.status === 'completed' ? 'success' : p.status === 'in_progress' ? 'default' : 'muted'}>
                     {LABELS.projectStatus[p.status]}
                   </Badge>
+                  {p.derivation && <Badge variant="outline">Turunan: {LABELS.derivation[p.derivation]}</Badge>}
                   <span>Tahap: {LABELS.stage[p.stage]}</span>
                   <span>· {p.brief.project.durationSec} detik · {p.brief.project.aspectRatio}</span>
                   <span>· diubah {formatRelative(p.updatedAt)}</span>

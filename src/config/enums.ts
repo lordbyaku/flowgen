@@ -86,6 +86,8 @@ export const ROUTINGS = ['round_robin', 'priority', 'single'] as const;
 export const VAULT_MODES = ['persistent', 'session', 'cloud'] as const;
 export const PROJECT_STATUSES = ['draft', 'in_progress', 'completed'] as const;
 export const PROJECT_STAGES = ['brief', 'concepts', 'script', 'prompts', 'production', 'done'] as const;
+/** Jenis konten turunan (v1.4). */
+export const DERIVATIONS = ['series', 'cutdown', 'ratio'] as const;
 
 export const LABELS = {
   objective: {
@@ -262,6 +264,7 @@ export const LABELS = {
   routing: { round_robin: 'Round Robin', priority: 'Prioritas', single: 'Satu Key' },
   vaultMode: { persistent: 'Persisten di browser (terenkripsi)', session: 'Hanya sesi (memori)', cloud: 'Tersimpan di akun (sinkron)' },
   projectStatus: { draft: 'Draft', in_progress: 'Berjalan', completed: 'Selesai' },
+  derivation: { series: 'Seri', cutdown: 'Versi pendek', ratio: 'Rasio lain' },
   stage: {
     brief: 'Brief',
     concepts: 'Konsep',

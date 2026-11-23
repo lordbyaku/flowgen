@@ -179,6 +179,22 @@ export async function importProject(
   return p;
 }
 
+/** Buat project turunan (seri, versi pendek, rasio lain) dari draf yang sudah disusun domain/derive. */
+export async function createDerivedProject(
+  uid: string,
+  source: Project,
+  draft: { name: string; brief: Brief; docs: Partial<ProjectDocs>; stage: Project['stage']; derivation: NonNullable<Project['derivation']> },
+): Promise<Project> {
+  const p = await createProject(uid, { name: draft.name, brandId: source.brandId, brief: draft.brief, presetId: source.presetId });
+  for (const name of DOC_NAMES) {
+    const d = draft.docs[name];
+    if (d) await saveProjectDoc(uid, p.id, name, d as NonNullable<ProjectDocs[typeof name]>);
+  }
+  const patch = { stage: draft.stage, parentId: source.id, derivation: draft.derivation, status: 'in_progress' as const };
+  await updateProject(uid, p.id, patch);
+  return { ...p, ...patch };
+}
+
 /** Character Bible tersimpan dari project terbaru (dipakai ulang di brief Langkah 6). */
 export async function listSavedCharacterBibles(
   uid: string,
