@@ -62,6 +62,13 @@ export function AppShell() {
   const flush = useProjectStore((s) => s.flush);
   const online = useUiStore((s) => s.online);
 
+  const handleLogout = async () => {
+    await useProjectStore.getState().unload();
+    useVaultStore.getState().resetMemory();
+    await logout();
+    navigate('/login');
+  };
+
   return (
     <div className="flex min-h-screen">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-card focus:p-2">
@@ -103,12 +110,7 @@ export function AppShell() {
             variant="ghost"
             size="sm"
             className="w-full justify-start px-2"
-            onClick={async () => {
-              await useProjectStore.getState().unload();
-              useVaultStore.getState().resetMemory();
-              await logout();
-              navigate('/login');
-            }}
+            onClick={() => void handleLogout()}
           >
             <LogOut /> Keluar
           </Button>
@@ -133,6 +135,16 @@ export function AppShell() {
               {activeKeys} key aktif
             </Badge>
           </button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            aria-label={`Keluar${user?.email ? ` (${user.email})` : ''}`}
+            title={user?.email ? `Keluar dari ${user.email}` : 'Keluar'}
+            onClick={() => void handleLogout()}
+          >
+            <LogOut />
+          </Button>
         </header>
 
         {!online && (

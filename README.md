@@ -6,6 +6,7 @@ Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.3). Keputusan implementasi: [`docs/D
 
 | Versi | Tanggal | Catatan |
 |---|---|---|
+| 1.3.1 | 2026-11-23 | Tombol Keluar di header untuk layar HP |
 | 1.3.0 | 2026-11-12 | Halaman Karakter & Tempat: prompt aset Flow dulu (karakter → tempat → produk), prompt scene menyebut nama aset |
 | 1.2.0 | 2026-11-09 | API key tersimpan di akun (sinkron antar device, tanpa passphrase) |
 | 1.1.1 | 2026-11-09 | Dukungan format API key Gemini baru `AQ.…`; token debug App Check tidak lagi ikut ke bundle produksi |

@@ -2,6 +2,11 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.3.1] - 2026-11-23
+
+### Diperbaiki
+- Tombol **Keluar** kini tersedia di layar HP: ikon keluar di header (sebelumnya hanya ada di sidebar yang tersembunyi di layar kecil).
+
 ## [1.3.0] - 2026-11-12
 
 ### Ditambahkan
