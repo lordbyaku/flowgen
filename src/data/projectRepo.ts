@@ -6,6 +6,7 @@ import { BiblesDocSchema } from '@/schemas/bible.schema';
 import { ScenesDocSchema } from '@/schemas/scene.schema';
 import { CapcutDocSchema } from '@/schemas/capcut.schema';
 import { AssetsDocSchema } from '@/schemas/assets.schema';
+import { PublishDocSchema } from '@/schemas/publish.schema';
 import { computeCompleteness } from '@/domain/completeness';
 import { newId } from '@/lib/ids';
 import type { Brief, DocName, Project, ProjectDocs } from '@/types';
@@ -14,7 +15,7 @@ import { parseStored } from './converters';
 import { getBackend, paths } from './index';
 import { fitScenesDoc } from './sceneRepo';
 
-export const DOC_NAMES: DocName[] = ['creative', 'script', 'bibles', 'scenes', 'capcut', 'assets'];
+export const DOC_NAMES: DocName[] = ['creative', 'script', 'bibles', 'scenes', 'capcut', 'assets', 'publish'];
 
 const DOC_SCHEMAS = {
   creative: CreativeDocSchema,
@@ -23,6 +24,7 @@ const DOC_SCHEMAS = {
   scenes: ScenesDocSchema,
   capcut: CapcutDocSchema,
   assets: AssetsDocSchema,
+  publish: PublishDocSchema,
 } as const;
 
 export interface ProjectPage {

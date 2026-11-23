@@ -2,6 +2,11 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [Semantic Versioning](https://semver.org/lang/id/).
 
+## [Unreleased]
+
+### Ditambahkan
+- **Tahap "Posting"** (`/projects/:id/publish`): paket posting per platform brief (judul, 2–3 caption, maks 15 hashtag, 3 teks cover, komentar pin, dan tips posting) dari satu panggilan AI baru `publish_pack`. Ada tombol salin caption+hashtag, salin semua, dan bagian baru "Paket posting" di ekspor Markdown/JSON.
+
 ## [1.3.1] - 2026-11-23
 
 ### Diperbaiki

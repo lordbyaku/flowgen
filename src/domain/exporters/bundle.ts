@@ -1,4 +1,4 @@
-import type { AssetsDoc, BiblesDoc, Brief, CapcutDoc, CreativeDoc, Project, ProjectDocs, Scene, ScriptDoc } from '@/types';
+import type { PublishDoc, AssetsDoc, BiblesDoc, Brief, CapcutDoc, CreativeDoc, Project, ProjectDocs, Scene, ScriptDoc } from '@/types';
 
 /**
  * Objek whitelist untuk ekspor. Exporter hanya menerima bentuk ini — tidak pernah objek mentah
@@ -15,6 +15,7 @@ export interface ExportBundle {
   scenes: Scene[];
   capcut: CapcutDoc | null;
   assets: AssetsDoc | null;
+  publish: PublishDoc | null;
 }
 
 export function toExportBundle(project: Project, docs: ProjectDocs): ExportBundle {
@@ -29,6 +30,7 @@ export function toExportBundle(project: Project, docs: ProjectDocs): ExportBundl
     scenes: [...(docs.scenes?.items ?? [])].sort((a, b) => a.order - b.order),
     capcut: docs.capcut,
     assets: docs.assets,
+    publish: docs.publish,
   };
 }
 
@@ -42,6 +44,7 @@ export const EXPORT_SECTIONS = [
   'assets',
   'prompts',
   'capcut',
+  'publish',
   'assumptions',
   'lint',
 ] as const;
@@ -57,6 +60,7 @@ export const EXPORT_SECTION_LABELS: Record<ExportSection, string> = {
   assets: 'Prompt aset Flow (karakter → tempat → produk)',
   prompts: 'Prompt per scene',
   capcut: 'Panduan CapCut',
+  publish: 'Paket posting (caption, hashtag, cover)',
   assumptions: 'Asumsi AI',
   lint: 'Hasil linter',
 };

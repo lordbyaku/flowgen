@@ -22,6 +22,7 @@ Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.3). Keputusan implementasi: [`docs/D
 5. Buat prompt scene + panduan CapCut (Panggilan AI 3, batch 6 scene). Prompt menyebut nama aset Flow; salin scene satu per satu ke Flow.
 6. Tandai status scene di Production Tracker.
 7. Susun klip di CapCut mengikuti panduan; ekspor paket ke Markdown/TXT/Clipboard.
+8. **Posting**: buat paket caption/hashtag/cover per platform lalu salin saat mengunggah.
 
 ## Tech stack
 
@@ -96,6 +97,9 @@ Mode akun menyimpan key sebagai teks biasa yang dilindungi Security Rules: siapa
 - Drag-and-drop urutan scene (dnd-kit, bisa dengan keyboard).
 - Preset tambahan (Kecantikan, Properti, Promo Musiman) & aturan linter aktif/nonaktif per project.
 - Uji E2E Playwright dengan Gemini dipalsukan.
+
+**Peningkatan v1.4**
+- Tahap Posting: caption, hashtag, judul, teks cover, dan komentar pin per platform (panggilan AI `publish_pack`), siap salin.
 
 **Peningkatan v1.3**
 - Halaman Karakter & Tempat: prompt gambar referensi karakter (seluruh badan + close-up), tempat (tanpa orang), dan produk; nama aset di Flow; status "sudah dibuat".

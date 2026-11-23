@@ -63,7 +63,7 @@ describe('Aset Flow: karakter → tempat → produk', () => {
     expect(t.indexOf('=== KARAKTER 1')).toBeLessThan(t.indexOf('=== TEMPAT 1'));
     expect(t.indexOf('=== TEMPAT 1')).toBeLessThan(t.indexOf('=== PRODUK'));
     const project = { id: 'p', schemaVersion: 1, name: 'P', brandId: '', status: 'draft', brief: flowBrief(), completeness: 0, step: 1, stage: 'prompts', lintDisabled: [], createdAt: 1, updatedAt: 1 } as Project;
-    const bundle = toExportBundle(project, { creative: null, script: null, bibles: makeBibles(), scenes: { items: scenes(), updatedAt: 1 }, capcut: null, assets: a });
+    const bundle = toExportBundle(project, { creative: null, script: null, bibles: makeBibles(), scenes: { items: scenes(), updatedAt: 1 }, capcut: null, assets: a, publish: null });
     const txt = promptsTxt(bundle);
     expect(txt.indexOf('=== KARAKTER 1')).toBeLessThan(txt.indexOf('=== SCENE 1'));
     const md = toMarkdown(bundle, ['assets', 'prompts']);
@@ -130,7 +130,7 @@ describe('Halaman Karakter & Tempat', () => {
       project,
       projectId: 'p1',
       uid: 'demo-user',
-      docs: { creative: null, script: null, bibles: makeBibles(), scenes: { items: scenes(), updatedAt: 1 }, capcut: null, assets: null },
+      docs: { creative: null, script: null, bibles: makeBibles(), scenes: { items: scenes(), updatedAt: 1 }, capcut: null, assets: null, publish: null },
     });
     render(
       <TooltipProvider>

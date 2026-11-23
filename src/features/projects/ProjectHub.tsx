@@ -18,6 +18,7 @@ export const HUB_STEPS = [
   { to: 'prompts', label: 'Prompt' },
   { to: 'production', label: 'Produksi' },
   { to: 'capcut', label: 'CapCut' },
+  { to: 'publish', label: 'Posting' },
   { to: 'export', label: 'Export' },
 ] as const;
 
@@ -45,6 +46,7 @@ export default function ProjectHub() {
     prompts: (docs.scenes?.items ?? []).some((s) => s.flowPrompts.standard),
     production: (docs.scenes?.items ?? []).length > 0 && (docs.scenes?.items ?? []).every((s) => s.tracker === 'final'),
     capcut: !!docs.capcut,
+    publish: !!docs.publish,
     export: false,
   };
 

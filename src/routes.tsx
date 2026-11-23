@@ -49,6 +49,7 @@ export const router = createBrowserRouter(
                 { path: 'prompts', element: lazyPage(() => import('@/features/prompts/PromptsPage')) },
                 { path: 'production', element: lazyPage(() => import('@/features/tracker/TrackerPage')) },
                 { path: 'capcut', element: lazyPage(() => import('@/features/capcut/CapcutPage')) },
+                { path: 'publish', element: lazyPage(() => import('@/features/publish/PublishPage')) },
                 { path: 'export', element: lazyPage(() => import('@/features/export/ExportPage')) },
               ],
             },

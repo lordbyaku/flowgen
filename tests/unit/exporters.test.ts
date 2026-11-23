@@ -59,6 +59,7 @@ function docs(): ProjectDocs {
       checklist: {},
     },
     assets: null,
+    publish: null,
   };
 }
 

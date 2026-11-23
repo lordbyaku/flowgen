@@ -16,6 +16,7 @@ import { buildConceptCall, toConceptRound } from '@/ai/director/conceptCall';
 import { buildScriptStoryboardCall, mapScriptStoryboard } from '@/ai/director/scriptStoryboardCall';
 import { applyPromptItems, buildScenePromptBatches } from '@/ai/director/scenePromptCall';
 import { applySceneRegen, buildSceneRegenCall } from '@/ai/director/sceneRegenCall';
+import { buildPublishCall, toPublishDoc } from '@/ai/director/publishCall';
 import { MSG, messageFor } from '@/ai/messages';
 import { computeCompleteness } from '@/domain/completeness';
 import { buildTimelineFromScenes } from '@/domain/exporters/capcutGuide';
@@ -32,6 +33,7 @@ import type {
   ConceptRound,
   KeyStatus,
   ProgressFn,
+  PublishDoc,
   Result,
   Scene,
   ScriptDoc,
@@ -175,6 +177,19 @@ export function createAiService(deps: {
       });
     },
 
+    /** Paket posting (caption, hashtag, judul, cover, komentar pin) per platform brief. */
+    generatePublishPack(
+      input: { brief: Brief; brand?: Brand | null; concept?: Concept | null; script: ScriptDoc | null; scenes: Scene[] },
+      opts: CallOptions = {},
+    ): Promise<Result<PublishDoc>> {
+      const script = input.script;
+      if (!script) return Promise.resolve({ ok: false, error: { code: 'validation', message: 'Buat naskah dulu sebelum membuat paket posting.' } });
+      return safe(async () => {
+        const { data } = await structuredCall(router, { ...buildPublishCall(input.brief, { ...input, script }), ...opts });
+        return toPublishDoc(data, input.brief, now());
+      });
+    },
+
     /** Tes koneksi: GET models/{model}. */
     testKey(keyId: string): Promise<Result<{ status: KeyStatus; message: string }>> {
       return safe(async () => {
@@ -247,10 +262,22 @@ export function createAiService(deps: {
 
     /** Perkiraan biaya sebelum generate (lokal, tanpa panggilan). Perbaikan JSON dapat menambah 1 panggilan. */
     estimate(
-      kind: 'concepts' | 'script' | 'prompts',
-      input: { brief: Brief; concept?: Concept | null; scenes?: Scene[]; bibles?: BiblesDoc | null; assets?: AssetsDoc | null },
+      kind: 'concepts' | 'script' | 'prompts' | 'publish',
+      input: {
+        brief: Brief;
+        concept?: Concept | null;
+        scenes?: Scene[];
+        bibles?: BiblesDoc | null;
+        assets?: AssetsDoc | null;
+        script?: ScriptDoc | null;
+      },
     ): CallEstimate {
       const { brief } = input;
+      if (kind === 'publish') {
+        if (!input.script) return { calls: 0, inputTokens: 0, maxOutputTokens: 0, images: 0 };
+        const c = buildPublishCall(brief, { concept: input.concept, script: input.script, scenes: input.scenes ?? [] });
+        return { calls: 1, inputTokens: estTokens(c) + 200, maxOutputTokens: c.maxOutputTokens, images: 0 };
+      }
       if (kind === 'concepts') {
         const c = buildConceptCall(brief, null);
         return { calls: 1, inputTokens: estTokens(c) + 200, maxOutputTokens: c.maxOutputTokens, images: 0 };

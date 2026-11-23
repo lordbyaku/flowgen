@@ -6,6 +6,7 @@ import type { Brief, Variant } from '@/types';
 import type { ExportBundle, ExportSection } from './bundle';
 import { capcutText } from './capcutGuide';
 import { assetsText } from '@/domain/assets';
+import { publishText } from '@/domain/publish';
 
 const esc = (s: string) => s.replace(/\|/g, '\\|').replace(/\n/g, ' ');
 const list = (items: string[]) => (items.length ? items.map((i) => `- ${i}`).join('\n') : '-');
@@ -174,6 +175,8 @@ export function toMarkdown(
   }
 
   if (has('capcut') && bundle.capcut) out.push('## Panduan CapCut', capcutText(bundle.capcut, bundle.scenes));
+
+  if (has('publish') && bundle.publish) out.push('## Paket Posting', '```text', publishText(bundle.publish), '```');
 
   if (has('assumptions')) {
     const a = bundle.creative?.assumptions ?? [];

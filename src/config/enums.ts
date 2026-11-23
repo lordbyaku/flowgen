@@ -57,7 +57,7 @@ export const KEY_STATUSES = [
   'network_error',
   'disabled',
 ] as const;
-export const AI_TASKS = ['key_test', 'brief_assist', 'concepts', 'script_storyboard', 'scene_prompts', 'scene_regen'] as const;
+export const AI_TASKS = ['key_test', 'brief_assist', 'concepts', 'script_storyboard', 'scene_prompts', 'scene_regen', 'publish_pack'] as const;
 export const GENDERS = ['all', 'male', 'female'] as const;
 export const AWARENESS = ['unaware', 'problem_aware', 'solution_aware', 'product_aware'] as const;
 export const SPEECH_STYLES = ['formal', 'casual', 'slang', 'regional'] as const;
@@ -212,6 +212,7 @@ export const LABELS = {
     script_storyboard: 'Naskah & storyboard',
     scene_prompts: 'Prompt scene',
     scene_regen: 'Regenerasi scene',
+    publish_pack: 'Paket posting',
   },
   gender: { all: 'Semua', male: 'Pria', female: 'Wanita' },
   awareness: {
