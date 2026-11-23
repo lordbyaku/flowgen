@@ -1,4 +1,4 @@
-# AI Video Prompt Studio — PRD v1.3
+# AI Video Prompt Studio — PRD v1.4
 
 Status: Spesifikasi Implementasi · Diperbarui 7 Nov 2026 · Pemilik: Trisna · Tipe: Aplikasi web personal (Firebase Spark)
 
@@ -454,7 +454,7 @@ Bagian 0–17 menjelaskan APA dan KENAPA. Bagian 18 sampai akhir menjelaskan BAG
 ```
 # AI Video Prompt Studio
 Personal web app (React + Vite + TS, Firebase Spark, Gemini API from browser).
-Source of truth: PRD v1.3 + Bagian II. Task list: Bagian 28.
+Source of truth: PRD v1.4 + Bagian II. Task list: Bagian 28.
 
 ## Commands
 pnpm dev | pnpm build | pnpm typecheck | pnpm lint | pnpm test | pnpm emulators

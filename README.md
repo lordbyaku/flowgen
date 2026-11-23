@@ -2,10 +2,11 @@
 
 Aplikasi web pribadi yang mengubah brief produk menjadi paket produksi video promosi: konsep, naskah, storyboard, Character Bible, Visual Bible, prompt Google Flow per scene (Inggris, siap salin), dan panduan editing CapCut (Indonesia). Aplikasi **tidak** membuat, merender, atau memublikasikan video.
 
-Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.3). Keputusan implementasi: [`docs/DECISIONS.md`](docs/DECISIONS.md). Item yang perlu diverifikasi: [`docs/VERIFY.md`](docs/VERIFY.md).
+Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.4). Keputusan implementasi: [`docs/DECISIONS.md`](docs/DECISIONS.md). Item yang perlu diverifikasi: [`docs/VERIFY.md`](docs/VERIFY.md).
 
 | Versi | Tanggal | Catatan |
 |---|---|---|
+| 1.4.0 | 2026-11-23 | Posting (caption/hashtag), Varian Hook, Mode Produksi HP, perbaiki prompt dari hasil Flow, konten turunan (seri/versi pendek/rasio), catatan performa |
 | 1.3.1 | 2026-11-23 | Tombol Keluar di header untuk layar HP |
 | 1.3.0 | 2026-11-12 | Halaman Karakter & Tempat: prompt aset Flow dulu (karakter → tempat → produk), prompt scene menyebut nama aset |
 | 1.2.0 | 2026-11-09 | API key tersimpan di akun (sinkron antar device, tanpa passphrase) |
