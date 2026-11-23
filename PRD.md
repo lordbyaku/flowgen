@@ -1331,3 +1331,41 @@ Menggantikan larangan "API key tidak boleh ada di Firestore" (Bagian 2, 3.2, 14,
 - Linter L02/L03 pada mode `flow_assets` memeriksa kemunculan nama aset Flow.
 - Urutan ekspor/salin: aset (karakter → tempat → produk) sebelum scene.
 
+
+# Perubahan v1.4 (2026-11-23): dari produksi ke posting dan pembelajaran
+
+Keputusan pemilik: tambahkan enam fitur kreator berikut. Ekspor SRT dan link review untuk klien **tidak** dikerjakan.
+Non-Goals Bagian 1 tetap berlaku (aplikasi tidak memublikasikan ke sosial media; paket posting hanya teks untuk disalin).
+
+1. **Paket posting** (tahap baru "Posting", rute `/projects/:id/publish`). Panggilan AI baru `publish_pack` (opsional, setelah naskah ada):
+   untuk setiap platform di `brief.project.platforms` (kosong = TikTok) berisi judul, 2–3 caption, maks 15 hashtag, 3 teks cover, dan komentar pin.
+   Ditambah maks 5 tips posting. Bahasa mengikuti `scriptLanguage`; klaim tetap dibatasi `allowedClaims`/`forbiddenClaims`.
+   Disimpan di dokumen `docs/publish`.
+2. **Varian hook** (tahap baru "Varian Hook", rute `/projects/:id/hooks`). Panggilan AI baru `hook_variants`: 3 scene pembuka
+   alternatif dengan gaya hook berbeda. Durasinya sama dengan scene 1 dan harus menyambung ke scene 2. Masing-masing punya judul,
+   visual, VO, teks overlay, prompt Flow, frame (mode gambar), negatif, alasan, dan status produksi.
+   Badan video tidak berubah; di CapCut scene 1 diganti per varian. Disimpan di dokumen `docs/hooks`.
+3. **Mode produksi HP** (rute `/projects/:id/shoot`). Antrean satu item per layar: aset Flow yang belum dibuat (mode aset Flow),
+   lalu scene, lalu varian hook. Setiap item punya tombol salin besar, tombol "Sudah dibuat", tombol "Gagal, perbaiki" (khusus scene),
+   dan navigasi Sebelumnya/Lanjut. Menyalin menandai status "Disalin". "Sudah dibuat" menandai "Klip dibuat di Flow" lalu lanjut otomatis.
+4. **Perbaiki prompt dari hasil Flow**. Panggilan AI baru `prompt_fix`: pengguna memilih masalah hasil render (wajah berubah,
+   pakaian berubah, produk salah, muncul teks/logo rusak, orang tambahan, gerak aneh, kamera salah, tempat salah, lainnya) dan catatan.
+   AI hanya menulis ulang prompt varian yang dipilih (+ frame dan negatif). Field storyboard tidak berubah.
+   Versi lama masuk riwayat dengan alasan `fixed`. Scene kembali ke "Prompt siap" dan approve dibatalkan.
+   Masalah terakhir disimpan di `scene.lastFix`.
+5. **Konten turunan dari satu project** (tanpa panggilan AI). Dibuat dari halaman Ringkasan dan selalu menjadi project baru
+   (`project.parentId`, `project.derivation`):
+   - `series`: 2–5 project, masing-masing dengan angle sendiri. Brief, Bible, dan aset Flow disalin (aset yang sudah dibuat tetap ditandai selesai).
+     Konsep, naskah, dan scene dikosongkan.
+   - `cutdown`: subset scene yang dipilih. Prompt, status produksi, dan klip yang sudah ada tetap dipakai.
+     Durasi brief = jumlah durasi scene (min 5 dtk). Timeline CapCut dan teks overlay dihitung ulang tanpa AI. Peringatan bila hook atau CTA tidak ikut.
+   - `ratio`: rasio lain. Storyboard, Bible, dan konsep disalin. Prompt scene dikosongkan agar hanya Panggilan 3 yang perlu diulang.
+     Prompt aset disusun ulang untuk rasio baru.
+6. **Catatan performa** (bagian di tahap Posting). Maks 30 entri per project di field `project.performance`:
+   platform, tanggal posting, URL, versi (hook utama/varian), snapshot gaya hook, angle, dan teks hook, views, like, komentar, share, simpan,
+   rata-rata durasi tonton, retensi 3 detik (%), dan catatan. Engagement rate = (like+komentar+share+simpan)/views.
+   Ringkasan per gaya hook dan per angle tampil di Dashboard. Bila ada ≥2 entri, ringkasan dikirim sebagai data
+   `<past_performance>` ke Panggilan 1 (konsep) dan `hook_variants`. Pengirimannya bisa dimatikan di halaman Konsep.
+
+Dokumen Firestore baru: `docs/publish`, `docs/hooks`. Field project baru (opsional): `performance`, `parentId`, `derivation`.
+Field scene baru (opsional): `lastFix`. Tugas AI baru: `publish_pack`, `hook_variants`, `prompt_fix`.
