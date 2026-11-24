@@ -74,6 +74,7 @@ export default function ProjectHub() {
                   {done[s.to] ? '✓' : i + 1}
                 </span>
                 {s.label}
+                {s.optional && <span className="text-[10px] font-normal opacity-70">(opsional)</span>}
               </NavLink>
             </li>
           ))}
