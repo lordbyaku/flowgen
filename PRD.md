@@ -992,7 +992,7 @@ Input: brief ringkas, scene, Bible. Untuk setiap scene hasilkan `flowPrompts.sta
 Continuity: {restated character + product + palette details}. Aspect ratio {ratio}.
 ```
 
-Negatif disimpan terpisah di `negativePrompt`; saat disalin, tambahkan baris `Avoid: {negativePrompt}`. Negatif dasar selalu memuat: on-screen text, captions, watermark, distorted or misspelled logos, extra fingers, deformed hands, unnatural face, plus `globalNegatives` dari brief. Dialog maksimal sekitar 18 kata per scene 8 detik **\[VERIFIKASI cara Flow menangani dialog\]**.
+Negatif disimpan terpisah di `negativePrompt`; saat disalin, tambahkan baris `Avoid: {negativePrompt}`. Negatif dasar selalu memuat: on-screen text, captions, watermark, distorted or misspelled logos, extra fingers, deformed hands, unnatural face, plus `globalNegatives` dari brief. Dialog maksimal durasi scene × 0,85 × kecepatan bicara (mis. 19 kata untuk scene 10 detik; v1.5) **\[VERIFIKASI cara Flow menangani dialog\]**.
 
 ### 23.6 Regenerasi satu scene
 
@@ -1042,7 +1042,7 @@ Setiap aturan adalah fungsi murni `(scene, project) => LintIssue[]`, dengan `Lin
 | L08 | error | Frasa dari `forbiddenClaims` muncul di VO, dialog, atau prompt |
 | L09 | warn | Kata VO melebihi anggaran scene |
 | L10 | info | `negativePrompt` kosong |
-| L11 | warn | Dialog lebih dari 18 kata |
+| L11 | warn | Dialog melebihi batas kata sesuai durasi scene (v1.5) |
 | L12 | warn | Kata berbahasa Indonesia (daftar stopword) lebih dari 15 persen di luar kutipan dialog |
 | L13 | warn | Dua scene memiliki prompt identik |
 
@@ -1300,7 +1300,7 @@ Item berikut bergantung pada layanan eksternal yang sering berubah. Implementasi
 | Item | Lokasi di kode | Nilai awal | Cara verifikasi |
 | --- | --- | --- | --- |
 | Batas durasi klip Google Flow | `MAX_SCENE_SEC` | 8 | Buat satu klip dan lihat durasi maksimum di Flow |
-| Penanganan dialog/audio di prompt Flow | Bagian 23.5, `audio.characterDialogue` | Dialog pendek (maks sekitar 18 kata) | Uji prompt dengan dan tanpa dialog |
+| Penanganan dialog/audio di prompt Flow | Bagian 23.5, `audio.characterDialogue` | Dialog pendek (batas kata mengikuti durasi scene) | Uji prompt dengan dan tanpa dialog |
 | Fitur konsistensi karakter Flow (gambar referensi, frame awal-akhir) | `output.flowMode` | Teks ke video | Cek fitur Flow terbaru; sesuaikan panduan bila perlu |
 | Format `responseSchema` Gemini | `toGeminiSchema` | Subset OpenAPI | Uji satu panggilan nyata dengan skema Konsep |
 | Nama model default dan ketersediaan free tier | `DEFAULT_MODEL_HINT` | Pilihan dari `models.list` | Lihat daftar model dan batas di AI Studio |

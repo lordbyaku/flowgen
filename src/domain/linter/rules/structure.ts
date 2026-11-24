@@ -1,4 +1,5 @@
-import { LINT_MAX_WORDS, LINT_MIN_WORDS, MAX_DIALOGUE_WORDS, MAX_SCENE_SEC } from '@/config/constants';
+import { LINT_MAX_WORDS, LINT_MIN_WORDS, MAX_SCENE_SEC } from '@/config/constants';
+import { dialogueWordBudget } from '@/domain/wordBudget';
 import { countWords } from '@/lib/utils';
 import type { LintRule } from '../types';
 
@@ -45,9 +46,10 @@ export const L11: LintRule = {
   id: 'L11',
   severity: 'warn',
   title: 'Dialog terlalu panjang',
-  check: (scene) => {
+  check: (scene, ctx) => {
     const n = countWords(scene.dialogue);
-    return n > MAX_DIALOGUE_WORDS ? [`Dialog ${n} kata; disarankan maksimal ${MAX_DIALOGUE_WORDS} kata per scene.`] : [];
+    const max = dialogueWordBudget(scene.durationSec, ctx.brief.project.scriptLanguage);
+    return n > max ? [`Dialog ${n} kata; disarankan maksimal ${max} kata untuk scene ${scene.durationSec} detik.`] : [];
   },
 };
 

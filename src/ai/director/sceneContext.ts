@@ -1,6 +1,7 @@
 import { PROMPT_WORDS } from '@/config/constants';
+import { dialogueWordBudget } from '@/domain/wordBudget';
 import { isFlowAssetsMode, locationForScene } from '@/domain/assets';
-import type { AssetsDoc, BiblesDoc, Brief, Scene, Variant } from '@/types';
+import type { AssetsDoc, BiblesDoc, Brief, Scene, ScriptLanguage, Variant } from '@/types';
 
 /** Mode aset Flow: karakter/tempat/produk sudah dibuat di Flow, prompt scene cukup menyebut namanya. */
 export const usesFlowAssets = isFlowAssetsMode;
@@ -66,7 +67,8 @@ export function biblesBlock(bibles: BiblesDoc): string {
   ].join('\n');
 }
 
-export function sceneBlock(s: Scene, index: number, assets?: AssetsDoc | null): string {
+/** `lang` diisi agar batas kata dialog per scene ikut dikirim. */
+export function sceneBlock(s: Scene, index: number, assets?: AssetsDoc | null, lang?: ScriptLanguage): string {
   const loc = assets ? locationForScene(s, assets) : null;
   return [
     `- sceneId: ${s.id}`,
@@ -84,6 +86,7 @@ export function sceneBlock(s: Scene, index: number, assets?: AssetsDoc | null): 
     `  lighting: ${s.lighting}`,
     `  transition: ${s.transition}`,
     `  dialogue: ${s.dialogue || '(none)'}`,
+    ...(lang && s.dialogue ? [`  dialogueMaxWords: ${dialogueWordBudget(s.durationSec, lang)}`] : []),
     `  sfxAmbient: ${s.sfxAmbient}`,
   ].join('\n');
 }
@@ -93,7 +96,7 @@ export function promptFormatRules(brief: Brief, variants: Variant[], assets?: As
   if (usesFlowAssets(brief, assets)) return flowAssetRules(brief, variants);
   const [min, max] = PROMPT_WORDS[brief.output.promptLength];
   const dialogue = brief.audio.characterDialogue
-    ? '- Dialogue is ENABLED: include `The character says in Indonesian: "<line>".` using the scene dialogue (max ~18 words).'
+    ? '- Dialogue is ENABLED: include `The character says in Indonesian: "<line>".` using the scene dialogue (at most dialogueMaxWords words of that scene; shorten if longer).'
     : '- Dialogue is DISABLED: do not include any spoken lines in the prompt.';
   const extra = variants.filter((v) => v !== 'standard');
   return [
@@ -129,7 +132,7 @@ function variantRule(variants: Variant[]): string {
 function flowAssetRules(brief: Brief, variants: Variant[]): string {
   const ratio = brief.project.aspectRatio;
   const dialogue = brief.audio.characterDialogue
-    ? '- Dialogue is ENABLED: add `<Flow character name> says in Indonesian: "<line>".` using the scene dialogue (max ~18 words).'
+    ? '- Dialogue is ENABLED: add `<Flow character name> says in Indonesian: "<line>".` using the scene dialogue (at most dialogueMaxWords words of that scene; shorten if longer).'
     : '- Dialogue is DISABLED: do not include any spoken lines.';
   return [
     'FLOW PROMPT FORMAT — STORY SCENE using existing Flow assets (one English paragraph):',

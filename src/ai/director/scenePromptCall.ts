@@ -53,7 +53,7 @@ export function buildScenePromptBatches(
       '</full_storyboard_outline>',
       '',
       `<scenes_for_this_batch batch="${bi + 1}/${batches.length}">`,
-      ...batch.map((s) => sceneBlock(s, sorted.findIndex((x) => x.id === s.id), assets)),
+      ...batch.map((s) => sceneBlock(s, sorted.findIndex((x) => x.id === s.id), assets, brief.project.scriptLanguage)),
       '</scenes_for_this_batch>',
       '',
       'TASK (Call 3 — Flow prompts):',

@@ -14,6 +14,11 @@ export function sceneWordBudget(sceneSec: number, lang: ScriptLanguage): number 
   return Math.floor(sceneSec * VO_FILL_RATIO * wpsFor(lang));
 }
 
+/** Batas kata dialog karakter per scene, dihitung dari durasi (kecepatan bicara sama dengan VO). */
+export function dialogueWordBudget(sceneSec: number, lang: ScriptLanguage): number {
+  return sceneWordBudget(sceneSec, lang);
+}
+
 export function estimateSpokenSec(text: string, lang: ScriptLanguage): number {
   return Math.round((countWords(text) / wpsFor(lang)) * 10) / 10;
 }

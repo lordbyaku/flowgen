@@ -45,7 +45,6 @@ export const MAX_HASHTAGS = 15;
 export const KEY_TEST_MAX_OUTPUT_TOKENS = 8;
 export const SCENE_PROMPT_BATCH = 6;
 export const BRIEF_FIELD_MAX_CHARS = 800;
-export const MAX_DIALOGUE_WORDS = 18; // [VERIFIKASI] cara Flow menangani dialog
 export const PROMPT_WORDS = { short: [50, 90], detailed: [120, 220] } as const;
 export const LINT_MIN_WORDS = 40;
 export const LINT_MAX_WORDS = 220;

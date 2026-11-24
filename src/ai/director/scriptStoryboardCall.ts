@@ -1,7 +1,7 @@
 import { MAX_OUTPUT_TOKENS, MAX_SCENE_SEC, MIN_SCENE_SEC, TEMPERATURE } from '@/config/constants';
 import { ScriptStoryboardOutputSchema } from '@/schemas/storyboard.schema';
 import { targetSceneCount } from '@/domain/duration';
-import { estimateSpokenSec } from '@/domain/wordBudget';
+import { dialogueWordBudget, estimateSpokenSec } from '@/domain/wordBudget';
 import { newShortId } from '@/lib/ids';
 import { countWords } from '@/lib/utils';
 import type {
@@ -47,6 +47,7 @@ export function buildScriptStoryboardCall(brief: Brief, concept: Concept, brand?
     '- Fill every scene field: title, purpose, visualDescription, characterIds, characterAction, environment, shot,',
     '  cameraMovement, lighting, transition, voiceOver, dialogue, sfxAmbient, textOverlay.',
     '  voiceOver in the script language; empty string if voice-over is disabled. dialogue empty unless characterDialogue = yes.',
+    `  dialogue (if any) must fit the clip: at most ${dialogueWordBudget(MAX_SCENE_SEC, p.scriptLanguage)} words for a ${MAX_SCENE_SEC}s scene, proportionally fewer for shorter scenes.`,
     '  textOverlay is the CapCut overlay text (never rendered by the AI video).',
     '  shot/cameraMovement/lighting/environment/visualDescription/characterAction in English.',
     `- ${charHint}`,

@@ -62,7 +62,7 @@ export function buildPromptFixCall(brief: Brief, input: PromptFixInput) {
     sceneContextBlock(brief, input.bibles, input.assets),
     '',
     '<scene>',
-    sceneBlock(cur, idx, input.assets),
+    sceneBlock(cur, idx, input.assets, brief.project.scriptLanguage),
     '</scene>',
     '<current_prompt note="the clip rendered from this prompt in Google Flow had problems">',
     scenePrompt(cur, input.variant) || cur.flowPrompts.standard,

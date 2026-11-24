@@ -6,6 +6,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [S
 
 ### Diubah
 - **Batas durasi scene naik dari 8 ke 10 detik** mengikuti Gemini Omni 1.2 Flash, model default Google Flow sejak 5 November 2026 (klip 3–15 detik; paket gratis maks 10 detik). Berlaku untuk storyboard, linter L01, jumlah scene minimum, dan instruksi AI.
+- **Batas kata dialog karakter kini mengikuti durasi scene** (durasi × 0,85 × kecepatan bicara; mis. 19 kata untuk 10 detik, 7 kata untuk 4 detik), menggantikan batas tetap 18 kata. Dipakai di linter L11, petunjuk Langkah 8, dan instruksi AI (naskah, prompt scene, regenerasi, perbaikan, varian hook).
 
 ## [1.4.0] - 2026-11-23
 

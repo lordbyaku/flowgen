@@ -29,7 +29,7 @@ export function buildSceneRegenCall(
     `<previous_scene>${prev ? `${prev.title} — VO: ${prev.voiceOver || '-'}` : '(none — this is the first scene, it must contain the hook)'}</previous_scene>`,
     `<next_scene>${next ? `${next.title} — VO: ${next.voiceOver || '-'}` : '(none — this is the last scene, it must contain the CTA)'}</next_scene>`,
     '<current_scene>',
-    sceneBlock(cur, idx, assets),
+    sceneBlock(cur, idx, assets, brief.project.scriptLanguage),
     `  voiceOver: ${cur.voiceOver || '(none)'}`,
     `  textOverlay: ${cur.textOverlay || '(none)'}`,
     '</current_scene>',

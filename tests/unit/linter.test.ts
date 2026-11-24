@@ -79,9 +79,12 @@ describe('Prompt Linter (L01–L13)', () => {
     expect(r.find((i) => i.ruleId === 'L10')?.severity).toBe('info');
   });
 
-  it('L11 dialog > 18 kata', () => {
+  it('L11 dialog melebihi batas kata sesuai durasi scene', () => {
     expect(ids(makeScene({ dialogue: 'Halo, ini kasir baru saya.' }))).not.toContain('L11');
-    expect(ids(makeScene({ dialogue: 'kata '.repeat(19) }))).toContain('L11');
+    // 10 detik × 0,85 × 2,3 kata/detik = 19 kata; 4 detik = 7 kata.
+    expect(ids(makeScene({ durationSec: 10, dialogue: 'kata '.repeat(19) }))).not.toContain('L11');
+    expect(ids(makeScene({ durationSec: 10, dialogue: 'kata '.repeat(20) }))).toContain('L11');
+    expect(ids(makeScene({ durationSec: 4, dialogue: 'kata '.repeat(8) }))).toContain('L11');
   });
 
   it('L12 terlalu banyak kata Indonesia di luar kutipan', () => {

@@ -2,8 +2,8 @@ import { Input } from '@/components/ui/input';
 import { Field } from '@/components/common/Field';
 import { MultiToggle, optionsFrom } from '@/components/common/ToggleGroup';
 import { GLOBAL_NEGATIVE_OPTIONS, LABELS } from '@/config/enums';
-import { MAX_DIALOGUE_WORDS, WORDS_PER_SEC } from '@/config/constants';
-import { totalWordBudget } from '@/domain/wordBudget';
+import { MAX_SCENE_SEC, WORDS_PER_SEC } from '@/config/constants';
+import { dialogueWordBudget, totalWordBudget } from '@/domain/wordBudget';
 import { BoolField, EnumField, ListField, StepSection, TextField, useBrief, useSetBrief } from '../fields';
 
 export function Step8Output() {
@@ -25,7 +25,7 @@ export function Step8Output() {
           <strong>{totalWordBudget(brief.project.durationSec, brief.project.scriptLanguage)} kata</strong> untuk {brief.project.durationSec} detik.
         </p>
       )}
-      <BoolField path="audio.characterDialogue" label="Dialog karakter di dalam video" hint={`Bila Ya, prompt memuat dialog (maks ±${MAX_DIALOGUE_WORDS} kata per scene)`} />
+      <BoolField path="audio.characterDialogue" label="Dialog karakter di dalam video" hint={`Bila Ya, prompt memuat dialog. Batas kata mengikuti durasi scene, mis. maks ${dialogueWordBudget(MAX_SCENE_SEC, brief.project.scriptLanguage)} kata untuk scene ${MAX_SCENE_SEC} detik.`} />
       <TextField path="audio.musicMood" label="Mood musik" placeholder="mis. Upbeat ringan, akustik" />
       <TextField path="audio.sfx" label="SFX" placeholder="mis. Bunyi notifikasi, kasir" />
       <TextField path="audio.ambient" label="Ambient" placeholder="mis. Keramaian warung pagi" />

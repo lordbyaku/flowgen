@@ -35,12 +35,12 @@ export function buildHookVariantsCall(
     '',
     input.concept ? `<concept>${input.concept.title} — original hook idea: ${input.concept.openingHook}</concept>` : '',
     '<original_opening_scene>',
-    sceneBlock(first, 0, input.assets),
+    sceneBlock(first, 0, input.assets, brief.project.scriptLanguage),
     `  voiceOver: ${first.voiceOver || '(none)'}`,
     `  textOverlay: ${first.textOverlay || '(none)'}`,
     '</original_opening_scene>',
     second
-      ? ['<next_scene note="every hook must cut naturally into this scene">', sceneBlock(second, 1, input.assets), `  voiceOver: ${second.voiceOver || '(none)'}`, '</next_scene>'].join('\n')
+      ? ['<next_scene note="every hook must cut naturally into this scene">', sceneBlock(second, 1, input.assets, brief.project.scriptLanguage), `  voiceOver: ${second.voiceOver || '(none)'}`, '</next_scene>'].join('\n')
       : '',
     ...pastPerformanceBlock(input.learnings),
     '',

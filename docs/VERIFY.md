@@ -5,7 +5,7 @@ Semua item diimplementasikan lewat konstanta atau satu file adapter. Status: **b
 | Item | Lokasi di kode | Nilai awal | Cara verifikasi | Status |
 |---|---|---|---|---|
 | Batas durasi klip Google Flow | `MAX_SCENE_SEC` (`src/config/constants.ts`) | 10 (Omni 1.2 Flash: 3–15 dtk, gratis maks 10) | Buat satu klip, lihat durasi maks di Flow | Sebagian (dokumentasi Nov 2026) |
-| Dialog/audio di prompt Flow | `MAX_DIALOGUE_WORDS`, `promptFormatRules` (`src/ai/director/sceneContext.ts`) | ±18 kata | Uji prompt dengan & tanpa dialog | Belum |
+| Dialog/audio di prompt Flow | `dialogueWordBudget` (`src/domain/wordBudget.ts`), `promptFormatRules` (`src/ai/director/sceneContext.ts`) | durasi × 0,85 × kata/detik (10 dtk ≈ 19 kata) | Uji prompt dengan & tanpa dialog | Belum |
 | Konsistensi karakter Flow | `output.flowMode` | Teks ke video | Cek fitur Flow terbaru | Belum |
 | Format `responseSchema` Gemini | `src/ai/json/toGeminiSchema.ts` | Subset OpenAPI, tipe huruf besar, `propertyOrdering` | Satu panggilan nyata dengan skema Konsep | Belum (tes unit dengan fetch palsu lulus) |
 | Model default | `DEFAULT_MODEL_HINT` | `gemini-2.5-flash` (fallback; utamakan `models.list`) | Lihat daftar model di AI Studio | Belum |
