@@ -38,6 +38,18 @@ async function mockGemini(page: Page) {
     if (!url.includes(':generateContent')) return route.fulfill({ json: { name: 'models/gemini-test' } });
     const body = route.request().postDataJSON() as { contents: { parts: { text: string }[] }[] };
     const prompt = body.contents[0].parts[0].text;
+    if (prompt.includes('<owner_notes>'))
+      return route.fulfill({
+        json: geminiJson({
+          fields: [
+            { path: 'characters.mode', values: ['no_people'] },
+            { path: 'product.name', values: ['Kopi Senja Botol'] },
+            { path: 'project.objective', values: ['direct_sales'] },
+            { path: 'product.benefits', values: ['Manis pas', 'Dibuat tiap pagi'] },
+          ],
+          assumptions: ['Target usia ditebak 18-24.'],
+        }),
+      });
     if (prompt.includes('Call 1'))
       return route.fulfill({
         json: geminiJson({
@@ -193,4 +205,37 @@ test('alur brief → konsep → naskah → prompt → export', async ({ page }) 
   await expect(page.getByText('## Varian Hook (ganti scene 1 per varian di CapCut)')).toBeVisible();
   await expect(page.getByText('## Paket Posting')).toBeVisible();
   expect(await page.content()).not.toContain(FAKE_KEY);
+});
+
+test('pemula: Mulai cepat → Panduan → Brief cepat', async ({ page }) => {
+  await mockGemini(page);
+  await page.goto('/login');
+  await page.getByRole('button', { name: 'Masuk ke Mode Demo' }).click();
+  await expect(page.getByText('Mulai cepat')).toBeVisible();
+
+  await page.getByRole('link', { name: 'Siapkan' }).click();
+  await expect(page.getByText('Cara menyiapkan API key (sekali saja)')).toBeVisible();
+  await page.getByRole('button', { name: 'Siapkan vault' }).first().click();
+  await page.getByRole('radio', { name: /Hanya sesi/ }).click();
+  await page.getByRole('button', { name: 'Siapkan vault' }).last().click();
+  await page.getByRole('button', { name: 'Tambah key' }).first().click();
+  await page.locator('#k-label').fill('Key E2E');
+  await page.locator('#k-proj').fill('ProjE2E');
+  await page.locator('#k-key').fill(FAKE_KEY);
+  await page.getByRole('button', { name: 'Simpan & lanjut' }).click();
+  await page.getByRole('button', { name: 'Tes koneksi' }).click();
+  await expect(page.getByText('Terhubung').first()).toBeVisible();
+  await page.getByRole('button', { name: 'Selesai' }).click();
+
+  await page.getByRole('navigation', { name: 'Navigasi utama' }).getByRole('link', { name: 'Panduan' }).click();
+  await expect(page.getByText('Membuat klip di Google Flow').first()).toBeVisible();
+  await page.getByRole('link', { name: /Coba Brief cepat/ }).click();
+
+  await page.locator('#qb-brand').fill('Kopi Senja');
+  await page.locator('#qb-notes').fill('Kopi susu gula aren dalam botol untuk mahasiswa dekat kampus, dibuat tiap pagi.');
+  await page.getByRole('button', { name: /Buat brief dengan AI/ }).click();
+  await expect(page.getByRole('heading', { name: 'Brief cepat siap' })).toBeVisible();
+  await expect(page.getByText('Target usia ditebak 18-24.')).toBeVisible();
+  await page.getByRole('button', { name: 'Periksa brief' }).click();
+  await expect(page.getByText('Kopi Senja Botol').first()).toBeVisible();
 });

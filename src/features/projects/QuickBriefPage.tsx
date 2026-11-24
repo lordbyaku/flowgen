@@ -67,7 +67,7 @@ export default function QuickBriefPage() {
     try {
       let finalBrandId = brandId;
       if (isNewBrand) {
-        const brand = await createBrand(uid, BrandFormSchema.parse({ name: brandName.trim(), description: notes.trim().slice(0, 2000) }));
+        const brand = await createBrand(uid, BrandFormSchema.parse({ name: brandName.trim(), website: '', description: notes.trim().slice(0, 2000) }));
         finalBrandId = brand.id;
       }
       const name = projectName.trim() || `Video ${r.brief.product.name || brandName.trim() || 'baru'}`.slice(0, 120);
