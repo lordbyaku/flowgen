@@ -58,6 +58,8 @@ export const SceneSchema = z.object({
   textOverlay: z.string(),
   flowPrompts: FlowPromptsSchema,
   framePrompts: FramePromptsSchema.optional(),
+  /** Prompt Omni Extend (v1.5): lanjutan langsung dari klip scene sebelumnya. Hanya bila scene menyambung tanpa potongan. */
+  extendPrompt: z.string().optional(),
   negativePrompt: z.string(),
   approved: z.boolean(),
   tracker: TrackerStatusSchema,

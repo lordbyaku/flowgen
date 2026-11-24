@@ -3,6 +3,8 @@ import { createAiService } from '@/ai/aiService';
 import type { AIRouter } from '@/ai/router/aiRouter';
 import { buildClipEditCall } from '@/ai/director/promptFixCall';
 import { CONTINUOUS_SHOT, promptFormatRules } from '@/ai/director/sceneContext';
+import { applyPromptItems, buildScenePromptBatches } from '@/ai/director/scenePromptCall';
+import { scenePromptTxt } from '@/domain/exporters/txt';
 import { avoidLineOn, copyText, frameCopyText } from '@/domain/promptText';
 import { buildShootQueue } from '@/domain/shootQueue';
 import { makeBibles, makeBrief, makeScene } from './helpers';
@@ -60,5 +62,25 @@ describe('v1.5 — instruksi edit klip Omni', () => {
     expect(r.value.flowPrompts).toEqual(scene.flowPrompts);
     expect(r.value.versions).toEqual(scene.versions);
     expect(r.value.lastFix).toMatchObject({ mode: 'edit', editInstruction: 'Edit this video keeping everything else the same. Add the green apron.', at: 9 });
+  });
+});
+
+describe('v1.5 — prompt Omni Extend', () => {
+  it('Panggilan 3 meminta extendPrompt dengan aturannya', () => {
+    const s = [makeScene({ id: 'a', order: 0 }), makeScene({ id: 'b', order: 1 })];
+    const [batch] = buildScenePromptBatches(makeBrief(), s, s, makeBibles());
+    expect(batch.call.userPrompt).toContain('extendPrompt (only when it applies)');
+    expect(batch.call.userPrompt).toContain('EXTEND PROMPT');
+  });
+
+  it('hanya disimpan untuk scene selain scene pertama, dan ikut ke Mode Produksi + TXT', () => {
+    const s = [makeScene({ id: 'a', order: 0 }), makeScene({ id: 'b', order: 1 })];
+    const item = (id: string) => ({ sceneId: id, standard: 'P', negativePrompt: '', extendPrompt: ' She keeps walking. ' });
+    const out = applyPromptItems(s, [item('a'), item('b')], makeBrief(), 1);
+    expect(out[0].extendPrompt).toBeUndefined();
+    expect(out[1].extendPrompt).toBe('She keeps walking.');
+    const q = buildShootQueue(makeBrief(), { scenes: out, assets: null, hooks: null });
+    expect(q[1].copies.map((c) => c.label)).toContain('Prompt Extend dari scene 1 (opsional)');
+    expect(scenePromptTxt(out[1], 1)).toContain('[EXTEND DARI SCENE 1 (opsional)]');
   });
 });

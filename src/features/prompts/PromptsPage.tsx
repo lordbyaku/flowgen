@@ -190,6 +190,16 @@ function PromptCard({ scene, index, variants, onRegen }: { scene: Scene; index: 
             )}
           </div>
         )}
+        {scene.extendPrompt && (
+          <div className="space-y-1 rounded-md border border-dashed p-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-medium text-muted-foreground">Prompt Extend (opsional) — lanjutan langsung dari klip scene {index}</span>
+              <CopyButton label="Salin" getText={() => scene.extendPrompt ?? ''} />
+            </div>
+            <p className="prose-prompt text-xs">{scene.extendPrompt}</p>
+            <p className="text-xs text-muted-foreground">Di Flow: buka klip scene {index}, pilih Extend, lalu tempel prompt ini. Karakter dan tempat ikut dari klip sebelumnya.</p>
+          </div>
+        )}
         {!editing && (
           <div className="flex flex-wrap gap-2">
             <CopyButton

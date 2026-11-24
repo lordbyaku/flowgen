@@ -108,6 +108,17 @@ export function audioRules(brief: Brief): string[] {
   ];
 }
 
+/** Aturan prompt Omni Extend (v1.5): hanya untuk scene yang menyambung langsung dari scene sebelumnya. */
+export function extendRules(brief: Brief): string[] {
+  return [
+    '',
+    'EXTEND PROMPT (optional, Google Flow "Extend" with Gemini Omni continues the clip of the previous scene):',
+    '- extendPrompt: write it ONLY when this scene is not scene 1 AND continues directly from the previous scene with no cut: same place, same characters, continuous action (e.g. she keeps walking to the counter). Otherwise omit it.',
+    '- Describe ONLY what happens next: the action and one camera movement, 25-60 words, English. Do not re-describe characters, setting or style; the clip already shows them.',
+    `- ${brief.audio.characterDialogue ? 'Include the scene dialogue line if any (same format as the main prompt). ' : ''}End with the same "Audio:" sentence and "${CONTINUOUS_SHOT}". No aspect ratio, no on-screen text.`,
+  ];
+}
+
 /** Instruksi format prompt Flow (23.5). Mode aset Flow memakai format pendek berbasis nama. */
 export function promptFormatRules(brief: Brief, variants: Variant[], assets?: AssetsDoc | null): string {
   if (usesFlowAssets(brief, assets)) return flowAssetRules(brief, variants);

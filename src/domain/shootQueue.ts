@@ -97,6 +97,8 @@ export function buildShootQueue(
         { label: 'Frame awal (gambar)', text: frameCopyText(s, 'start', avoid) },
         { label: 'Frame akhir (gambar)', text: frameCopyText(s, 'end', avoid) },
         { label: 'Prompt video', text: s.flowPrompts.standard.trim() ? prompt : '' },
+        // Alternatif (v1.5): lanjutkan klip scene sebelumnya dengan Extend.
+        { label: `Prompt Extend dari scene ${i} (opsional)`, text: s.extendPrompt ?? '' },
       ].filter((x) => x.text.trim()),
       done: isProduced(s.tracker),
       tracker: s.tracker,

@@ -172,6 +172,7 @@ export function toMarkdown(
       }
       if (s.framePrompts?.start) out.push('**Frame awal (gambar)**', '```text', s.framePrompts.start, '```');
       if (s.framePrompts?.end) out.push('**Frame akhir (gambar)**', '```text', s.framePrompts.end, '```');
+      if (s.extendPrompt) out.push(`**Extend dari scene ${i} (opsional)**`, '```text', s.extendPrompt, '```');
     });
   }
 

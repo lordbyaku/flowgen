@@ -1387,3 +1387,6 @@ Keputusan pemilik:
    Tidak ada peringatan khusus soal dukungan bahasa Indonesia.
 5. **Instruksi edit klip (Omni)** sebagai pilihan kedua di dialog "Perbaiki dari hasil Flow". Memakai tugas AI `prompt_fix`
    dengan keluaran `{ instruction, changes }`. Disimpan di `scene.lastFix` (`mode: 'edit'`, `editInstruction`); prompt tidak berubah.
+6. **Prompt Extend** (`scene.extendPrompt`, opsional): ditulis AI di Panggilan 3 dan regenerasi hanya bila scene menyambung langsung
+   dari scene sebelumnya. Isinya hanya aksi berikutnya + satu gerakan kamera (25–60 kata), baris Audio, dan kalimat satu shot.
+   Tidak pernah untuk scene pertama. Ikut ke Mode Produksi dan ekspor TXT/Markdown.

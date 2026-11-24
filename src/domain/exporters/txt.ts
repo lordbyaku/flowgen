@@ -10,6 +10,7 @@ export function scenePromptTxt(scene: Scene, index: number, variant: Variant = '
   const frames = [
     scene.framePrompts?.start ? `\n[FRAME AWAL]\n${scene.framePrompts.start}` : '',
     scene.framePrompts?.end ? `\n[FRAME AKHIR]\n${scene.framePrompts.end}` : '',
+    scene.extendPrompt ? `\n[EXTEND DARI SCENE ${index} (opsional)]\n${scene.extendPrompt}` : '',
   ].filter(Boolean);
   return [head, prompt, '', neg ? `Avoid: ${neg}` : '', ...frames].join('\n').trimEnd();
 }

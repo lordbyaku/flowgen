@@ -104,6 +104,7 @@ Mode akun menyimpan key sebagai teks biasa yang dilindungi Security Rules: siapa
 - Tahap Posting: caption, hashtag, judul, teks cover, dan komentar pin per platform (panggilan AI `publish_pack`), siap salin.
 - Varian Hook: 3 scene pembuka alternatif (gaya hook berbeda) untuk uji A/B tanpa merender ulang badan video (panggilan AI `hook_variants`).
 - Perbaiki prompt dari hasil Flow: pilih masalah klip (wajah berubah, produk salah, teks muncul, gerak aneh, dll.) lalu AI menulis ulang prompt scene itu saja (panggilan AI `prompt_fix`). Opsi **Instruksi edit klip (Omni)** menulis instruksi edit untuk klip yang sudah dirender, tanpa mengubah prompt.
+- Prompt Extend (opsional) untuk scene yang menyambung langsung dari scene sebelumnya: lanjutkan klip lama dengan fitur Extend Gemini Omni di Flow.
 - Mode Produksi untuk HP: satu item per layar (aset → scene → varian hook), salin besar, tandai sudah dibuat, lanjut otomatis.
 - Konten turunan tanpa AI: seri (angle berbeda, karakter sama), versi pendek dari scene terpilih (klip dipakai ulang), dan rasio lain (cukup ulang prompt scene).
 - Catatan performa per video (views, interaksi, retensi 3 detik): ringkasan per gaya hook/angle di Dashboard, dan dipakai AI sebagai pelajaran untuk konsep dan varian hook berikutnya.

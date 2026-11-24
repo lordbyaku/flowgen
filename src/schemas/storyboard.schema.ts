@@ -20,6 +20,7 @@ export const ScenePromptItemSchema = z.object({
   premium: z.string().optional(),
   startFrame: z.string().optional(),
   endFrame: z.string().optional(),
+  extendPrompt: z.string().optional(),
   negativePrompt: z.string(),
 });
 
@@ -39,6 +40,7 @@ export const SceneRegenOutputSchema = z.object({
   scene: SceneDraftSchema,
   flowPrompts: FlowPromptsSchema,
   framePrompts: FramePromptsSchema.optional(),
+  extendPrompt: z.string().optional(),
   negativePrompt: z.string(),
 });
 

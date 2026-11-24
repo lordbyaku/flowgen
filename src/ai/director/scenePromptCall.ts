@@ -4,7 +4,7 @@ import { buildNegative } from '@/domain/promptText';
 import { pushVersion } from '@/domain/sceneVersions';
 import type { AssetsDoc, BiblesDoc, Brief, Scene, ScenePromptItem, Variant } from '@/types';
 import { briefDigest } from './briefSerializer';
-import { promptFormatRules, sceneBlock, sceneContextBlock } from './sceneContext';
+import { extendRules, promptFormatRules, sceneBlock, sceneContextBlock } from './sceneContext';
 import { buildSystemPrompt } from './systemPrompts';
 
 export function chunk<T>(arr: T[], size: number): T[][] {
@@ -57,8 +57,9 @@ export function buildScenePromptBatches(
       '</scenes_for_this_batch>',
       '',
       'TASK (Call 3 — Flow prompts):',
-      `For EACH scene in this batch return one item in prompts with the same sceneId: standard${variants.includes('cinematic') ? ', cinematic' : ''}${variants.includes('premium') ? ', premium' : ''}${brief.output.flowMode !== 'text_to_video' ? ', startFrame' : ''}${brief.output.flowMode === 'frames' ? ', endFrame' : ''}, negativePrompt.`,
+      `For EACH scene in this batch return one item in prompts with the same sceneId: standard${variants.includes('cinematic') ? ', cinematic' : ''}${variants.includes('premium') ? ', premium' : ''}${brief.output.flowMode !== 'text_to_video' ? ', startFrame' : ''}${brief.output.flowMode === 'frames' ? ', endFrame' : ''}, extendPrompt (only when it applies), negativePrompt.`,
       promptFormatRules(brief, variants, assets),
+      ...extendRules(brief),
       ...(final
         ? [
             '',
@@ -96,6 +97,12 @@ export function framePromptsFor(brief: Brief, start?: string, end?: string): Sce
   };
 }
 
+/** Prompt Extend hanya disimpan untuk scene selain scene pertama. */
+export function extendPromptFor(scene: Pick<Scene, 'order'>, text?: string): string | undefined {
+  const t = text?.trim();
+  return scene.order > 0 && t ? t : undefined;
+}
+
 /** Gabungkan hasil prompt ke scene target. Scene lain tidak disentuh. */
 export function applyPromptItems(scenes: Scene[], items: ScenePromptItem[], brief: Brief, now: number): Scene[] {
   const byId = new Map(items.map((i) => [i.sceneId, i]));
@@ -111,6 +118,7 @@ export function applyPromptItems(scenes: Scene[], items: ScenePromptItem[], brie
         ...(variants.includes('premium') && it.premium ? { premium: it.premium } : {}),
       },
       framePrompts: framePromptsFor(brief, it.startFrame, it.endFrame),
+      extendPrompt: extendPromptFor(s, it.extendPrompt),
       negativePrompt: buildNegative(it.negativePrompt, brief),
       tracker: 'prompt_ready',
       updatedAt: now,
