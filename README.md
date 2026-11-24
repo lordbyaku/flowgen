@@ -6,6 +6,7 @@ Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.4). Keputusan implementasi: [`docs/D
 
 | Versi | Tanggal | Catatan |
 |---|---|---|
+| 1.6.0 | 2026-11-24 | Untuk pemula: Brief cepat (AI mengisi brief dari beberapa kalimat), halaman Panduan + kamus istilah, checklist Mulai cepat, tab opsional ditandai, halaman API key lebih sederhana |
 | 1.5.0 | 2026-11-24 | Google Flow dengan Gemini Omni 1.2 Flash: scene maks 10 detik, baris Audio + satu shot di prompt, batas kata dialog per durasi, instruksi edit klip, prompt Extend, perkiraan kredit Flow, baris Avoid opsional |
 | 1.4.0 | 2026-11-23 | Posting (caption/hashtag), Varian Hook, Mode Produksi HP, perbaiki prompt dari hasil Flow, konten turunan (seri/versi pendek/rasio), catatan performa |
 | 1.3.1 | 2026-11-23 | Tombol Keluar di header untuk layar HP |
@@ -17,7 +18,9 @@ Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.4). Keputusan implementasi: [`docs/D
 
 ## Alur kerja
 
-1. Isi Brief (wizard 8 langkah + Review, autosave, skor kelengkapan, preset, template).
+Baru pertama kali? Ikuti checklist **Mulai cepat** di Dashboard dan buka menu **Panduan** (`/guide`).
+
+1. Isi Brief lewat **Brief cepat** (`/projects/quick`: beberapa kalimat tentang produk, AI mengisi sisanya) atau wizard 8 langkah + Review (autosave, skor kelengkapan, preset, template).
 2. Buat & pilih konsep (Panggilan AI 1).
 3. Buat naskah, storyboard, Character Bible, Visual Bible (Panggilan AI 2), lalu review.
 4. **Karakter & Tempat**: salin prompt aset ke Google Flow dan buat karakter, tempat, dan produk di sana lebih dulu (beri nama yang sama dengan "Nama di Flow").
@@ -100,6 +103,11 @@ Mode akun menyimpan key sebagai teks biasa yang dilindungi Security Rules: siapa
 - Drag-and-drop urutan scene (dnd-kit, bisa dengan keyboard).
 - Preset tambahan (Kecantikan, Properti, Promo Musiman) & aturan linter aktif/nonaktif per project.
 - Uji E2E Playwright dengan Gemini dipalsukan.
+
+**Peningkatan v1.6 (untuk pemula)**
+- Brief cepat (`/projects/quick`): tulis beberapa kalimat tentang produk; satu panggilan AI mengisi field wajib dan penting, lengkap dengan daftar tebakan yang perlu dicek. Brand bisa dibuat langsung.
+- Halaman Panduan (`/guide`): alur 4 tahap, langkah pertama kali, fungsi tiap tab, cara membuat klip di Google Flow, merakit di CapCut, kamus istilah, masalah umum.
+- Checklist "Mulai cepat" di Dashboard, tanda "(opsional)" di tab project, dan kartu 3 langkah menyiapkan API key di AI Provider.
 
 **Peningkatan v1.4**
 - Tahap Posting: caption, hashtag, judul, teks cover, dan komentar pin per platform (panggilan AI `publish_pack`), siap salin.

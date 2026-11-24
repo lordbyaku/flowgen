@@ -2,7 +2,7 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [Semantic Versioning](https://semver.org/lang/id/).
 
-## [Unreleased]
+## [1.6.0] - 2026-11-24
 
 ### Ditambahkan
 - **Halaman Panduan** (`/guide`, menu "Panduan"): alur besar 4 tahap (Brief → Prompt → klip di Google Flow → CapCut), langkah pertama kali (API key dari Google AI Studio, vault "Tersimpan di akun", Brief cepat), fungsi setiap tab project dengan tanda opsional, cara membuat klip di Flow (aset, frame, draft 360p, Extend, "Hasil Flow gagal?"), merakit di CapCut, kamus istilah, dan masalah umum.

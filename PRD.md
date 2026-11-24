@@ -1395,3 +1395,19 @@ Keputusan pemilik:
 8. **Baris Avoid opsional** (`brief.output.avoidLine`, default ya) untuk semua salinan dan ekspor prompt.
 
 Tidak dikerjakan: pemadatan prompt mode deskripsi untuk Omni.
+
+# Perubahan v1.6 (2026-11-24): pengalaman pemula
+
+Keputusan pemilik: aplikasi harus bisa dipakai pemula tanpa penjelasan di luar aplikasi.
+
+1. **Brief cepat** (`/projects/quick`): input = brand (pilih atau nama baru), catatan bebas 20–2000 karakter, platform, durasi,
+   bahasa VO, nama project opsional. Satu panggilan AI (tugas `brief_assist`, skema `{ fields: [{ path, values }], assumptions }`)
+   mengisi field W/P yang kosong, termasuk `characters.mode`. Field yang diputuskan pengguna dan gambar/URL tidak diisi AI.
+   Setiap nilai divalidasi `BriefSchema`; enum harus persis. AI dilarang mengarang harga, angka, sertifikasi, dan testimoni.
+   Hasil: jumlah field terisi, daftar tebakan AI, field wajib yang masih kosong, tombol "Periksa brief" / "Langsung buat konsep".
+2. **Panduan** (`/guide`, menu utama): alur 4 tahap, langkah pertama kali, fungsi tiap tab (dari `HUB_STEPS`), cara membuat klip
+   di Google Flow, merakit di CapCut, kamus istilah, masalah umum.
+3. **Checklist Mulai cepat** di Dashboard sampai ada key dan project: API key → Brief cepat → Panduan.
+4. **Tab opsional** ditandai: Varian Hook, Produksi, Posting, Export.
+5. **AI Provider**: kartu 3 langkah bila belum ada key; peringatan keamanan diringkas dengan "Baca selengkapnya";
+   Strategi routing hanya tampil bila ada ≥2 key.
