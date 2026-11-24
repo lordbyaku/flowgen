@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { BookMarked, Building2, Clapperboard, FolderKanban, KeyRound, LayoutDashboard, LogOut, Settings, WifiOff } from 'lucide-react';
+import { BookMarked, BookOpen, Building2, Clapperboard, FolderKanban, KeyRound, LayoutDashboard, LogOut, Settings, WifiOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AiRunBar } from '@/components/common/AiStatus';
@@ -21,6 +21,7 @@ const NAV = [
   { to: '/library', label: 'Prompt Library', short: 'Library', icon: BookMarked },
   { to: '/provider', label: 'AI Provider', short: 'AI', icon: KeyRound },
   { to: '/settings', label: 'Settings', short: 'Atur', icon: Settings },
+  { to: '/guide', label: 'Panduan', short: 'Panduan', icon: BookOpen },
 ];
 
 function useVaultLifecycle() {
@@ -158,7 +159,7 @@ export function AppShell() {
         </main>
       </div>
 
-      <nav aria-label="Navigasi bawah" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t bg-card md:hidden">
+      <nav aria-label="Navigasi bawah" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t bg-card md:hidden">
         {NAV.map(({ to, short, icon: Icon, end }) => (
           <NavLink
             key={to}

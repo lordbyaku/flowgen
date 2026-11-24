@@ -59,6 +59,7 @@ export const router = createBrowserRouter(
             { path: 'brands/:id', element: lazyPage(() => import('@/features/brands/BrandEditorPage')) },
             { path: 'provider', element: lazyPage(() => import('@/features/provider/ProviderPage')) },
             { path: 'settings', element: lazyPage(() => import('@/features/settings/SettingsPage')) },
+            { path: 'guide', element: lazyPage(() => import('@/features/guide/GuidePage')) },
             { path: 'library', element: lazyPage(() => import('@/features/library/LibraryPage')) },
             { path: '*', element: <NotFoundPage /> },
           ],

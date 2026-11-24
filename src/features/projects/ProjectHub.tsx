@@ -8,20 +8,8 @@ import { useProjectStore } from '@/stores/projectStore';
 import { MSG } from '@/ai/messages';
 import { assetsProgress } from '@/domain/assets';
 import { cn } from '@/lib/utils';
+import { HUB_STEPS } from '@/config/hubSteps';
 
-export const HUB_STEPS = [
-  { to: 'brief', label: 'Brief' },
-  { to: 'concepts', label: 'Konsep' },
-  { to: 'script', label: 'Naskah' },
-  { to: 'storyboard', label: 'Storyboard' },
-  { to: 'assets', label: 'Karakter & Tempat' },
-  { to: 'prompts', label: 'Prompt' },
-  { to: 'hooks', label: 'Varian Hook' },
-  { to: 'production', label: 'Produksi' },
-  { to: 'capcut', label: 'CapCut' },
-  { to: 'publish', label: 'Posting' },
-  { to: 'export', label: 'Export' },
-] as const;
 
 export default function ProjectHub() {
   const { id } = useParams();
