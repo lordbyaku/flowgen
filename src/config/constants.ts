@@ -2,7 +2,7 @@
 export const APP_VERSION = '1.4.0';
 
 export const MAX_KEYS = 5;
-export const MAX_SCENE_SEC = 8; // [VERIFIKASI] batas klip Google Flow
+export const MAX_SCENE_SEC = 10; // [VERIFIKASI] batas klip Google Flow (Omni 1.2 Flash: 3–15 dtk; paket gratis 10 dtk)
 export const MIN_SCENE_SEC = 2;
 export const MAX_AUTO_SCENES = 12;
 export const WORDS_PER_SEC = { id: 2.3, en: 2.5 }; // estimasi VO

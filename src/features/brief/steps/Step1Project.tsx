@@ -65,7 +65,7 @@ export function Step1Project() {
           Minimal {minScenes(p.durationSec)} scene · anggaran VO ±{totalWordBudget(p.durationSec, p.scriptLanguage)} kata
         </p>
       </Field>
-      <Field label="Jumlah scene" level="O" error={countError} hint="Auto disarankan. Minimum = durasi dibagi 8 detik, dibulatkan ke atas.">
+      <Field label="Jumlah scene" level="O" error={countError} hint={`Auto disarankan. Minimum = durasi dibagi ${MAX_SCENE_SEC} detik, dibulatkan ke atas.`}>
         <SingleToggle
           options={[
             { value: 'auto', label: `Auto (≈${recommendedScenes(p.durationSec)})` },

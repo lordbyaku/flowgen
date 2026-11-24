@@ -147,7 +147,7 @@ Brief berbentuk wizard 8 langkah dengan autosave (debounce). Setiap field punya 
 | Platform tujuan | Multi: TikTok, Reels, YouTube Shorts, Feed IG, Facebook, Status WhatsApp, YouTube | W |
 | Aspect ratio | 9:16, 16:9, 1:1, 4:5 | W |
 | Durasi total | 10, 15, 20, 30, 45, 60 detik atau kustom | W |
-| Jumlah scene | Auto (disarankan) atau manual. Minimum otomatis = durasi dibagi 8 detik, dibulatkan ke atas | O |
+| Jumlah scene | Auto (disarankan) atau manual. Minimum otomatis = durasi dibagi 10 detik, dibulatkan ke atas | O |
 | Bahasa naskah dan VO | Indonesia baku, Indonesia santai, Inggris, Campuran, Daerah (isi manual) | W |
 
 ### Langkah 2 — Produk
@@ -287,7 +287,7 @@ Mode: **Karakter utama**, **Tangan saja**, **Tanpa orang (produk saja)**, atau *
 
 **Naskah**: hook, masalah, perkenalan produk, manfaat utama, penutup, CTA, voice-over, estimasi durasi. Jumlah kata VO harus muat dalam durasi. Dapat diedit manual sebelum lanjut.
 
-**Storyboard** per scene: Scene ID, judul, durasi (**maks 8 detik**), tujuan, deskripsi visual, aksi karakter, lingkungan, shot, gerakan kamera, pencahayaan, transisi, voice-over, dialog, SFX/ambient, teks overlay (untuk CapCut), prompt Flow. Total durasi scene harus sama dengan durasi video. Pengguna dapat tambah, hapus, urutkan, edit, dan regenerate per scene.
+**Storyboard** per scene: Scene ID, judul, durasi (**maks 10 detik**), tujuan, deskripsi visual, aksi karakter, lingkungan, shot, gerakan kamera, pencahayaan, transisi, voice-over, dialog, SFX/ambient, teks overlay (untuk CapCut), prompt Flow. Total durasi scene harus sama dengan durasi video. Pengguna dapat tambah, hapus, urutkan, edit, dan regenerate per scene.
 
 ## 7. Character Bible dan Visual Bible
 
@@ -316,7 +316,7 @@ Struktur prompt (Inggris, natural, tidak ambigu, tanpa arahan kontradiktif, dapa
 
 Aturan khusus:
 
-- Durasi scene maks 8 detik (verifikasi batas terbaru di Flow).
+- Durasi scene maks 10 detik (verifikasi batas terbaru di Flow).
 - Teks overlay TIDAK diminta dari AI video; dibuat di CapCut karena teks hasil AI sering rusak.
 - Varian opsional: Standard, Cinematic, Premium Commercial.
 - Tombol salin per scene dan salin semua.
@@ -325,7 +325,7 @@ Aturan khusus:
 
 Pengecekan otomatis sebelum prompt disalin:
 
-- Durasi scene melebihi 8 detik.
+- Durasi scene melebihi 10 detik.
 - Karakter tidak dijelaskan lengkap.
 - Detail produk hilang padahal produk wajib tampil.
 - Aspect ratio belum disebut.
@@ -402,7 +402,7 @@ Prompt Library, preset tambahan, perbandingan hasil antar-versi, import/export p
 | --- | --- |
 | Brief | Generate diblokir bila field W kosong; skor kelengkapan tampil; autosave berfungsi |
 | Pipeline | Satu project normal selesai dengan 3 panggilan AI (tidak termasuk regenerasi) |
-| Storyboard | Tidak ada scene lebih dari 8 detik; total durasi sama dengan brief |
+| Storyboard | Tidak ada scene lebih dari 10 detik; total durasi sama dengan brief |
 | Prompt | Setiap prompt memuat Character Master Description dan detail produk; dapat dipakai mandiri |
 | Konsistensi | Regenerasi satu scene tidak mengubah scene lain yang sudah di-approve |
 | Keamanan | Tidak ada key di Firestore, log, ekspor, atau pesan error; key tidak terbaca tanpa passphrase |
@@ -1311,7 +1311,7 @@ Item berikut bergantung pada layanan eksternal yang sering berubah. Implementasi
 | Pembatasan referrer untuk key Gemini | Konsol Google | Aktif bila didukung | Coba batasi key dan uji dari domain Hosting |
 | Ketentuan data free tier | Peringatan di UI | Peringatan privasi (Bagian 3.5 Bagian I) | Baca ketentuan layanan terbaru |
 
-**Asumsi yang sudah diputuskan**: aplikasi untuk satu pemilik; antarmuka satu bahasa (Indonesia); tidak ada backend; tidak ada unggahan ke cloud storage (gambar referensi lokal hanya pratinjau); tema terang/gelap mengikuti sistem; scene dibatasi 2–8 detik bilangan bulat; maksimal 3 karakter per project; satu request AI aktif pada satu waktu.
+**Asumsi yang sudah diputuskan**: aplikasi untuk satu pemilik; antarmuka satu bahasa (Indonesia); tidak ada backend; tidak ada unggahan ke cloud storage (gambar referensi lokal hanya pratinjau); tema terang/gelap mengikuti sistem; scene dibatasi 2–10 detik (v1.5; sebelumnya 2–8) bilangan bulat; maksimal 3 karakter per project; satu request AI aktif pada satu waktu.
 
 # Perubahan v1.2 (keputusan pemilik, 2026-11-09)
 

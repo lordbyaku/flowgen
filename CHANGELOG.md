@@ -2,6 +2,11 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [Semantic Versioning](https://semver.org/lang/id/).
 
+## [Unreleased]
+
+### Diubah
+- **Batas durasi scene naik dari 8 ke 10 detik** mengikuti Gemini Omni 1.2 Flash, model default Google Flow sejak 5 November 2026 (klip 3–15 detik; paket gratis maks 10 detik). Berlaku untuk storyboard, linter L01, jumlah scene minimum, dan instruksi AI.
+
 ## [1.4.0] - 2026-11-23
 
 ### Ditambahkan

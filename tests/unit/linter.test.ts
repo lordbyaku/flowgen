@@ -20,9 +20,9 @@ describe('Prompt Linter (L01–L13)', () => {
     expect(lintScene(s, ctx([s]))).toEqual([]);
   });
 
-  it('L01 durasi > 8 detik', () => {
-    expect(ids(makeScene({ durationSec: 8 }))).not.toContain('L01');
-    expect(ids(makeScene({ durationSec: 9 }))).toContain('L01');
+  it('L01 durasi > 10 detik', () => {
+    expect(ids(makeScene({ durationSec: 10 }))).not.toContain('L01');
+    expect(ids(makeScene({ durationSec: 11 }))).toContain('L01');
   });
 
   it('L02 deskripsi karakter kurang lengkap', () => {
@@ -97,7 +97,7 @@ describe('Prompt Linter (L01–L13)', () => {
   });
 
   it('aturan dapat dimatikan per project dan severity terburuk dihitung', () => {
-    const s = makeScene({ durationSec: 9 });
+    const s = makeScene({ durationSec: 11 });
     expect(lintScene(s, ctx([s]), ['L01']).map((i) => i.ruleId)).not.toContain('L01');
     expect(worstSeverity(lintScene(s, ctx([s])))).toBe('error');
     expect(LINT_RULES).toHaveLength(13);

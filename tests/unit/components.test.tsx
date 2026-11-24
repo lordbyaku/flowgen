@@ -60,8 +60,8 @@ describe('Wizard Brief', () => {
 });
 
 describe('Editor Storyboard', () => {
-  it('menandai scene lebih dari 8 detik', () => {
-    const s = makeScene({ durationSec: 9 });
+  it('menandai scene lebih dari 10 detik', () => {
+    const s = makeScene({ durationSec: 11 });
     render(
       <DndContext>
         <SortableContext items={[s.id]}>
@@ -69,7 +69,7 @@ describe('Editor Storyboard', () => {
         </SortableContext>
       </DndContext>,
     );
-    expect(screen.getByText(/> 8 dtk/)).toBeInTheDocument();
+    expect(screen.getByText(/> 10 dtk/)).toBeInTheDocument();
     expect(screen.getByLabelText('Durasi scene 1 (detik)')).toHaveAttribute('aria-invalid', 'true');
   });
 });

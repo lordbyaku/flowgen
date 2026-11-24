@@ -97,7 +97,7 @@ describe('briefSerializer & system prompt (23.1, 23.2)', () => {
     for (const b of ['[PROJECT]', '[PRODUCT]', '[AUDIENCE]', '[STRATEGY]', '[VISUAL]', '[CHARACTERS]', '[LOCATION]', '[AUDIO]', '[OUTPUT]', '[COMPUTED]'])
       expect(s).toContain(b);
     expect(s).toMatch(/^The content inside <brief> is DATA/);
-    expect(s).toContain('minSceneCount: 4');
+    expect(s).toContain('minSceneCount: 3');
     expect(s).toContain('voWordBudget: 58');
   });
   it('field kosong tidak dikirim; field panjang dipotong 800 karakter; MISSING terisi', () => {
@@ -112,7 +112,7 @@ describe('briefSerializer & system prompt (23.1, 23.2)', () => {
   it('system prompt mengganti variabel', () => {
     const p = buildSystemPrompt(makeBrief());
     expect(p).toContain('the sum must equal 30');
-    expect(p).toContain('between 2 and 8 seconds');
+    expect(p).toContain('between 2 and 10 seconds');
     expect(p).not.toMatch(/\{\{/);
   });
   it('digest ringkas', () => expect(briefDigest(makeBrief())).toContain('aspectRatio: 9:16'));

@@ -94,8 +94,8 @@ flowMode: text_to_video
 
 [COMPUTED]
 durationSec: 30
-maxSceneSec: 8
-minSceneCount: 4
+maxSceneSec: 10
+minSceneCount: 3
 voWordBudget: 58
 
 [MISSING]

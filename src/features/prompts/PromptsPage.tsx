@@ -12,6 +12,7 @@ import { AiErrorPanel } from '@/components/common/AiStatus';
 import { CopyButton } from '@/components/common/CopyButton';
 import { EmptyState } from '@/components/common/states';
 import { CostHint } from '@/components/common/CostHint';
+import { MAX_SCENE_SEC } from '@/config/constants';
 import { LABELS } from '@/config/enums';
 import { aiService } from '@/ai/aiService';
 import { applyLintFixes, FIX_LABEL, isFixable, lintScene, worstSeverity, type FixableRule, type LintIssue } from '@/domain/linter';
@@ -349,7 +350,7 @@ export default function PromptsPage() {
       <FlowOrderBanner projectId={project.id} />
       <DurationBar scenes={scenes} target={project.brief.project.durationSec} />
       <Alert variant="info" title="Teks overlay dibuat di CapCut">
-        Prompt tidak meminta teks di dalam video karena teks hasil AI sering rusak. Batas klip Flow saat ini dianggap 8 detik — verifikasi di Flow.
+        Prompt tidak meminta teks di dalam video karena teks hasil AI sering rusak. Batas klip Flow saat ini dianggap {MAX_SCENE_SEC} detik — verifikasi di Flow.
       </Alert>
       <AiErrorPanel onRetry={generate} />
       <div className="grid gap-3 xl:grid-cols-2">

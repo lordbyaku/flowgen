@@ -81,27 +81,27 @@ describe('Durasi (24.2)', () => {
     [30, 6],
     [60, 12],
   ])('rekomendasi %i detik = %i scene', (d, n) => expect(recommendedScenes(d)).toBe(n));
-  it('minimum scene = ceil(D / 8)', () => {
-    expect(minScenes(30)).toBe(4);
-    expect(minScenes(8)).toBe(1);
-    expect(minScenes(9)).toBe(2);
-    expect(minScenes(120)).toBe(15);
+  it('minimum scene = ceil(D / 10)', () => {
+    expect(minScenes(30)).toBe(3);
+    expect(minScenes(10)).toBe(1);
+    expect(minScenes(11)).toBe(2);
+    expect(minScenes(120)).toBe(12);
   });
   it('rekomendasi tidak pernah di bawah minimum', () => {
-    expect(recommendedScenes(120)).toBe(15);
+    expect(recommendedScenes(120)).toBe(12);
   });
   it('validasi jumlah scene manual', () => {
-    expect(validateManualSceneCount(30, 3)).toMatch(/Minimal 4/);
+    expect(validateManualSceneCount(30, 2)).toMatch(/Minimal 3/);
     expect(validateManualSceneCount(30, 16)).toMatch(/Maksimal 15/);
     expect(validateManualSceneCount(30, 5)).toBeNull();
   });
   it('targetSceneCount mengikuti konsep tapi di-clamp', () => {
-    expect(targetSceneCount(30, 'auto', undefined, 2)).toBe(4);
+    expect(targetSceneCount(30, 'auto', undefined, 2)).toBe(3);
     expect(targetSceneCount(30, 'manual', 5)).toBe(5);
   });
-  it('validateDurations: >8, <2, non-integer, total', () => {
+  it('validateDurations: >10, <2, non-integer, total', () => {
     expect(validateDurations([8, 8, 8, 6], 30).ok).toBe(true);
-    const r = validateDurations([9, 1, 2.5], 30);
+    const r = validateDurations([11, 1, 2.5], 30);
     expect(r.ok).toBe(false);
     expect(r.issues).toHaveLength(3);
     expect(validateDurations([5, 5], 15).diff).toBe(-5);
@@ -109,11 +109,11 @@ describe('Durasi (24.2)', () => {
   it('autoFixDurations membagi selisih tanpa melanggar batas', () => {
     const fix = autoFixDurations([8, 8, 8, 8], 30)!;
     expect(fix.reduce((a, b) => a + b, 0)).toBe(30);
-    expect(fix.every((d) => d >= 2 && d <= 8)).toBe(true);
+    expect(fix.every((d) => d >= 2 && d <= 10)).toBe(true);
     const up = autoFixDurations([2, 3, 4], 18)!;
     expect(up.reduce((a, b) => a + b, 0)).toBe(18);
     expect(autoFixDurations([4, 4], 30)).toBeNull();
-    expect(autoFixDurations([10, 1], 10)).toEqual([8, 2]);
+    expect(autoFixDurations([12, 1], 10)).toEqual([8, 2]);
   });
   it('splitEvenly', () => expect(splitEvenly(30, 4)).toEqual([8, 8, 7, 7]));
 });
