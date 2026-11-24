@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, CheckCircle2, FilePen, FolderKanban, KeyRound, Plus } from 'lucide-react';
+import { BookOpen, Building2, CheckCircle2, Circle, FilePen, FolderKanban, KeyRound, Plus, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,6 +35,50 @@ function Stat({ icon: Icon, label, value, to }: { icon: React.ComponentType<{ cl
     </Card>
   );
   return to ? <Link to={to}>{body}</Link> : body;
+}
+
+/** Checklist "Mulai cepat" (v1.6) untuk pengguna baru: tampil sampai ada key dan project. */
+function QuickStart({ hasKey, hasProject }: { hasKey: boolean; hasProject: boolean }) {
+  const steps = [
+    { done: hasKey, title: 'Siapkan API key Gemini', body: 'Gratis dari Google AI Studio. Sekali saja, lalu ikut di semua device.', to: '/provider', cta: 'Siapkan', icon: KeyRound },
+    { done: hasProject, title: 'Buat project pertama dengan Brief cepat', body: 'Ceritakan produk Anda dalam beberapa kalimat; AI mengisi brief-nya.', to: '/projects/quick', cta: 'Mulai', icon: Sparkles },
+    { done: false, title: 'Ikuti alurnya di Panduan', body: 'Dari prompt di aplikasi, klip di Google Flow, sampai video jadi di CapCut.', to: '/guide', cta: 'Baca', icon: BookOpen },
+  ];
+  const next = steps.findIndex((s) => !s.done);
+  return (
+    <Card className="border-primary/40">
+      <CardHeader>
+        <CardTitle>Mulai cepat</CardTitle>
+        <CardDescription>Tiga langkah untuk video pertama Anda.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ol className="space-y-2">
+          {steps.map((s, i) => (
+            <li key={s.title} className="flex items-center gap-3 rounded-lg border p-3">
+              {s.done ? (
+                <CheckCircle2 className="h-5 w-5 shrink-0 text-success" aria-label="selesai" />
+              ) : (
+                <Circle className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className={s.done ? 'text-sm font-medium text-muted-foreground line-through' : 'text-sm font-medium'}>
+                  {i + 1}. {s.title}
+                </p>
+                <p className="text-xs text-muted-foreground">{s.body}</p>
+              </div>
+              {!s.done && (
+                <Button asChild size="sm" variant={i === next ? 'default' : 'outline'}>
+                  <Link to={s.to}>
+                    <s.icon /> {s.cta}
+                  </Link>
+                </Button>
+              )}
+            </li>
+          ))}
+        </ol>
+      </CardContent>
+    </Card>
+  );
 }
 
 export default function DashboardPage() {
@@ -87,19 +131,7 @@ export default function DashboardPage() {
         }
       />
 
-      {keyConfig === 'Belum ada' && (
-        <Alert
-          variant="info"
-          title="Siapkan API key"
-          action={
-            <Button asChild size="sm">
-              <Link to="/provider">Siapkan API key</Link>
-            </Button>
-          }
-        >
-          Belum ada API key. Tambahkan di menu AI Provider agar fitur AI bisa dipakai.
-        </Alert>
-      )}
+      {(keys.length === 0 || projects.length === 0) && <QuickStart hasKey={keys.length > 0} hasProject={projects.length > 0} />}
       {budget > 0 && today >= budget && (
         <Alert variant="warning" title="Anggaran panggilan AI harian terlampaui">
           {today} request hari ini (lokal) melewati ambang {budget} yang Anda atur di Settings.

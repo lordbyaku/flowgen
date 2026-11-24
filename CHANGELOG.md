@@ -7,6 +7,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [S
 ### Ditambahkan
 - **Halaman Panduan** (`/guide`, menu "Panduan"): alur besar 4 tahap (Brief → Prompt → klip di Google Flow → CapCut), langkah pertama kali (API key dari Google AI Studio, vault "Tersimpan di akun", Brief cepat), fungsi setiap tab project dengan tanda opsional, cara membuat klip di Flow (aset, frame, draft 360p, Extend, "Hasil Flow gagal?"), merakit di CapCut, kamus istilah, dan masalah umum.
 - **Brief cepat** (`/projects/quick`, tautan di Project baru, Panduan, dan Dashboard): tulis beberapa kalimat tentang produk, pilih platform, durasi, dan bahasa, lalu satu panggilan AI mengisi semua field wajib dan penting yang kosong (tujuan, produk, audiens, angle, gaya visual, karakter, lokasi, audio). AI tidak mengarang harga, angka, atau testimoni, dan menampilkan daftar "tebakan AI yang perlu Anda cek". Brand bisa dibuat langsung dari nama usaha. Setelahnya tersedia tombol "Periksa brief" dan "Langsung buat konsep".
+- **Checklist "Mulai cepat" di Dashboard** untuk pengguna baru (menggantikan banner "Siapkan API key"): 1) siapkan API key, 2) buat project pertama dengan Brief cepat, 3) baca Panduan. Langkah yang selesai dicentang; kartu hilang setelah ada key dan project.
 
 ### Diubah
 - Tab project yang boleh dilewati (Varian Hook, Produksi, Posting, Export) kini diberi tanda "(opsional)".
