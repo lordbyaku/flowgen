@@ -82,7 +82,7 @@ async function mockGemini(page: Page) {
     const ids = [...prompt.matchAll(/sceneId: (\S+)/g)].map((m) => m[1]);
     return route.fulfill({
       json: geminiJson({
-        prompts: ids.map((id) => ({ sceneId: id, standard: `Bu Sari, a warm Indonesian woman wearing a cream hijab and blue batik shirt, taps an Android phone showing green cashier app. Aspect ratio 9:16. ${id}`, negativePrompt: 'blur' })),
+        prompts: ids.map((id, i) => ({ sceneId: id, standard: `Bu Sari, a warm Indonesian woman wearing a cream hijab and blue batik shirt, taps an Android phone showing green cashier app. Aspect ratio 9:16. ${id}`, negativePrompt: 'blur', ...(i === 1 ? { extendPrompt: 'Bu Sari keeps tapping the phone and smiles. Audio: warung ambience. No background music. One continuous shot, no jump cuts.' } : {}) })),
         capcut: { sceneOrder: ['Hook', 'Masalah', 'Demo', 'CTA'], timeline: [], voiceOverSequence: ['VO'], musicMood: 'ceria', sfx: [], transitions: ['cut'], rhythm: 'cepat', textOverlays: [], opening: 'o', closing: 'c' },
       }),
     });
@@ -148,6 +148,14 @@ test('alur brief → konsep → naskah → prompt → export', async ({ page }) 
   await expect(page.getByRole('heading', { name: 'Prompt Google Flow' })).toBeVisible();
   await page.getByRole('button', { name: 'Buat prompt', exact: true }).click();
   await expect(page.getByText(/Prompt Flow dan panduan CapCut dibuat/)).toBeVisible();
+  // v1.5: kredit Flow, prompt Extend, dan pilihan instruksi edit klip
+  await expect(page.getByText(/Perkiraan kredit Flow/)).toBeVisible();
+  await expect(page.getByText(/Prompt Extend \(opsional\)/)).toBeVisible();
+  await page.getByRole('button', { name: /Hasil Flow gagal/ }).first().click();
+  await expect(page.getByText('Instruksi edit klip (Omni)')).toBeVisible();
+  if (process.env.E2E_SHOTS) await page.screenshot({ path: `${process.env.E2E_SHOTS}/fix-dialog.png` });
+  await page.getByRole('button', { name: 'Batal' }).click();
+  if (process.env.E2E_SHOTS) await page.screenshot({ path: `${process.env.E2E_SHOTS}/prompts.png`, fullPage: true });
 
   // v1.4: varian hook
   const hub = page.getByRole('navigation', { name: 'Tahapan project' });

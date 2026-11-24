@@ -1,5 +1,5 @@
 // Semua nilai yang bergantung pada layanan eksternal ditandai [VERIFIKASI] — lihat docs/VERIFY.md.
-export const APP_VERSION = '1.4.0';
+export const APP_VERSION = '1.5.0';
 
 export const MAX_KEYS = 5;
 export const MAX_SCENE_SEC = 10; // [VERIFIKASI] batas klip Google Flow (Omni 1.2 Flash: 3–15 dtk; paket gratis 10 dtk)

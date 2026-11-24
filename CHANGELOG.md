@@ -2,7 +2,7 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [Semantic Versioning](https://semver.org/lang/id/).
 
-## [Unreleased]
+## [1.5.0] - 2026-11-24
 
 ### Ditambahkan
 - **Baris "Audio:" di setiap prompt scene**: ambience dan SFX dari storyboard (`sfxAmbient`), diakhiri "No background music." karena musik dan VO ditambahkan di CapCut. Bila dialog karakter mati, prompt juga menulis "No dialogue, no narration." agar Omni tidak mengarang ucapan.

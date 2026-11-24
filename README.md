@@ -6,6 +6,7 @@ Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.4). Keputusan implementasi: [`docs/D
 
 | Versi | Tanggal | Catatan |
 |---|---|---|
+| 1.5.0 | 2026-11-24 | Google Flow dengan Gemini Omni 1.2 Flash: scene maks 10 detik, baris Audio + satu shot di prompt, batas kata dialog per durasi, instruksi edit klip, prompt Extend, perkiraan kredit Flow, baris Avoid opsional |
 | 1.4.0 | 2026-11-23 | Posting (caption/hashtag), Varian Hook, Mode Produksi HP, perbaiki prompt dari hasil Flow, konten turunan (seri/versi pendek/rasio), catatan performa |
 | 1.3.1 | 2026-11-23 | Tombol Keluar di header untuk layar HP |
 | 1.3.0 | 2026-11-12 | Halaman Karakter & Tempat: prompt aset Flow dulu (karakter → tempat → produk), prompt scene menyebut nama aset |
