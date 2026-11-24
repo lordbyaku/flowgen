@@ -989,8 +989,12 @@ Input: brief ringkas, scene, Bible. Untuk setiap scene hasilkan `flowPrompts.sta
 {subject + full character master description} {action}. Setting: {environment}. {composition}, {camera shot}, {camera movement}.
 {lighting}, {mood}. Visual style: {styleLineEn}. Product: {productAppearanceEn}.
 [Dialogue, only if enabled: The character says in Indonesian: {line}.]
-Continuity: {restated character + product + palette details}. Aspect ratio {ratio}.
+Continuity: {restated character + product + palette details}.
+Audio: {ambience + SFX}. No background music. [No dialogue, no narration. — bila dialog mati]
+One continuous shot, no jump cuts. Aspect ratio {ratio}.
 ```
+
+(v1.5) Baris Audio dan kalimat satu shot ditambahkan untuk Gemini Omni 1.2 Flash; musik dan VO tetap dibuat di CapCut.
 
 Negatif disimpan terpisah di `negativePrompt`; saat disalin, tambahkan baris `Avoid: {negativePrompt}`. Negatif dasar selalu memuat: on-screen text, captions, watermark, distorted or misspelled logos, extra fingers, deformed hands, unnatural face, plus `globalNegatives` dari brief. Dialog maksimal durasi scene × 0,85 × kecepatan bicara (mis. 19 kata untuk scene 10 detik; v1.5) **\[VERIFIKASI cara Flow menangani dialog\]**.
 

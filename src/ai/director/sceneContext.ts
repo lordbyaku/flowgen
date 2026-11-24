@@ -91,6 +91,23 @@ export function sceneBlock(s: Scene, index: number, assets?: AssetsDoc | null, l
   ].join('\n');
 }
 
+/** Kalimat penutup setiap prompt scene: satu klip = satu shot tanpa potongan (panduan Gemini Omni). */
+export const CONTINUOUS_SHOT = 'One continuous shot, no jump cuts.';
+const AUDIO_SLOT = 'Audio: {ambience + SFX}.';
+
+/** Aturan baris "Audio:" (v1.5). Omni membuat suara sendiri; musik dan VO ditambahkan di CapCut. */
+export function audioRules(brief: Brief): string[] {
+  const speech = brief.audio.characterDialogue
+    ? ''
+    : brief.audio.voiceOver
+      ? ' Then add "No dialogue, no narration." (the voice-over is added in editing).'
+      : ' Then add "No dialogue, no narration."';
+  return [
+    `- Audio: write ONE sentence starting with "Audio:" that describes the ambience and sound effects of this moment from the scene sfxAmbient (e.g. "Audio: soft street ambience, the click of a cash drawer."). End it with "No background music." because music is added in editing.${speech}`,
+    `- Write "${CONTINUOUS_SHOT}" right before the aspect ratio. One scene = one clip = one shot; never describe cuts, scene changes or multiple shots inside one prompt.`,
+  ];
+}
+
 /** Instruksi format prompt Flow (23.5). Mode aset Flow memakai format pendek berbasis nama. */
 export function promptFormatRules(brief: Brief, variants: Variant[], assets?: AssetsDoc | null): string {
   if (usesFlowAssets(brief, assets)) return flowAssetRules(brief, variants);
@@ -104,7 +121,7 @@ export function promptFormatRules(brief: Brief, variants: Variant[], assets?: As
     '{subject + FULL character master description} {action}. Setting: {environment}. {composition}, {camera shot}, {camera movement}.',
     '{lighting}, {mood}. Visual style: {styleLineEn}. Product: {productAppearanceEn}.',
     '[Dialogue line only if enabled]',
-    `Continuity: {restated character + product + palette details}. Aspect ratio ${brief.project.aspectRatio}.`,
+    `Continuity: {restated character + product + palette details}. ${AUDIO_SLOT} ${CONTINUOUS_SHOT} Aspect ratio ${brief.project.aspectRatio}.`,
     '',
     `- Length: ${min}-${max} words per prompt.`,
     '- Paste the character MASTER DESCRIPTION in full for every character in the scene. Never write "same as previous scene".',
@@ -113,6 +130,7 @@ export function promptFormatRules(brief: Brief, variants: Variant[], assets?: As
     '- Do not request on-screen text, captions, subtitles, title cards or text logos.',
     '- No contradictory directions (e.g. handheld + locked-off, day + night).',
     dialogue,
+    ...audioRules(brief),
     '- negativePrompt: comma-separated list of things to avoid for this scene (English).',
     extra.length
       ? `- Also write variants: ${extra.map((v) => (v === 'cinematic' ? 'cinematic (filmic, dramatic camera moves, anamorphic feel)' : 'premium (high-end commercial polish, luxurious lighting, product hero shots)')).join('; ')}.`
@@ -137,7 +155,7 @@ function flowAssetRules(brief: Brief, variants: Variant[]): string {
   return [
     'FLOW PROMPT FORMAT — STORY SCENE using existing Flow assets (one English paragraph):',
     '{Flow character name(s)} {action}. Setting: {location Flow name}, {what is specific to this moment}. {camera shot}, {camera movement}.',
-    `{lighting}, {mood}. Visual style: {styleLineEn}. [Product Flow name and what it does in the shot]. [Dialogue if enabled]. Aspect ratio ${ratio}.`,
+    `{lighting}, {mood}. Visual style: {styleLineEn}. [Product Flow name and what it does in the shot]. [Dialogue if enabled]. ${AUDIO_SLOT} ${CONTINUOUS_SHOT} Aspect ratio ${ratio}.`,
     '',
     '- Length: 40-90 words. Short, concrete and visual.',
     '- Refer to each character ONLY by its exact Flow name in quotes-free plain text (e.g. Bu Sari). Do NOT describe face, skin, hair, body or age again — the asset defines them.',
@@ -149,6 +167,7 @@ function flowAssetRules(brief: Brief, variants: Variant[]): string {
     '- Do not request on-screen text, captions, subtitles, title cards or text logos.',
     '- No contradictory directions (e.g. handheld + locked-off, day + night).',
     dialogue,
+    ...audioRules(brief),
     '- negativePrompt: comma-separated list of things to avoid for this scene (English), include "different face", "changed outfit".',
     variantRule(variants),
     ...frameModeRules(brief),
