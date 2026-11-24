@@ -209,6 +209,7 @@ export default function ProviderPage() {
   const total = keys.length;
   const active = keys.filter((k) => k.enabled).length;
   const errored = keys.filter((k) => ['invalid_key', 'model_unavailable', 'network_error'].includes(k.status)).length;
+  const noKeys = status === 'uninitialized' || keys.length === 0;
   const last = [...keys].sort((a, b) => (b.lastUsedAt ?? 0) - (a.lastUsedAt ?? 0))[0];
 
   return (
@@ -224,14 +225,52 @@ export default function ProviderPage() {
           )
         }
       />
-      <Alert variant="warning" title="Peringatan keamanan">
+      {noKeys && (
+        <Card className="border-primary/40">
+          <CardHeader>
+            <CardTitle>Cara menyiapkan API key (sekali saja)</CardTitle>
+            <CardDescription>Key gratis dari Google dipakai untuk semua fitur AI di aplikasi ini.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <ol className="list-decimal space-y-1.5 pl-5">
+              <li>
+                Buka{' '}
+                <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" className="text-primary underline">
+                  Google AI Studio
+                </a>
+                , login dengan akun Google, buat API key, lalu salin.
+              </li>
+              <li>
+                {status === 'uninitialized' ? 'Klik "Siapkan vault" dan pilih "Tersimpan di akun" agar key ikut di semua device.' : 'Vault sudah siap.'}
+              </li>
+              <li>Klik "Tambah key", beri nama bebas, lalu tempel key-nya.</li>
+            </ol>
+            {status === 'uninitialized' ? (
+              <Button onClick={() => setSetupOpen(true)}>
+                <KeyRound /> Siapkan vault
+              </Button>
+            ) : (
+              status === 'unlocked' && (
+                <Button onClick={() => setAddOpen(true)}>
+                  <Plus /> Tambah key
+                </Button>
+              )
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      <Alert variant="warning" title="Keamanan dan privasi">
         <p>{meta?.mode === 'cloud' ? CLOUD_WARNING : SECURITY_WARNING}</p>
-        <p className="mt-1">
-          Key di browser tidak setara dengan secret di server: dapat dilihat pemilik sesi dan terdampak ekstensi atau script berbahaya. Jangan
-          dipakai sebagai aplikasi publik dengan key bersama. App Check tidak melindungi panggilan langsung ke Gemini. Batasi key di Google AI
-          Studio/Cloud Console (mis. referrer HTTP) bila didukung.
-        </p>
-        <p className="mt-1">Privasi: pada free tier, data prompt dapat diproses sesuai ketentuan Google. Jangan masukkan data rahasia klien ke brief.</p>
+        <details className="mt-1">
+          <summary className="cursor-pointer text-xs underline">Baca selengkapnya</summary>
+          <p className="mt-1">
+            Key di browser tidak setara dengan secret di server: dapat dilihat pemilik sesi dan terdampak ekstensi atau script berbahaya. Jangan
+            dipakai sebagai aplikasi publik dengan key bersama. App Check tidak melindungi panggilan langsung ke Gemini. Batasi key di Google AI
+            Studio/Cloud Console (mis. referrer HTTP) bila didukung.
+          </p>
+          <p className="mt-1">Privasi: pada free tier, data prompt dapat diproses sesuai ketentuan Google. Jangan masukkan data rahasia klien ke brief.</p>
+        </details>
       </Alert>
 
       {cloudError && (
@@ -297,48 +336,46 @@ export default function ProviderPage() {
             <p className="col-span-2 text-xs text-muted-foreground">Terakhir dipakai: {last?.lastUsedAt ? `${last.label} (${formatRelative(last.lastUsedAt)})` : '-'}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Strategi routing</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <Select
-              value={meta?.routing ?? 'round_robin'}
-              disabled={!meta}
-              onChange={(e) => void setRouting(e.target.value as Routing, meta?.singleKeyId ?? keys[0]?.id)}
-              aria-label="Strategi routing"
-            >
-              {ROUTINGS.map((r) => (
-                <option key={r} value={r}>
-                  {LABELS.routing[r]}
-                </option>
-              ))}
-            </Select>
-            {meta?.routing === 'single' && (
-              <Select value={meta.singleKeyId ?? ''} onChange={(e) => void setRouting('single', e.target.value)} aria-label="Key terpilih">
-                <option value="">— Pilih key —</option>
-                {keys.map((k) => (
-                  <option key={k.id} value={k.id}>
-                    {k.label}
+        {keys.length > 1 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Strategi routing</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <Select
+                value={meta?.routing ?? 'round_robin'}
+                disabled={!meta}
+                onChange={(e) => void setRouting(e.target.value as Routing, meta?.singleKeyId ?? keys[0]?.id)}
+                aria-label="Strategi routing"
+              >
+                {ROUTINGS.map((r) => (
+                  <option key={r} value={r}>
+                    {LABELS.routing[r]}
                   </option>
                 ))}
               </Select>
-            )}
-            <p className="text-xs text-muted-foreground">{ROUTING_HELP[meta?.routing ?? 'round_robin']}</p>
-            <p className="text-xs text-muted-foreground">
-              Round robin hanya membagi request — tidak menambah kuota. Kuota dihitung per Google Cloud project; disarankan 1–2 key.
-            </p>
-          </CardContent>
-        </Card>
+              {meta?.routing === 'single' && (
+                <Select value={meta.singleKeyId ?? ''} onChange={(e) => void setRouting('single', e.target.value)} aria-label="Key terpilih">
+                  <option value="">— Pilih key —</option>
+                  {keys.map((k) => (
+                    <option key={k.id} value={k.id}>
+                      {k.label}
+                    </option>
+                  ))}
+                </Select>
+              )}
+              <p className="text-xs text-muted-foreground">{ROUTING_HELP[meta?.routing ?? 'round_robin']}</p>
+              <p className="text-xs text-muted-foreground">
+                Round robin hanya membagi request — tidak menambah kuota. Kuota dihitung per Google Cloud project; disarankan 1–2 key.
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {status === 'locked' ? (
         <EmptyState icon={Lock} title="Vault terkunci" description="Vault terkunci. Masukkan passphrase untuk melanjutkan." action={<Button onClick={() => setUnlockOpen(true)}>Buka vault</Button>} />
-      ) : status === 'uninitialized' ? (
-        <EmptyState icon={KeyRound} title="Belum ada API key" description="Belum ada API key. Siapkan vault lalu tambahkan key Gemini dari Google AI Studio." action={<Button onClick={() => setSetupOpen(true)}>Siapkan vault</Button>} />
-      ) : keys.length === 0 ? (
-        <EmptyState icon={KeyRound} title="Belum ada API key" description="Belum ada API key. Tambahkan di sini agar fitur AI bisa dipakai." action={<Button onClick={() => setAddOpen(true)}>Tambah key</Button>} />
-      ) : (
+      ) : noKeys ? null : (
         <div className="grid gap-3 lg:grid-cols-2">
           {keys.map((k, i) => (
             <KeyCard key={k.id} k={k} index={i} total={keys.length} todayCount={countToday(logs, k.label, Date.now())} />

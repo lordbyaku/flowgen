@@ -9,6 +9,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [S
 
 ### Diubah
 - Tab project yang boleh dilewati (Varian Hook, Produksi, Posting, Export) kini diberi tanda "(opsional)".
+- **Halaman AI Provider lebih sederhana untuk pemula**: bila belum ada key, tampil kartu "Cara menyiapkan API key" (3 langkah dengan tautan ke Google AI Studio dan tombol yang sesuai). Peringatan keamanan diringkas menjadi satu paragraf dengan "Baca selengkapnya", dan "Strategi routing" hanya tampil bila ada 2 key atau lebih.
 
 ## [1.5.0] - 2026-11-24
 

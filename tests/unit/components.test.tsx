@@ -88,6 +88,7 @@ describe('Provider Manager', () => {
     await waitFor(() => expect(screen.getByText('Key Uji')).toBeInTheDocument());
     expect(screen.getByText(`…${FAKE_KEY.slice(-4)}`)).toBeInTheDocument();
     expect(container.innerHTML).not.toContain(FAKE_KEY);
-    expect(screen.getByText(/Round robin hanya membagi request — tidak menambah kuota/)).toBeInTheDocument();
+    // v1.6: strategi routing hanya tampil bila ada 2 key atau lebih.
+    expect(screen.queryByText(/Round robin hanya membagi request — tidak menambah kuota/)).not.toBeInTheDocument();
   });
 });
