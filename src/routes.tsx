@@ -36,6 +36,7 @@ export const router = createBrowserRouter(
             { index: true, element: lazyPage(() => import('@/features/dashboard/DashboardPage')) },
             { path: 'projects', element: lazyPage(() => import('@/features/projects/ProjectsPage')) },
             { path: 'projects/new', element: lazyPage(() => import('@/features/projects/NewProjectPage')) },
+            { path: 'projects/quick', element: lazyPage(() => import('@/features/projects/QuickBriefPage')) },
             {
               path: 'projects/:id',
               element: lazyPage(() => import('@/features/projects/ProjectHub')),

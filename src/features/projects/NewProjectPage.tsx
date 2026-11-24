@@ -91,6 +91,20 @@ export default function NewProjectPage() {
           Brand wajib dipilih di brief. Anda tetap bisa membuat project dan memilih brand nanti.
         </Alert>
       )}
+      <Alert
+        variant="info"
+        title="Baru pertama kali? Coba Brief cepat"
+        className="mb-4"
+        action={
+          <Button asChild size="sm">
+            <Link to="/projects/quick">
+              <Sparkles /> Brief cepat
+            </Link>
+          </Button>
+        }
+      >
+        Cukup ceritakan produk Anda dalam beberapa kalimat. AI mengisi brief lengkapnya, Anda tinggal memeriksa.
+      </Alert>
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <div className="space-y-4">
           <Card>

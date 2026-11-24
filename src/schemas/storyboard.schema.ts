@@ -59,6 +59,19 @@ export const ClipEditOutputSchema = z.object({
   changes: z.array(z.string()).max(6),
 });
 
+/** Keluaran Brief cepat (v1.6): nilai per field brief dari catatan singkat pemilik usaha. */
+export const QuickBriefOutputSchema = z.object({
+  fields: z
+    .array(
+      z.object({
+        path: z.string(),
+        values: z.array(z.string()),
+      }),
+    )
+    .max(120),
+  assumptions: z.array(z.string()).max(8),
+});
+
 /** Keluaran AI Brief Assistant. */
 export const BriefAssistOutputSchema = z.object({
   questions: z

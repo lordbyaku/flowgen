@@ -30,7 +30,7 @@ export const COMPLETENESS_WARN_BELOW = 70; // persen
 export const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
 export const DEFAULT_MODEL_HINT = 'gemini-2.5-flash'; // [VERIFIKASI] hanya fallback; utamakan models.list
 // Dinaikkan dari 19.7 (v1.1): model 2.5 menghitung token berpikir ke dalam batas ini. [VERIFIKASI]
-export const MAX_OUTPUT_TOKENS = { concepts: 8192, script: 16384, prompts: 16384, regen: 4096, assist: 2048, schemaTest: 1024, publish: 6144, hooks: 8192, fix: 4096 };
+export const MAX_OUTPUT_TOKENS = { concepts: 8192, script: 16384, prompts: 16384, regen: 4096, assist: 2048, quickBrief: 8192, schemaTest: 1024, publish: 6144, hooks: 8192, fix: 4096 };
 /** Budget berpikir minimal untuk tugas JSON. 2.5 Pro tidak bisa 0 (min 128). [VERIFIKASI] */
 export const THINKING_BUDGET = { flash: 0, pro: 128, gemini3Level: 'low' } as const;
 /** Gambar referensi lokal yang dikirim ke AI (multimodal). */
@@ -38,7 +38,7 @@ export const MAX_AI_IMAGES = 6;
 export const AI_IMAGE_MAX_DIM = 1024;
 /** Perkiraan token per gambar untuk estimasi biaya. [VERIFIKASI] */
 export const TOKENS_PER_IMAGE = 258;
-export const TEMPERATURE = { concepts: 0.9, script: 0.7, prompts: 0.5, regen: 0.6, assist: 0.3, publish: 0.8, hooks: 0.9, fix: 0.4 };
+export const TEMPERATURE = { concepts: 0.9, script: 0.7, prompts: 0.5, regen: 0.6, assist: 0.3, quickBrief: 0.5, publish: 0.8, hooks: 0.9, fix: 0.4 };
 export const HOOK_VARIANT_COUNT = 3;
 export const MAX_PERFORMANCE_ENTRIES = 30;
 /** Minimal entri performa sebelum wawasan dikirim ke AI. */
@@ -56,4 +56,6 @@ export const USAGE_MAX_ROWS = 2000;
 export const USAGE_MAX_AGE_DAYS = 30;
 export const QUOTA_RESET_TIMEZONE = 'America/Los_Angeles'; // [VERIFIKASI] reset kuota harian tengah malam Pacific
 export const MAX_ASSIST_QUESTIONS = 5;
+/** Brief cepat (v1.6): panjang catatan pemilik usaha. */
+export const QUICK_BRIEF_NOTES = { min: 20, max: 2000 } as const;
 export const DEFAULT_DAILY_CALL_BUDGET = 0; // 0 = nonaktif (Fase 3 audit biaya)

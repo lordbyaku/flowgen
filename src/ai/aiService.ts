@@ -12,6 +12,7 @@ import { loadReferenceImages, referenceCandidates, type ImageLoader } from '@/ai
 import { AI_IMAGE_MAX_DIM, MAX_OUTPUT_TOKENS, TEMPERATURE, TOKENS_PER_IMAGE } from '@/config/constants';
 import { SchemaTestSchema } from '@/schemas/storyboard.schema';
 import { buildBriefAssistCall, filterAssistQuestions } from '@/ai/director/briefAssistCall';
+import { applyQuickBrief, buildQuickBriefCall, type QuickBriefResult } from '@/ai/director/quickBriefCall';
 import { buildConceptCall, toConceptRound } from '@/ai/director/conceptCall';
 import { buildScriptStoryboardCall, mapScriptStoryboard } from '@/ai/director/scriptStoryboardCall';
 import { applyPromptItems, buildScenePromptBatches } from '@/ai/director/scenePromptCall';
@@ -106,6 +107,15 @@ export function createAiService(deps: {
         const call = buildBriefAssistCall(brief);
         const { data } = await structuredCall(router, { ...call, ...opts });
         return filterAssistQuestions(data, brief);
+      });
+    },
+
+    /** Brief cepat (v1.6): isi field W/P yang kosong dari catatan singkat pemilik usaha. */
+    quickBrief(seed: Brief, notes: string, opts: CallOptions = {}): Promise<Result<QuickBriefResult>> {
+      return safe(async () => {
+        const call = buildQuickBriefCall(seed, notes);
+        const { data } = await structuredCall(router, { ...call, ...opts });
+        return applyQuickBrief(seed, data, call.allowedPaths);
       });
     },
 
