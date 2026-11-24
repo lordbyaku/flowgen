@@ -1373,3 +1373,17 @@ Non-Goals Bagian 1 tetap berlaku (aplikasi tidak memublikasikan ke sosial media;
 
 Dokumen Firestore baru: `docs/publish`, `docs/hooks`. Field project baru (opsional): `performance`, `parentId`, `derivation`.
 Field scene baru (opsional): `lastFix`. Tugas AI baru: `publish_pack`, `hook_variants`, `prompt_fix`.
+
+# Perubahan v1.5 (2026-11-24): Google Flow dengan Gemini Omni 1.2 Flash
+
+Model default Google Flow sejak 5 November 2026 adalah Gemini Omni 1.2 Flash (klip 3–15 detik; paket gratis maks 10 detik).
+Keputusan pemilik:
+
+1. **Durasi scene maks 10 detik** (sebelumnya 8). `MAX_SCENE_SEC = 10`.
+2. **Baris "Audio:"** di setiap prompt scene: ambience + SFX dari `sfxAmbient`, diakhiri "No background music."
+   (musik dan VO dibuat di CapCut). Bila dialog mati: "No dialogue, no narration."
+3. **"One continuous shot, no jump cuts."** sebelum aspect ratio di setiap prompt scene.
+4. **Batas kata dialog per scene** = durasi × 0,85 × kecepatan bicara bahasa naskah (sama dengan anggaran VO per scene).
+   Tidak ada peringatan khusus soal dukungan bahasa Indonesia.
+5. **Instruksi edit klip (Omni)** sebagai pilihan kedua di dialog "Perbaiki dari hasil Flow". Memakai tugas AI `prompt_fix`
+   dengan keluaran `{ instruction, changes }`. Disimpan di `scene.lastFix` (`mode: 'edit'`, `editInstruction`); prompt tidak berubah.

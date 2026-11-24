@@ -6,6 +6,7 @@ import { Select, Textarea } from '@/components/ui/input';
 import { FLOW_ISSUES, LABELS } from '@/config/enums';
 import { aiService } from '@/ai/aiService';
 import { useAiAction } from '@/features/shared/useAiAction';
+import { CopyButton } from '@/components/common/CopyButton';
 import { useProjectStore } from '@/stores/projectStore';
 import type { FlowIssue, Scene, Variant } from '@/types';
 
@@ -27,6 +28,7 @@ export function FixPromptDialog({
   const [issues, setIssues] = React.useState<FlowIssue[]>([]);
   const [note, setNote] = React.useState('');
   const [variant, setVariant] = React.useState<Variant>(defaultVariant);
+  const [mode, setMode] = React.useState<'rewrite' | 'edit'>('rewrite');
   const run = useAiAction();
   const variants: Variant[] = useProjectStore((s) => s.project?.brief.output.variants) ?? ['standard'];
   const available = variants.filter((v) => v === 'standard' || scene?.flowPrompts[v]);
@@ -36,6 +38,7 @@ export function FixPromptDialog({
       setIssues([]);
       setNote('');
       setVariant(defaultVariant);
+      setMode('rewrite');
     }
   }, [scene, defaultVariant]);
 
@@ -48,13 +51,13 @@ export function FixPromptDialog({
     const fixed = await run('prompt_fix', (opts) =>
       aiService.fixScenePrompt(
         st.project!.brief,
-        { scenes: st.docs.scenes?.items ?? [], sceneId: scene.id, bibles: st.docs.bibles, assets: st.docs.assets, variant, issues, note },
+        { scenes: st.docs.scenes?.items ?? [], sceneId: scene.id, bibles: st.docs.bibles, assets: st.docs.assets, variant, issues, note, mode },
         opts,
       ),
     );
     if (!fixed) return;
     useProjectStore.getState().updateScenes((cur) => cur.map((s) => (s.id === fixed.id ? fixed : s)));
-    toast.success('Prompt diperbaiki. Salin lalu render ulang di Flow.');
+    toast.success(mode === 'edit' ? 'Instruksi edit siap. Lampirkan klip di Flow lalu tempel instruksinya.' : 'Prompt diperbaiki. Salin lalu render ulang di Flow.');
     onFixed?.(fixed);
   };
 
@@ -71,6 +74,23 @@ export function FixPromptDialog({
             <label key={i} className="flex items-center gap-2 rounded-md border p-2 text-sm">
               <input type="checkbox" checked={issues.includes(i)} onChange={() => toggle(i)} />
               {LABELS.flowIssue[i]}
+            </label>
+          ))}
+        </fieldset>
+        <fieldset className="grid gap-2 sm:grid-cols-2">
+          <legend className="mb-1 text-sm font-medium">Cara memperbaiki</legend>
+          {(
+            [
+              ['rewrite', 'Tulis ulang prompt', 'Render ulang klip dari nol dengan prompt yang lebih tegas.'],
+              ['edit', 'Instruksi edit klip (Omni)', 'Klip yang sudah jadi diedit di Flow. Prompt scene tidak berubah.'],
+            ] as const
+          ).map(([v, label, desc]) => (
+            <label key={v} className="flex items-start gap-2 rounded-md border p-2 text-sm">
+              <input type="radio" name="fix-mode" className="mt-1" checked={mode === v} onChange={() => setMode(v)} />
+              <span>
+                <span className="font-medium">{label}</span>
+                <span className="block text-xs text-muted-foreground">{desc}</span>
+              </span>
             </label>
           ))}
         </fieldset>
@@ -95,7 +115,7 @@ export function FixPromptDialog({
             Batal
           </Button>
           <Button onClick={submit} disabled={issues.length === 0 && !note.trim()}>
-            Perbaiki prompt
+            {mode === 'edit' ? 'Buat instruksi edit' : 'Perbaiki prompt'}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -110,8 +130,18 @@ export function LastFixNote({ scene }: { scene: Scene }) {
   return (
     <div className="rounded-md border border-dashed p-2 text-xs text-muted-foreground">
       <p>
-        <span className="font-medium text-foreground">Diperbaiki:</span> {f.issues.map((i) => LABELS.flowIssue[i]).join(', ') || f.note}
+        <span className="font-medium text-foreground">{f.mode === 'edit' ? 'Instruksi edit klip:' : 'Diperbaiki:'}</span>{' '}
+        {f.issues.map((i) => LABELS.flowIssue[i]).join(', ') || f.note}
       </p>
+      {f.mode === 'edit' && f.editInstruction && (
+        <div className="mt-1 space-y-1">
+          <p className="whitespace-pre-wrap rounded bg-muted p-2 font-mono text-foreground">{f.editInstruction}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <CopyButton label="Salin instruksi edit" getText={() => f.editInstruction ?? ''} />
+            <span>Di Flow: lampirkan klip (+ → Videos), tempel instruksi ini. Biaya edit sama dengan generate per detik.</span>
+          </div>
+        </div>
+      )}
       {f.changes.length > 0 && (
         <ul className="mt-1 list-disc pl-4">
           {f.changes.map((c, i) => (

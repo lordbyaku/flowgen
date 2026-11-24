@@ -15,6 +15,7 @@ import type { SceneDraftSchema, SceneFixSchema, SceneSchema, SceneVersionSchema,
 import type {
   BriefAssistOutputSchema,
   PromptFixOutputSchema,
+  ClipEditOutputSchema,
   ScenePromptItemSchema,
   SceneRegenOutputSchema,
   ScriptStoryboardOutputSchema,
@@ -65,6 +66,7 @@ export type SceneDraft = z.infer<typeof SceneDraftSchema>;
 export type SceneVersion = z.infer<typeof SceneVersionSchema>;
 export type SceneFix = z.infer<typeof SceneFixSchema>;
 export type PromptFixOutput = z.infer<typeof PromptFixOutputSchema>;
+export type ClipEditOutput = z.infer<typeof ClipEditOutputSchema>;
 export type FlowIssue = (typeof C.FLOW_ISSUES)[number];
 export type ScenesDoc = z.infer<typeof ScenesDocSchema>;
 export type ScriptStoryboardOutput = z.infer<typeof ScriptStoryboardOutputSchema>;

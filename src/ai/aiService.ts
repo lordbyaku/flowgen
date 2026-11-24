@@ -18,7 +18,7 @@ import { applyPromptItems, buildScenePromptBatches } from '@/ai/director/scenePr
 import { applySceneRegen, buildSceneRegenCall } from '@/ai/director/sceneRegenCall';
 import { buildPublishCall, toPublishDoc } from '@/ai/director/publishCall';
 import { buildHookVariantsCall, toHookVariants } from '@/ai/director/hookVariantsCall';
-import { applyPromptFix, buildPromptFixCall, type PromptFixInput } from '@/ai/director/promptFixCall';
+import { applyClipEdit, applyPromptFix, buildClipEditCall, buildPromptFixCall, type PromptFixInput } from '@/ai/director/promptFixCall';
 import { MSG, messageFor } from '@/ai/messages';
 import { computeCompleteness } from '@/domain/completeness';
 import { buildTimelineFromScenes } from '@/domain/exporters/capcutGuide';
@@ -183,7 +183,7 @@ export function createAiService(deps: {
     /** Perbaiki prompt satu scene berdasarkan masalah klip hasil Flow. Hanya scene itu yang dikembalikan. */
     fixScenePrompt(
       brief: Brief,
-      input: Omit<PromptFixInput, 'bibles'> & { bibles: BiblesDoc | null },
+      input: Omit<PromptFixInput, 'bibles'> & { bibles: BiblesDoc | null; mode?: 'rewrite' | 'edit' },
       opts: CallOptions = {},
     ): Promise<Result<Scene>> {
       const bibles = input.bibles;
@@ -192,6 +192,10 @@ export function createAiService(deps: {
       if (input.issues.length === 0 && !input.note?.trim())
         return Promise.resolve({ ok: false, error: { code: 'validation', message: 'Pilih minimal satu masalah atau tulis catatan.' } });
       return safe(async () => {
+        if (input.mode === 'edit') {
+          const { data } = await structuredCall(router, { ...buildClipEditCall(brief, { ...input, bibles }), ...opts });
+          return applyClipEdit(scene, data, input, now());
+        }
         const { data } = await structuredCall(router, { ...buildPromptFixCall(brief, { ...input, bibles }), ...opts });
         return applyPromptFix(scene, data, brief, input, now());
       });

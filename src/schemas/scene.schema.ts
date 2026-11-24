@@ -31,6 +31,10 @@ export const SceneFixSchema = z.object({
   note: z.string(),
   /** Ringkasan perubahan dari AI (Indonesia). */
   changes: z.array(z.string()),
+  /** 'edit' (v1.5): instruksi edit klip Omni; prompt scene tidak diubah. Kosong = 'rewrite'. */
+  mode: z.enum(['rewrite', 'edit']).optional(),
+  /** Instruksi edit (Inggris) untuk ditempel di Flow bersama klip yang sudah dirender. */
+  editInstruction: z.string().optional(),
 });
 
 export const SceneSchema = z.object({

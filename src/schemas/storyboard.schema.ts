@@ -51,6 +51,12 @@ export const PromptFixOutputSchema = z.object({
   changes: z.array(z.string()).max(6),
 });
 
+/** Keluaran instruksi edit klip Omni (v1.5). */
+export const ClipEditOutputSchema = z.object({
+  instruction: z.string(),
+  changes: z.array(z.string()).max(6),
+});
+
 /** Keluaran AI Brief Assistant. */
 export const BriefAssistOutputSchema = z.object({
   questions: z
