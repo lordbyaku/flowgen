@@ -18,13 +18,13 @@ export function openingScene(scenes: Scene[]): Scene | null {
 }
 
 /** Teks yang disalin ke Flow: prompt + baris Avoid. */
-export function hookCopyText(h: HookVariant): string {
-  const neg = h.negativePrompt.trim();
+export function hookCopyText(h: HookVariant, avoid = true): string {
+  const neg = avoid ? h.negativePrompt.trim() : '';
   return neg ? `${h.flowPrompt.trim()}\n\nAvoid: ${neg}` : h.flowPrompt.trim();
 }
 
 /** Semua varian sebagai teks (ekspor). */
-export function hooksText(doc: HooksDoc): string {
+export function hooksText(doc: HooksDoc, avoid = true): string {
   return doc.items
     .map((h, i) => {
       const head = [
@@ -37,7 +37,7 @@ export function hooksText(doc: HooksDoc): string {
         h.framePrompts?.start && `Frame awal:\n${h.framePrompts.start}`,
         h.framePrompts?.end && `Frame akhir:\n${h.framePrompts.end}`,
       ];
-      return [head.filter(Boolean).join('\n'), hookCopyText(h), ...frames.filter(Boolean)].join('\n\n');
+      return [head.filter(Boolean).join('\n'), hookCopyText(h, avoid), ...frames.filter(Boolean)].join('\n\n');
     })
     .join('\n\n');
 }

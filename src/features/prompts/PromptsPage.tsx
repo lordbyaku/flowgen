@@ -16,7 +16,7 @@ import { MAX_SCENE_SEC } from '@/config/constants';
 import { LABELS } from '@/config/enums';
 import { aiService } from '@/ai/aiService';
 import { applyLintFixes, FIX_LABEL, isFixable, lintScene, worstSeverity, type FixableRule, type LintIssue } from '@/domain/linter';
-import { copyAllText, copyText, frameCopyText } from '@/domain/promptText';
+import { avoidLineOn, copyAllText, copyText, frameCopyText } from '@/domain/promptText';
 import { assetsProgress, characterRefOf } from '@/domain/assets';
 import { pushVersion, restoreVersion } from '@/domain/sceneVersions';
 import { countWords, cn } from '@/lib/utils';
@@ -182,7 +182,7 @@ function PromptCard({ scene, index, variants, onRegen }: { scene: Scene; index: 
                 <div key={k} className="space-y-1">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-medium">{k === 'start' ? 'Frame awal' : 'Frame akhir'}</span>
-                    <CopyButton label="Salin" getText={() => frameCopyText(scene, k)} />
+                    <CopyButton label="Salin" getText={() => frameCopyText(scene, k, avoidLineOn(project.brief))} />
                   </div>
                   <p className="prose-prompt text-xs">{scene.framePrompts[k]}</p>
                 </div>
@@ -194,7 +194,7 @@ function PromptCard({ scene, index, variants, onRegen }: { scene: Scene; index: 
           <div className="flex flex-wrap gap-2">
             <CopyButton
               label="Salin"
-              getText={() => copyText(scene, variant)}
+              getText={() => copyText(scene, variant, avoidLineOn(project.brief))}
               onCopied={() => scene.tracker === 'prompt_ready' && save({ ...scene, tracker: 'copied', updatedAt: Date.now() })}
             />
             <Button
@@ -341,7 +341,7 @@ export default function PromptsPage() {
               </Link>
             </Button>
           )}
-          {hasPrompts && <CopyButton label="Salin Semua" getText={() => copyAllText(scenes)} />}
+          {hasPrompts && <CopyButton label="Salin Semua" getText={() => copyAllText(scenes, 'standard', avoidLineOn(project.brief))} />}
           <Button onClick={generate} disabled={!!running} loading={running === 'scene_prompts'} variant={hasPrompts ? 'outline' : 'default'}>
             {hasPrompts ? <RefreshCw /> : <Sparkles />} {hasPrompts ? 'Buat ulang (scene belum approve)' : 'Buat prompt'}
           </Button>

@@ -161,6 +161,8 @@ export const BriefSchema = z.object({
     /** Cara karakter/tempat disebut di prompt scene (v1.3). Kosong = 'description' (perilaku lama). */
     characterRef: z.enum(E.CHARACTER_REFS).optional(),
     extraNotes: Text.optional(),
+    /** Sertakan baris "Avoid:" saat menyalin/mengekspor prompt (v1.5). Kosong = ya. */
+    avoidLine: z.boolean().optional(),
     /** Kirim gambar referensi lokal ke AI (multimodal). Default: ya. */
     sendReferenceImages: z.boolean().optional(),
   }),

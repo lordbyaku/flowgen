@@ -996,7 +996,7 @@ One continuous shot, no jump cuts. Aspect ratio {ratio}.
 
 (v1.5) Baris Audio dan kalimat satu shot ditambahkan untuk Gemini Omni 1.2 Flash; musik dan VO tetap dibuat di CapCut.
 
-Negatif disimpan terpisah di `negativePrompt`; saat disalin, tambahkan baris `Avoid: {negativePrompt}`. Negatif dasar selalu memuat: on-screen text, captions, watermark, distorted or misspelled logos, extra fingers, deformed hands, unnatural face, plus `globalNegatives` dari brief. Dialog maksimal durasi scene × 0,85 × kecepatan bicara (mis. 19 kata untuk scene 10 detik; v1.5) **\[VERIFIKASI cara Flow menangani dialog\]**.
+Negatif disimpan terpisah di `negativePrompt`; saat disalin, tambahkan baris `Avoid: {negativePrompt}` (v1.5: bisa dimatikan lewat `output.avoidLine` di Langkah 8). Negatif dasar selalu memuat: on-screen text, captions, watermark, distorted or misspelled logos, extra fingers, deformed hands, unnatural face, plus `globalNegatives` dari brief. Dialog maksimal durasi scene × 0,85 × kecepatan bicara (mis. 19 kata untuk scene 10 detik; v1.5) **\[VERIFIKASI cara Flow menangani dialog\]**.
 
 ### 23.6 Regenerasi satu scene
 

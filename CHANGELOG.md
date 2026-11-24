@@ -7,6 +7,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [S
 ### Ditambahkan
 - **Baris "Audio:" di setiap prompt scene**: ambience dan SFX dari storyboard (`sfxAmbient`), diakhiri "No background music." karena musik dan VO ditambahkan di CapCut. Bila dialog karakter mati, prompt juga menulis "No dialogue, no narration." agar Omni tidak mengarang ucapan.
 - **"One continuous shot, no jump cuts."** di setiap prompt scene (sebelum aspect ratio), mengikuti panduan prompt Gemini Omni, agar satu klip tidak terpotong menjadi beberapa shot.
+- **Opsi "Sertakan baris Avoid saat menyalin"** (Langkah 8, default Ya): bila Tidak, baris `Avoid:` tidak ikut di semua salinan prompt (scene, Salin Semua, frame, varian hook, Mode Produksi, Production Tracker) dan ekspor TXT/Markdown. Daftar negatif tetap tersimpan.
 
 ### Diubah
 - **Batas durasi scene naik dari 8 ke 10 detik** mengikuti Gemini Omni 1.2 Flash, model default Google Flow sejak 5 November 2026 (klip 3–15 detik; paket gratis maks 10 detik). Berlaku untuk storyboard, linter L01, jumlah scene minimum, dan instruksi AI.

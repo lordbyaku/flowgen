@@ -1,6 +1,6 @@
 import { LABELS } from '@/config/enums';
 import { formatDateTime } from '@/lib/format';
-import { copyText } from '@/domain/promptText';
+import { avoidLineOn, copyText } from '@/domain/promptText';
 import { lintAll } from '@/domain/linter';
 import type { Brief, Variant } from '@/types';
 import type { ExportBundle, ExportSection } from './bundle';
@@ -166,7 +166,7 @@ export function toMarkdown(
     bundle.scenes.forEach((s, i) => {
       out.push(`### Scene ${i + 1}: ${s.title} (${s.durationSec}s)`);
       for (const v of variants) {
-        const text = copyText(s, v);
+        const text = copyText(s, v, avoidLineOn(bundle.brief));
         if (!text.trim()) continue;
         out.push(`**${LABELS.variant[v]}**`, '```text', text, '```');
       }
@@ -176,7 +176,7 @@ export function toMarkdown(
   }
 
   if (has('hooks') && bundle.hooks?.items.length)
-    out.push('## Varian Hook (ganti scene 1 per varian di CapCut)', '```text', hooksText(bundle.hooks), '```');
+    out.push('## Varian Hook (ganti scene 1 per varian di CapCut)', '```text', hooksText(bundle.hooks, avoidLineOn(bundle.brief)), '```');
 
   if (has('capcut') && bundle.capcut) out.push('## Panduan CapCut', capcutText(bundle.capcut, bundle.scenes));
 

@@ -1,5 +1,5 @@
 import type { Scene, Variant } from '@/types';
-import { copyAllText, copyText } from '@/domain/promptText';
+import { avoidLineOn, copyAllText, copyText } from '@/domain/promptText';
 import type { ExportBundle } from './bundle';
 import { capcutText } from './capcutGuide';
 import { toMarkdown } from './markdown';
@@ -12,11 +12,12 @@ export function clipboardText(
   opts: { scene?: Scene; variant?: Variant } = {},
 ): string {
   const variant = opts.variant ?? 'standard';
+  const avoid = avoidLineOn(bundle.brief);
   switch (kind) {
     case 'scene':
-      return opts.scene ? copyText(opts.scene, variant) : '';
+      return opts.scene ? copyText(opts.scene, variant, avoid) : '';
     case 'allPrompts':
-      return copyAllText(bundle.scenes, variant);
+      return copyAllText(bundle.scenes, variant, avoid);
     case 'storyboard':
       return toMarkdown(bundle, ['storyboard']);
     case 'script':

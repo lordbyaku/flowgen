@@ -1,6 +1,6 @@
 import { isFlowAssetsMode } from '@/domain/assets';
 import { hookCopyText, hookLetter } from '@/domain/hooks';
-import { copyText, frameCopyText } from '@/domain/promptText';
+import { avoidLineOn, copyText, frameCopyText } from '@/domain/promptText';
 import type { AssetsDoc, Brief, HooksDoc, Scene, TrackerStatus, Variant } from '@/types';
 
 /** Mode produksi HP (v1.4): antrean satu item per layar, dibangun dari dokumen yang ada. */
@@ -39,6 +39,7 @@ export function buildShootQueue(
   variant: Variant = 'standard',
 ): ShootItem[] {
   const out: ShootItem[] = [];
+  const avoid = avoidLineOn(brief);
   const assets = docs.assets;
   if (isFlowAssetsMode(brief, assets)) {
     assets.characters.forEach((c) =>
@@ -83,7 +84,7 @@ export function buildShootQueue(
 
   const sorted = [...docs.scenes].sort((a, b) => a.order - b.order);
   sorted.forEach((s, i) => {
-    const prompt = copyText(s, s.flowPrompts[variant] ? variant : 'standard');
+    const prompt = copyText(s, s.flowPrompts[variant] ? variant : 'standard', avoid);
     out.push({
       key: `scene:${s.id}`,
       target: { kind: 'scene', id: s.id },
@@ -93,8 +94,8 @@ export function buildShootQueue(
       context: [s.voiceOver && `VO: ${s.voiceOver}`, s.textOverlay && `Overlay (CapCut): ${s.textOverlay}`].filter(Boolean) as string[],
       // Mode gambar: buat gambar frame dulu, baru videonya.
       copies: [
-        { label: 'Frame awal (gambar)', text: frameCopyText(s, 'start') },
-        { label: 'Frame akhir (gambar)', text: frameCopyText(s, 'end') },
+        { label: 'Frame awal (gambar)', text: frameCopyText(s, 'start', avoid) },
+        { label: 'Frame akhir (gambar)', text: frameCopyText(s, 'end', avoid) },
         { label: 'Prompt video', text: s.flowPrompts.standard.trim() ? prompt : '' },
       ].filter((x) => x.text.trim()),
       done: isProduced(s.tracker),
@@ -111,9 +112,9 @@ export function buildShootQueue(
       subtitle: 'Varian hook — pengganti scene 1',
       context: [h.voiceOver && `VO: ${h.voiceOver}`, h.textOverlay && `Overlay (CapCut): ${h.textOverlay}`].filter(Boolean) as string[],
       copies: [
-        { label: 'Frame awal (gambar)', text: frameCopyText(h, 'start') },
-        { label: 'Frame akhir (gambar)', text: frameCopyText(h, 'end') },
-        { label: 'Prompt video', text: hookCopyText(h) },
+        { label: 'Frame awal (gambar)', text: frameCopyText(h, 'start', avoid) },
+        { label: 'Frame akhir (gambar)', text: frameCopyText(h, 'end', avoid) },
+        { label: 'Prompt video', text: hookCopyText(h, avoid) },
       ].filter((x) => x.text.trim()),
       done: isProduced(h.tracker),
       tracker: h.tracker,

@@ -12,6 +12,7 @@ import { clipboardText, type ClipboardKind } from '@/domain/exporters/clipboard'
 import { toMarkdown } from '@/domain/exporters/markdown';
 import { exportFilename, projectToJson } from '@/domain/exporters/projectJson';
 import { promptsTxt, scenePromptTxt, voTxt } from '@/domain/exporters/txt';
+import { avoidLineOn } from '@/domain/promptText';
 import { downloadText } from '@/lib/download';
 import { useProjectStore } from '@/stores/projectStore';
 import type { Variant } from '@/types';
@@ -38,7 +39,7 @@ export default function ExportPage() {
       if (txtKind === 'scene') {
         const idx = bundle.scenes.findIndex((s) => s.id === sceneId);
         const s = bundle.scenes[idx];
-        return { text: s ? scenePromptTxt(s, idx, variant) + '\n' : '', filename: exportFilename(project.name, `scene-${idx + 1}`, 'txt') };
+        return { text: s ? scenePromptTxt(s, idx, variant, avoidLineOn(project.brief)) + '\n' : '', filename: exportFilename(project.name, `scene-${idx + 1}`, 'txt') };
       }
       return { text: promptsTxt(bundle, variant), filename: exportFilename(project.name, 'prompts', 'txt') };
     }

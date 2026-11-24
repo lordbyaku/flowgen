@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/misc';
 import { CopyButton } from '@/components/common/CopyButton';
 import { EmptyState } from '@/components/common/states';
 import { LABELS, TRACKER_STATUSES } from '@/config/enums';
-import { copyText } from '@/domain/promptText';
+import { avoidLineOn, copyText } from '@/domain/promptText';
 import { useProjectStore } from '@/stores/projectStore';
 import { FixPromptDialog, LastFixNote } from '@/features/prompts/FixPromptDialog';
 import type { Scene, TrackerStatus } from '@/types';
@@ -106,7 +106,7 @@ export default function TrackerPage() {
                       <CopyButton
                         label="Salin prompt"
                         className="w-full"
-                        getText={() => copyText(s)}
+                        getText={() => copyText(s, 'standard', avoidLineOn(project.brief))}
                         onCopied={() => s.tracker === 'prompt_ready' && patch(s.id, { tracker: 'copied' })}
                       />
                     )}

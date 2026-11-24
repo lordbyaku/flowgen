@@ -1,5 +1,10 @@
 import type { Brief, Scene, Variant } from '@/types';
 
+/** Baris "Avoid:" ikut disalin/diekspor? Default ya (v1.5: bisa dimatikan di Langkah 8). */
+export function avoidLineOn(brief: Pick<Brief, 'output'>): boolean {
+  return brief.output.avoidLine !== false;
+}
+
 /** Negatif dasar yang selalu ada (Bagian 23.5). */
 export const BASE_NEGATIVES = [
   'on-screen text',
@@ -38,22 +43,23 @@ export function scenePrompt(scene: Scene, variant: Variant = 'standard'): string
 }
 
 /** Teks yang disalin ke Google Flow: prompt + baris Avoid. */
-export function copyText(scene: Scene, variant: Variant = 'standard'): string {
+export function copyText(scene: Scene, variant: Variant = 'standard', avoid = true): string {
   const prompt = scenePrompt(scene, variant).trim();
-  const neg = scene.negativePrompt.trim();
+  const neg = avoid ? scene.negativePrompt.trim() : '';
   return neg ? `${prompt}\n\nAvoid: ${neg}` : prompt;
 }
 
 /** Prompt gambar frame (awal/akhir) + baris Avoid tanpa teks di gambar. */
-export function frameCopyText(scene: Pick<Scene, 'framePrompts'>, which: 'start' | 'end'): string {
+export function frameCopyText(scene: Pick<Scene, 'framePrompts'>, which: 'start' | 'end', avoid = true): string {
   const p = scene.framePrompts?.[which]?.trim() ?? '';
-  return p ? `${p}\n\nAvoid: text, letters, watermark, distorted logo, deformed hands` : '';
+  if (!avoid) return p;
+  return p ?`${p}\n\nAvoid: text, letters, watermark, distorted logo, deformed hands` : '';
 }
 
 /** Salin Semua: teks bernomor dengan pemisah === SCENE n ===. */
-export function copyAllText(scenes: Scene[], variant: Variant = 'standard'): string {
+export function copyAllText(scenes: Scene[], variant: Variant = 'standard', avoid = true): string {
   return [...scenes]
     .sort((a, b) => a.order - b.order)
-    .map((s, i) => `=== SCENE ${i + 1} ===\n${copyText(s, variant)}`)
+    .map((s, i) => `=== SCENE ${i + 1} ===\n${copyText(s, variant, avoid)}`)
     .join('\n\n');
 }

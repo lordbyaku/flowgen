@@ -13,7 +13,7 @@ import { EmptyState } from '@/components/common/states';
 import { LABELS, TRACKER_STATUSES } from '@/config/enums';
 import { aiService } from '@/ai/aiService';
 import { hookCopyText, hookLetter, isHookProduced, mergeHooks, openingScene } from '@/domain/hooks';
-import { frameCopyText } from '@/domain/promptText';
+import { avoidLineOn, frameCopyText } from '@/domain/promptText';
 import { useAiAction } from '@/features/shared/useAiAction';
 import { usePastPerformance } from '@/features/shared/usePastPerformance';
 import { useAiStatusStore } from '@/stores/aiStatusStore';
@@ -21,6 +21,7 @@ import { useProjectStore } from '@/stores/projectStore';
 import type { HookVariant, TrackerStatus } from '@/types';
 
 function HookCard({ hook, index, onChange, onDelete }: { hook: HookVariant; index: number; onChange: (h: HookVariant) => void; onDelete: () => void }) {
+  const avoid = useProjectStore((s) => avoidLineOn(s.project!.brief));
   const patch = (p: Partial<HookVariant>) => onChange({ ...hook, ...p, updatedAt: Date.now() });
   return (
     <Card>
@@ -69,7 +70,7 @@ function HookCard({ hook, index, onChange, onDelete }: { hook: HookVariant; inde
                   <p className="prose-prompt min-w-0 flex-1 text-xs">{hook.framePrompts[k]}</p>
                   <CopyButton
                     label={k === 'start' ? 'Frame awal' : 'Frame akhir'}
-                    getText={() => frameCopyText(hook, k)}
+                    getText={() => frameCopyText(hook, k, avoid)}
                   />
                 </div>
               ) : null,
@@ -79,7 +80,7 @@ function HookCard({ hook, index, onChange, onDelete }: { hook: HookVariant; inde
         <div className="flex flex-wrap items-center gap-2">
           <CopyButton
             label="Salin prompt"
-            getText={() => hookCopyText(hook)}
+            getText={() => hookCopyText(hook, avoid)}
             onCopied={() => hook.tracker === 'prompt_ready' && patch({ tracker: 'copied' })}
           />
           <Select

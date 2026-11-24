@@ -46,6 +46,7 @@ export function Step8Output() {
         </Field>
       )}
       <ListField path="output.globalNegatives" label="Larangan visual global" suggestions={GLOBAL_NEGATIVE_OPTIONS} placeholder="mis. blurry product" className="md:col-span-2" hint="Ditambahkan ke baris Avoid di setiap prompt (Inggris)" />
+      <BoolField path="output.avoidLine" label="Sertakan baris Avoid saat menyalin" defaultValue hint="Panduan Gemini Omni tidak membahas negative prompt. Pilih Tidak bila prompt cukup tanpa daftar larangan; daftar tetap tersimpan dan bisa diaktifkan lagi." />
       <Field label="Varian prompt" level="O" hint="Standard selalu dibuat; Cinematic & Premium menambah panjang output">
         <MultiToggle
           options={optionsFrom(LABELS.variant)}
