@@ -4,6 +4,8 @@ export const APP_VERSION = '1.4.0';
 export const MAX_KEYS = 5;
 export const MAX_SCENE_SEC = 10; // [VERIFIKASI] batas klip Google Flow (Omni 1.2 Flash: 3–15 dtk; paket gratis 10 dtk)
 export const MIN_SCENE_SEC = 2;
+/** Kredit Google Flow untuk Gemini Omni 1.2 Flash per detik video (generate atau edit). [VERIFIKASI] */
+export const FLOW_CREDITS = { draftPerSec: 1, hdPerSec: 3, baseSec: 10, freeDaily: 50 } as const;
 export const MAX_AUTO_SCENES = 12;
 export const WORDS_PER_SEC = { id: 2.3, en: 2.5 }; // estimasi VO
 export const VO_FILL_RATIO = 0.85;

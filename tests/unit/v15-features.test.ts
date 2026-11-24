@@ -5,6 +5,7 @@ import { buildClipEditCall } from '@/ai/director/promptFixCall';
 import { CONTINUOUS_SHOT, promptFormatRules } from '@/ai/director/sceneContext';
 import { applyPromptItems, buildScenePromptBatches } from '@/ai/director/scenePromptCall';
 import { scenePromptTxt } from '@/domain/exporters/txt';
+import { clipCredits, estimateFlowCredits } from '@/domain/flowCredits';
 import { avoidLineOn, copyText, frameCopyText } from '@/domain/promptText';
 import { buildShootQueue } from '@/domain/shootQueue';
 import { makeBibles, makeBrief, makeScene } from './helpers';
@@ -82,5 +83,15 @@ describe('v1.5 — prompt Omni Extend', () => {
     const q = buildShootQueue(makeBrief(), { scenes: out, assets: null, hooks: null });
     expect(q[1].copies.map((c) => c.label)).toContain('Prompt Extend dari scene 1 (opsional)');
     expect(scenePromptTxt(out[1], 1)).toContain('[EXTEND DARI SCENE 1 (opsional)]');
+  });
+});
+
+describe('v1.5 — perkiraan kredit Flow', () => {
+  it('360p 1/dtk, 720p 3/dtk; detik di atas 10 dua kali lipat', () => {
+    expect(clipCredits(10, 1)).toBe(10);
+    expect(clipCredits(15, 1)).toBe(20);
+    expect(clipCredits(15, 3)).toBe(60);
+    expect(estimateFlowCredits([10, 8, 6])).toEqual({ clips: 3, seconds: 24, draft: 24, hd: 72 });
+    expect(estimateFlowCredits([])).toEqual({ clips: 0, seconds: 0, draft: 0, hd: 0 });
   });
 });

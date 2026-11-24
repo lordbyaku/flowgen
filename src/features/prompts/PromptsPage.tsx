@@ -12,7 +12,8 @@ import { AiErrorPanel } from '@/components/common/AiStatus';
 import { CopyButton } from '@/components/common/CopyButton';
 import { EmptyState } from '@/components/common/states';
 import { CostHint } from '@/components/common/CostHint';
-import { MAX_SCENE_SEC } from '@/config/constants';
+import { FLOW_CREDITS, MAX_SCENE_SEC } from '@/config/constants';
+import { estimateFlowCredits } from '@/domain/flowCredits';
 import { LABELS } from '@/config/enums';
 import { aiService } from '@/ai/aiService';
 import { applyLintFixes, FIX_LABEL, isFixable, lintScene, worstSeverity, type FixableRule, type LintIssue } from '@/domain/linter';
@@ -266,6 +267,19 @@ function PromptCard({ scene, index, variants, onRegen }: { scene: Scene; index: 
 }
 
 /** Urutan kerja di Flow: karakter → tempat → story. */
+/** Perkiraan kredit Google Flow (Gemini Omni 1.2 Flash) untuk sekali render semua scene. */
+export function FlowCreditHint({ durations }: { durations: number[] }) {
+  if (durations.length === 0) return null;
+  const e = estimateFlowCredits(durations);
+  return (
+    <p className="text-xs text-muted-foreground">
+      Perkiraan kredit Flow (Omni 1.2 Flash, sekali render {e.clips} klip / {e.seconds} detik): draft 360p ≈ <strong>{e.draft}</strong> kredit · 720p ≈{' '}
+      <strong>{e.hd}</strong> kredit. Paket gratis {FLOW_CREDITS.freeDaily} kredit/hari. Render ulang dan edit klip dihitung sama per detik; upscale 1080p gratis
+      untuk klip sampai 10 detik.
+    </p>
+  );
+}
+
 function FlowOrderBanner({ projectId }: { projectId: string }) {
   const brief = useProjectStore((s) => s.project!.brief);
   const assets = useProjectStore((s) => s.docs.assets);
@@ -359,6 +373,7 @@ export default function PromptsPage() {
       </div>
       <FlowOrderBanner projectId={project.id} />
       <DurationBar scenes={scenes} target={project.brief.project.durationSec} />
+      <FlowCreditHint durations={scenes.map((s) => s.durationSec)} />
       <Alert variant="info" title="Teks overlay dibuat di CapCut">
         Prompt tidak meminta teks di dalam video karena teks hasil AI sering rusak. Batas klip Flow saat ini dianggap {MAX_SCENE_SEC} detik — verifikasi di Flow.
       </Alert>

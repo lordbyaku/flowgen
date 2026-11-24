@@ -5,6 +5,7 @@ Semua item diimplementasikan lewat konstanta atau satu file adapter. Status: **b
 | Item | Lokasi di kode | Nilai awal | Cara verifikasi | Status |
 |---|---|---|---|---|
 | Batas durasi klip Google Flow | `MAX_SCENE_SEC` (`src/config/constants.ts`) | 10 (Omni 1.2 Flash: 3–15 dtk, gratis maks 10) | Buat satu klip, lihat durasi maks di Flow | Sebagian (dokumentasi Nov 2026) |
+| Kredit Google Flow (Omni 1.2 Flash) | `FLOW_CREDITS` (`src/config/constants.ts`) | 360p 1/dtk, 720p 3/dtk, >10 dtk ×2, gratis 50/hari | Bandingkan dengan tabel kredit di Flow | Belum (sumber pihak ketiga, Nov 2026) |
 | Dialog/audio di prompt Flow | `dialogueWordBudget` (`src/domain/wordBudget.ts`), `promptFormatRules` (`src/ai/director/sceneContext.ts`) | durasi × 0,85 × kata/detik (10 dtk ≈ 19 kata) | Uji prompt dengan & tanpa dialog | Belum |
 | Konsistensi karakter Flow | `output.flowMode` | Teks ke video | Cek fitur Flow terbaru | Belum |
 | Format `responseSchema` Gemini | `src/ai/json/toGeminiSchema.ts` | Subset OpenAPI, tipe huruf besar, `propertyOrdering` | Satu panggilan nyata dengan skema Konsep | Belum (tes unit dengan fetch palsu lulus) |

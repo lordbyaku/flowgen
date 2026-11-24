@@ -1390,3 +1390,8 @@ Keputusan pemilik:
 6. **Prompt Extend** (`scene.extendPrompt`, opsional): ditulis AI di Panggilan 3 dan regenerasi hanya bila scene menyambung langsung
    dari scene sebelumnya. Isinya hanya aksi berikutnya + satu gerakan kamera (25–60 kata), baris Audio, dan kalimat satu shot.
    Tidak pernah untuk scene pertama. Ikut ke Mode Produksi dan ekspor TXT/Markdown.
+7. **Perkiraan kredit Flow** (tanpa AI) di halaman Prompt: 360p 1 kredit/dtk, 720p 3 kredit/dtk untuk 10 detik pertama per klip,
+   dua kali lipat sesudahnya (`FLOW_CREDITS`, [VERIFIKASI]).
+8. **Baris Avoid opsional** (`brief.output.avoidLine`, default ya) untuk semua salinan dan ekspor prompt.
+
+Tidak dikerjakan: pemadatan prompt mode deskripsi untuk Omni.
