@@ -33,7 +33,12 @@ export const router = createBrowserRouter(
         {
           element: <AppShell />,
           children: [
-            { index: true, element: lazyPage(() => import('@/features/dashboard/DashboardPage')) },
+            { index: true, element: lazyPage(() => import('@/features/simple/SimpleHome')) },
+            { path: 'simple/video', element: lazyPage(() => import('@/features/simple/SimpleVideoNew')) },
+            { path: 'simple/video/:id', element: lazyPage(() => import('@/features/simple/SimpleVideoView')) },
+            { path: 'simple/ideas', element: lazyPage(() => import('@/features/simple/SimpleIdeasPage')) },
+            { path: 'simple/fix', element: lazyPage(() => import('@/features/simple/SimpleFixPage')) },
+            { path: 'dashboard', element: lazyPage(() => import('@/features/dashboard/DashboardPage')) },
             { path: 'projects', element: lazyPage(() => import('@/features/projects/ProjectsPage')) },
             { path: 'projects/new', element: lazyPage(() => import('@/features/projects/NewProjectPage')) },
             { path: 'projects/quick', element: lazyPage(() => import('@/features/projects/QuickBriefPage')) },

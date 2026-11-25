@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { BookMarked, BookOpen, Building2, Clapperboard, FolderKanban, KeyRound, LayoutDashboard, LogOut, Settings, WifiOff } from 'lucide-react';
+import { BookMarked, BookOpen, Building2, Clapperboard, FolderKanban, Home, KeyRound, LayoutDashboard, Lightbulb, LogOut, Settings, Wand2, WifiOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AiRunBar } from '@/components/common/AiStatus';
@@ -14,15 +14,37 @@ import { isDemoMode } from '@/config/env';
 import { MSG } from '@/ai/messages';
 import { cn } from '@/lib/utils';
 
-const NAV = [
-  { to: '/', label: 'Dashboard', short: 'Beranda', icon: LayoutDashboard, end: true },
-  { to: '/projects', label: 'Projects', short: 'Project', icon: FolderKanban },
-  { to: '/brands', label: 'Brands', short: 'Brand', icon: Building2 },
-  { to: '/library', label: 'Prompt Library', short: 'Library', icon: BookMarked },
-  { to: '/provider', label: 'AI Provider', short: 'AI', icon: KeyRound },
-  { to: '/settings', label: 'Settings', short: 'Atur', icon: Settings },
-  { to: '/guide', label: 'Panduan', short: 'Panduan', icon: BookOpen },
+type NavItem = { to: string; label: string; short: string; icon: React.ComponentType<{ className?: string }>; end?: boolean; mobile?: boolean };
+
+/** v1.7: Mode Simpel di atas; Studio lengkap (alur brief) dikelompokkan terpisah. */
+const NAV_GROUPS: { title?: string; items: NavItem[] }[] = [
+  {
+    items: [
+      { to: '/', label: 'Beranda', short: 'Beranda', icon: Home, end: true, mobile: true },
+      { to: '/simple/video', label: 'Ide → Video', short: 'Video', icon: Clapperboard, mobile: true },
+      { to: '/simple/ideas', label: 'Ide Konten', short: 'Ide', icon: Lightbulb, mobile: true },
+      { to: '/simple/fix', label: 'Perbaiki Hasil', short: 'Perbaiki', icon: Wand2 },
+    ],
+  },
+  {
+    title: 'Studio lengkap',
+    items: [
+      { to: '/dashboard', label: 'Dashboard', short: 'Studio', icon: LayoutDashboard, mobile: true },
+      { to: '/projects', label: 'Projects', short: 'Project', icon: FolderKanban },
+      { to: '/brands', label: 'Brands', short: 'Brand', icon: Building2 },
+      { to: '/library', label: 'Prompt Library', short: 'Library', icon: BookMarked },
+    ],
+  },
+  {
+    title: 'Lainnya',
+    items: [
+      { to: '/provider', label: 'AI Provider', short: 'AI', icon: KeyRound, mobile: true },
+      { to: '/settings', label: 'Settings', short: 'Atur', icon: Settings },
+      { to: '/guide', label: 'Panduan', short: 'Panduan', icon: BookOpen, mobile: true },
+    ],
+  },
 ];
+const MOBILE_NAV = NAV_GROUPS.flatMap((g) => g.items).filter((i) => i.mobile);
 
 function useVaultLifecycle() {
   const init = useVaultStore((s) => s.init);
@@ -85,22 +107,27 @@ export function AppShell() {
             <p className="text-xs text-muted-foreground">Studio</p>
           </div>
         </div>
-        <nav aria-label="Navigasi utama" className="flex-1 space-y-0.5 px-3">
-          {NAV.map(({ to, label, icon: Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
-                  isActive ? 'bg-primary/10 font-medium text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                )
-              }
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-            </NavLink>
+        <nav aria-label="Navigasi utama" className="flex-1 space-y-3 overflow-y-auto px-3">
+          {NAV_GROUPS.map((g, gi) => (
+            <div key={g.title ?? gi} className="space-y-0.5">
+              {g.title && <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{g.title}</p>}
+              {g.items.map(({ to, label, icon: Icon, end }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={end}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
+                      isActive ? 'bg-primary/10 font-medium text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                    )
+                  }
+                >
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
         <div className="space-y-2 border-t p-4 text-xs">
@@ -159,8 +186,8 @@ export function AppShell() {
         </main>
       </div>
 
-      <nav aria-label="Navigasi bawah" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t bg-card md:hidden">
-        {NAV.map(({ to, short, icon: Icon, end }) => (
+      <nav aria-label="Navigasi bawah" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t bg-card md:hidden">
+        {MOBILE_NAV.map(({ to, short, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}

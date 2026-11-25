@@ -38,6 +38,27 @@ async function mockGemini(page: Page) {
     if (!url.includes(':generateContent')) return route.fulfill({ json: { name: 'models/gemini-test' } });
     const body = route.request().postDataJSON() as { contents: { parts: { text: string }[] }[] };
     const prompt = body.contents[0].parts[0].text;
+    if (prompt.startsWith('<idea>'))
+      return route.fulfill({
+        json: geminiJson({
+          title: 'Mie Tengah Malam',
+          summary: 'Anak kos menemukan mie terakhir.',
+          assets: [{ kind: 'character', name: 'Dimas', description: 'Indonesian college student, 20s', imagePrompt: 'Full body of Dimas, plain light background.' }],
+          clips: [
+            { durationSec: 8, title: 'Kulkas kosong', prompt: 'Dimas opens an empty fridge at night.', speech: '' },
+            { durationSec: 7, title: 'Mie terakhir', prompt: 'Dimas smiles holding the last instant noodle pack.', speech: '' },
+          ],
+          tips: ['Buat klip 1 dulu di 360p.'],
+        }),
+      });
+    if (prompt.startsWith('<topic>'))
+      return route.fulfill({
+        json: geminiJson({ ideas: [{ title: 'Kopi pagi kilat', hook: 'Pekerja berlari mengejar bus', idea: 'Pekerja buru-buru membeli kopi susu dan langsung semangat.' }] }),
+      });
+    if (prompt.startsWith('<prompt>'))
+      return route.fulfill({
+        json: geminiJson({ prompt: 'Only Dimas, no other people, opens an empty fridge slowly.', editInstruction: 'Edit this video keeping everything else the same. Remove the second person.', changes: ['Orang tambahan dihapus'] }),
+      });
     if (prompt.includes('<owner_notes>'))
       return route.fulfill({
         json: geminiJson({
@@ -211,6 +232,7 @@ test('pemula: Mulai cepat → Panduan → Brief cepat', async ({ page }) => {
   await mockGemini(page);
   await page.goto('/login');
   await page.getByRole('button', { name: 'Masuk ke Mode Demo' }).click();
+  await page.getByRole('navigation', { name: 'Navigasi utama' }).getByRole('link', { name: 'Dashboard' }).click();
   await expect(page.getByText('Mulai cepat')).toBeVisible();
 
   await page.getByRole('link', { name: 'Siapkan' }).click();
@@ -238,4 +260,56 @@ test('pemula: Mulai cepat → Panduan → Brief cepat', async ({ page }) => {
   await expect(page.getByText('Target usia ditebak 18-24.')).toBeVisible();
   await page.getByRole('button', { name: 'Periksa brief' }).click();
   await expect(page.getByText('Kopi Senja Botol').first()).toBeVisible();
+});
+
+test('Mode Simpel: ide → prompt Omni → perbaiki, dan Ide Konten', async ({ page }) => {
+  await mockGemini(page);
+  await page.goto('/login');
+  await page.getByRole('button', { name: 'Masuk ke Mode Demo' }).click();
+  await expect(page.getByRole('heading', { name: 'Punya ide video?' })).toBeVisible();
+
+  await page.getByRole('link', { name: 'Siapkan' }).click();
+  await page.getByRole('button', { name: 'Siapkan vault' }).first().click();
+  await page.getByRole('radio', { name: /Hanya sesi/ }).click();
+  await page.getByRole('button', { name: 'Siapkan vault' }).last().click();
+  await page.getByRole('button', { name: 'Tambah key' }).first().click();
+  await page.locator('#k-label').fill('Key E2E');
+  await page.locator('#k-proj').fill('ProjE2E');
+  await page.locator('#k-key').fill(FAKE_KEY);
+  await page.getByRole('button', { name: 'Simpan & lanjut' }).click();
+  await page.getByRole('button', { name: 'Tes koneksi' }).click();
+  await expect(page.getByText('Terhubung').first()).toBeVisible();
+  await page.getByRole('button', { name: 'Selesai' }).click();
+
+  const nav = page.getByRole('navigation', { name: 'Navigasi utama' });
+  await nav.getByRole('link', { name: 'Beranda' }).click();
+  await page.getByLabel('Ide video').fill('Anak kos kelaparan tengah malam menemukan mie instan terakhir.');
+  await page.getByRole('button', { name: /Lanjut atur durasi/ }).click();
+  await expect(page.getByText('2 klip: 8 dtk + 7 dtk')).toBeVisible();
+  await page.getByRole('button', { name: /Buat prompt/ }).click();
+
+  await expect(page.getByRole('heading', { name: 'Mie Tengah Malam' })).toBeVisible();
+  await expect(page.getByText('Nama aset: Dimas')).toBeVisible();
+  await expect(page.getByText(/opens an empty fridge at night\. No on-screen text, no subtitles\. One continuous shot, no jump cuts\. Aspect ratio 9:16\./)).toBeVisible();
+  await page.getByLabel('Sudah dibuat di Flow').first().check();
+  await expect(page.getByText('1/2 selesai')).toBeVisible();
+
+  await page.getByRole('button', { name: /Hasil tidak sesuai/ }).first().click();
+  await page.getByRole('button', { name: 'Ada orang tambahan' }).click();
+  await page.getByRole('button', { name: 'Perbaiki', exact: true }).click();
+  await expect(page.getByText('Edit this video keeping everything else the same. Remove the second person.').first()).toBeVisible();
+  await page.getByRole('button', { name: 'Pakai prompt ini' }).click();
+  await expect(page.getByText(/Only Dimas, no other people, opens an empty fridge slowly\. No on-screen text/)).toBeVisible();
+  await expect(page.getByText('0/2 selesai')).toBeVisible();
+
+  await nav.getByRole('link', { name: 'Beranda' }).click();
+  await expect(page.getByRole('link', { name: /Mie Tengah Malam/ })).toBeVisible();
+
+  await nav.getByRole('link', { name: 'Ide Konten' }).click();
+  await page.locator('#si-topic').fill('kopi susu botolan');
+  await page.getByRole('button', { name: /Cari ide/ }).click();
+  await expect(page.getByText('Kopi pagi kilat')).toBeVisible();
+  await page.getByRole('link', { name: /Jadikan video/ }).click();
+  await expect(page.locator('#sv-idea')).toHaveValue(/Pekerja buru-buru membeli kopi susu/);
+  expect(await page.content()).not.toContain(FAKE_KEY);
 });

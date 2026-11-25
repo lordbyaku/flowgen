@@ -11,7 +11,7 @@ export default function NotFoundPage() {
       description="Alamat yang Anda buka tidak ada atau sudah dipindahkan."
       action={
         <Button asChild>
-          <Link to="/">Kembali ke Dashboard</Link>
+          <Link to="/">Kembali ke Beranda</Link>
         </Button>
       }
     />
