@@ -2,7 +2,7 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [Semantic Versioning](https://semver.org/lang/id/).
 
-## [Unreleased]
+## [1.7.0] - 2026-11-25
 
 ### Ditambahkan
 - **Mode Simpel — lapisan AI dan data**: tiga panggilan AI baru tanpa brief (`simple_video`: ide → prompt klip Gemini Omni; `simple_ideas`: 10 ide video dari topik; `simple_fix`: prompt baru + instruksi edit Omni dari masalah hasil Flow). Durasi dibagi otomatis menjadi klip maks 10 detik (30 → 10/10/10). Setiap prompt klip memakai urutan tetap (subjek → satu aksi → tempat → kamera → cahaya → gaya → audio) dan diakhiri "No on-screen text, no subtitles. One continuous shot, no jump cuts. Aspect ratio …". Hasil disimpan di `users/{uid}/simpleVideos`.
@@ -12,6 +12,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/) dan [S
   - **Perbaiki Hasil** (`/simple/fix` dan di setiap klip): pilih masalah → prompt baru ("Pakai prompt ini" mengganti prompt klip) dan instruksi edit Omni.
 
 ### Diubah
+- Panduan kini dimulai dari Mode Simpel (Ide → Prompt → Flow → CapCut); Brief cepat dan tahapan project disebut sebagai Studio lengkap.
 - Navigasi: Beranda, Ide → Video, Ide Konten, Perbaiki Hasil di atas; Dashboard (kini `/dashboard`), Projects, Brands, Prompt Library dikelompokkan sebagai "Studio lengkap".
 
 ## [1.6.0] - 2026-11-24

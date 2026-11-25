@@ -6,6 +6,7 @@ Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.4). Keputusan implementasi: [`docs/D
 
 | Versi | Tanggal | Catatan |
 |---|---|---|
+| 1.7.0 | 2026-11-25 | Mode Simpel jadi halaman utama: Ide → Video Omni (prompt per klip langsung dari ide), Ide Konten, Perbaiki Hasil; alur brief dipindah ke "Studio lengkap" |
 | 1.6.0 | 2026-11-24 | Untuk pemula: Brief cepat (AI mengisi brief dari beberapa kalimat), halaman Panduan + kamus istilah, checklist Mulai cepat, tab opsional ditandai, halaman API key lebih sederhana |
 | 1.5.0 | 2026-11-24 | Google Flow dengan Gemini Omni 1.2 Flash: scene maks 10 detik, baris Audio + satu shot di prompt, batas kata dialog per durasi, instruksi edit klip, prompt Extend, perkiraan kredit Flow, baris Avoid opsional |
 | 1.4.0 | 2026-11-23 | Posting (caption/hashtag), Varian Hook, Mode Produksi HP, perbaiki prompt dari hasil Flow, konten turunan (seri/versi pendek/rasio), catatan performa |
@@ -17,6 +18,10 @@ Spesifikasi lengkap: [`PRD.md`](PRD.md) (v1.4). Keputusan implementasi: [`docs/D
 | 1.0.0 | 2026-11-08 | Rilis awal: Fase 1, 2, dan 3 |
 
 ## Alur kerja
+
+**Mode Simpel (halaman utama):** tulis ide → pilih durasi, rasio, dan suara → AI membagi menjadi klip maks 10 detik dan menulis prompt Gemini Omni per klip → (opsional) buat aset tokoh/produk di Flow dari prompt gambar → tempel prompt klip satu per satu di Google Flow → "Hasil tidak sesuai?" untuk prompt baru atau instruksi edit Omni. Belum punya ide? Pakai **Ide Konten**.
+
+**Studio lengkap** (untuk iklan detail dengan naskah, storyboard, CapCut, dan posting):
 
 Baru pertama kali? Ikuti checklist **Mulai cepat** di Dashboard dan buka menu **Panduan** (`/guide`).
 
@@ -103,6 +108,11 @@ Mode akun menyimpan key sebagai teks biasa yang dilindungi Security Rules: siapa
 - Drag-and-drop urutan scene (dnd-kit, bisa dengan keyboard).
 - Preset tambahan (Kecantikan, Properti, Promo Musiman) & aturan linter aktif/nonaktif per project.
 - Uji E2E Playwright dengan Gemini dipalsukan.
+
+**Peningkatan v1.7 (Mode Simpel)**
+- Beranda baru: kotak ide, kartu alat, dan Karya terbaru.
+- Ide → Video Omni: satu panggilan AI (`simple_video`) dari ide langsung ke prompt per klip; durasi dibagi otomatis (maks 10 detik per klip); prompt berurutan subjek → satu aksi → tempat → kamera → cahaya → gaya → audio, diakhiri tanpa teks, satu shot, dan rasio. Opsional aset Flow (prompt gambar + nama persis) agar wajah/produk konsisten. Hasil tersimpan di akun.
+- Ide Konten (`simple_ideas`, 10 ide → "Jadikan video") dan Perbaiki Hasil (`simple_fix`, prompt baru + instruksi edit Omni).
 
 **Peningkatan v1.6 (untuk pemula)**
 - Brief cepat (`/projects/quick`): tulis beberapa kalimat tentang produk; satu panggilan AI mengisi field wajib dan penting, lengkap dengan daftar tebakan yang perlu dicek. Brand bisa dibuat langsung.

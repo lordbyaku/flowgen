@@ -1411,3 +1411,19 @@ Keputusan pemilik: aplikasi harus bisa dipakai pemula tanpa penjelasan di luar a
 4. **Tab opsional** ditandai: Varian Hook, Produksi, Posting, Export.
 5. **AI Provider**: kartu 3 langkah bila belum ada key; peringatan keamanan diringkas dengan "Baca selengkapnya";
    Strategi routing hanya tampil bila ada ≥2 key.
+
+# Perubahan v1.7 (2026-11-25): Mode Simpel
+
+Masukan pemilik: form brief terlalu banyak sehingga sering diisi tidak lengkap, dan prompt Omni sering tidak sesuai ide.
+Kebutuhan inti: punya ide → dapat rekomendasi → pindah ke Google Flow untuk membuat video dengan Omni.
+
+1. **Beranda = Mode Simpel** (`/`). Dashboard lama pindah ke `/dashboard`; alur brief menjadi "Studio lengkap" (tetap utuh).
+2. **Ide → Video Omni** (`/simple/video`, tugas AI `simple_video`): input wajib hanya ide (10–1500 karakter); durasi 8–60 dtk,
+   rasio, suara (tanpa / tokoh bicara / narator) dengan default; gaya (UGC, iklan produk, sinematik, animasi 3D), bahasa ucapan,
+   dan aset Flow (default ya) di "Opsi lain". Durasi dibagi deterministik (`planClips`: klip sepanjang mungkin ≤ 10 dtk).
+   Prompt klip 60–110 kata, urutan tetap, satu aksi, ucapan dibatasi `dialogueWordBudget`, dan selalu diakhiri
+   "No on-screen text, no subtitles. One continuous shot, no jump cuts. Aspect ratio …" (`finalizeClipPrompt`).
+   Mode aset: prompt menyebut nama aset saja; tanpa aset: deskripsi lengkap diulang di setiap klip.
+   Disimpan di `users/{uid}/simpleVideos/{id}` (status per aset/klip, instruksi edit terakhir).
+3. **Ide Konten** (`/simple/ideas`, `simple_ideas`): topik + tujuan (jualan/edukasi/hiburan) → 10 ide (judul, pembuka, ide).
+4. **Perbaiki Hasil** (`/simple/fix` dan di setiap klip, `simple_fix`): prompt + masalah + catatan → prompt baru dan instruksi edit Omni.
