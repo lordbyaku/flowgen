@@ -9,7 +9,7 @@ import { framePromptsFor } from './scenePromptCall';
 import { buildSystemPrompt } from './systemPrompts';
 
 /** Arahan perbaikan per masalah (Inggris, untuk AI). Mode aset Flow memakai nama aset, bukan deskripsi. */
-function issueGuide(issue: FlowIssue, flowAssets: boolean): string {
+export function issueGuide(issue: FlowIssue, flowAssets: boolean): string {
   switch (issue) {
     case 'face_changed':
       return flowAssets

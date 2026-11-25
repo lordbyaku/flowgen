@@ -1,5 +1,6 @@
 import type { z } from 'zod';
 import type * as C from '@/config/enums';
+import type * as S from '@/schemas/simple.schema';
 import type { BriefSchema, CharacterInputSchema } from '@/schemas/brief.schema';
 import type { ReferenceImageSchema } from '@/schemas/common';
 import type {
@@ -147,3 +148,14 @@ export interface AppError {
 
 export type ProgressPhase = 'selecting_key' | 'requesting' | 'parsing' | 'validating' | 'repairing' | 'saving';
 export type ProgressFn = (phase: ProgressPhase, detail?: string) => void;
+
+// ---- Mode Simpel (v1.7) ----
+export type SimpleVideoInput = z.infer<typeof S.SimpleVideoInputSchema>;
+export type SimpleVideoOutput = z.infer<typeof S.SimpleVideoOutputSchema>;
+export type SimpleVideo = z.infer<typeof S.SimpleVideoSchema>;
+export type SimpleClip = z.infer<typeof S.SimpleClipSchema>;
+export type SimpleIdeasInput = z.infer<typeof S.SimpleIdeasInputSchema>;
+export type SimpleIdeasOutput = z.infer<typeof S.SimpleIdeasOutputSchema>;
+export type SimpleFixOutput = z.infer<typeof S.SimpleFixOutputSchema>;
+export type SimpleStyle = (typeof C.SIMPLE_STYLES)[number];
+export type SimpleSpeech = (typeof C.SIMPLE_SPEECH)[number];

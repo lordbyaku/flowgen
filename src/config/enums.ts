@@ -57,7 +57,7 @@ export const KEY_STATUSES = [
   'network_error',
   'disabled',
 ] as const;
-export const AI_TASKS = ['key_test', 'brief_assist', 'concepts', 'script_storyboard', 'scene_prompts', 'scene_regen', 'publish_pack', 'hook_variants', 'prompt_fix'] as const;
+export const AI_TASKS = ['key_test', 'brief_assist', 'concepts', 'script_storyboard', 'scene_prompts', 'scene_regen', 'publish_pack', 'hook_variants', 'prompt_fix', 'simple_video', 'simple_ideas', 'simple_fix'] as const;
 export const GENDERS = ['all', 'male', 'female'] as const;
 export const AWARENESS = ['unaware', 'problem_aware', 'solution_aware', 'product_aware'] as const;
 export const SPEECH_STYLES = ['formal', 'casual', 'slang', 'regional'] as const;
@@ -80,6 +80,10 @@ export const FLOW_ISSUES = [
   'wrong_setting',
   'other',
 ] as const;
+/** Mode Simpel (v1.7). */
+export const SIMPLE_STYLES = ['ugc', 'commercial', 'cinematic', 'animation_3d'] as const;
+export const SIMPLE_SPEECH = ['none', 'dialogue', 'narration'] as const;
+export const SIMPLE_ASSET_KINDS = ['character', 'product', 'location'] as const;
 export const FLOW_MODES = ['text_to_video', 'image_to_video', 'frames'] as const;
 export const CHARACTER_REFS = ['flow_assets', 'description'] as const;
 export const ROUTINGS = ['round_robin', 'priority', 'single'] as const;
@@ -229,6 +233,9 @@ export const LABELS = {
     publish_pack: 'Paket posting',
     hook_variants: 'Varian hook',
     prompt_fix: 'Perbaikan prompt',
+    simple_video: 'Ide → Video',
+    simple_ideas: 'Ide konten',
+    simple_fix: 'Perbaiki hasil',
   },
   gender: { all: 'Semua', male: 'Pria', female: 'Wanita' },
   awareness: {
@@ -244,6 +251,18 @@ export const LABELS = {
   voStyle: { friendly: 'Ramah', firm: 'Tegas', warm: 'Hangat', energetic: 'Energik' },
   textLanguage: { id: 'Indonesia', en: 'Inggris' },
   variant: { standard: 'Standard', cinematic: 'Cinematic', premium: 'Premium Commercial' },
+  simpleStyle: {
+    ugc: 'Rekaman HP (UGC)',
+    commercial: 'Iklan produk bersih',
+    cinematic: 'Sinematik',
+    animation_3d: 'Animasi 3D',
+  },
+  simpleSpeech: {
+    none: 'Tanpa suara orang',
+    dialogue: 'Tokoh berbicara',
+    narration: 'Suara narator',
+  },
+  simpleAssetKind: { character: 'Tokoh', product: 'Produk', location: 'Tempat' },
   flowIssue: {
     face_changed: 'Wajah/karakter berubah',
     outfit_changed: 'Pakaian berubah',

@@ -12,6 +12,8 @@ import { loadReferenceImages, referenceCandidates, type ImageLoader } from '@/ai
 import { AI_IMAGE_MAX_DIM, MAX_OUTPUT_TOKENS, TEMPERATURE, TOKENS_PER_IMAGE } from '@/config/constants';
 import { SchemaTestSchema } from '@/schemas/storyboard.schema';
 import { buildBriefAssistCall, filterAssistQuestions } from '@/ai/director/briefAssistCall';
+import { buildSimpleFixCall, buildSimpleIdeasCall, buildSimpleVideoCall, type SimpleFixInput } from '@/ai/director/simpleCalls';
+import { toSimpleVideo } from '@/domain/simpleVideo';
 import { applyQuickBrief, buildQuickBriefCall, type QuickBriefResult } from '@/ai/director/quickBriefCall';
 import { buildConceptCall, toConceptRound } from '@/ai/director/conceptCall';
 import { buildScriptStoryboardCall, mapScriptStoryboard } from '@/ai/director/scriptStoryboardCall';
@@ -41,6 +43,11 @@ import type {
   Result,
   Scene,
   ScriptDoc,
+  SimpleFixOutput,
+  SimpleIdeasInput,
+  SimpleIdeasOutput,
+  SimpleVideo,
+  SimpleVideoInput,
 } from '@/types';
 import { previewStore, usageStore, vaultKeyAccess, type KeyAccess } from '@/vault/vaultStore';
 
@@ -116,6 +123,28 @@ export function createAiService(deps: {
         const call = buildQuickBriefCall(seed, notes);
         const { data } = await structuredCall(router, { ...call, ...opts });
         return applyQuickBrief(seed, data, call.allowedPaths);
+      });
+    },
+
+    /** Mode Simpel (v1.7): ide → prompt klip Omni. */
+    simpleVideo(input: SimpleVideoInput, opts: CallOptions = {}): Promise<Result<SimpleVideo>> {
+      return safe(async () => {
+        const { data } = await structuredCall(router, { ...buildSimpleVideoCall(input), ...opts });
+        return toSimpleVideo(input, data, now());
+      });
+    },
+
+    simpleIdeas(input: SimpleIdeasInput, opts: CallOptions = {}): Promise<Result<SimpleIdeasOutput['ideas']>> {
+      return safe(async () => {
+        const { data } = await structuredCall(router, { ...buildSimpleIdeasCall(input), ...opts });
+        return data.ideas.filter((i) => i.title.trim() && i.idea.trim());
+      });
+    },
+
+    simpleFix(input: SimpleFixInput, opts: CallOptions = {}): Promise<Result<SimpleFixOutput>> {
+      return safe(async () => {
+        const { data } = await structuredCall(router, { ...buildSimpleFixCall(input), ...opts });
+        return { prompt: data.prompt.trim(), editInstruction: data.editInstruction.trim(), changes: data.changes.map((c) => c.trim()).filter(Boolean) };
       });
     },
 
