@@ -251,7 +251,7 @@ test('pemula: Mulai cepat → Panduan → Brief cepat', async ({ page }) => {
 
   await page.getByRole('navigation', { name: 'Navigasi utama' }).getByRole('link', { name: 'Panduan' }).click();
   await expect(page.getByText('Membuat klip di Google Flow').first()).toBeVisible();
-  await page.getByRole('link', { name: /Coba Brief cepat/ }).click();
+  await page.getByRole('main').getByRole('link', { name: 'Brief cepat', exact: true }).click();
 
   await page.locator('#qb-brand').fill('Kopi Senja');
   await page.locator('#qb-notes').fill('Kopi susu gula aren dalam botol untuk mahasiswa dekat kampus, dibuat tiap pagi.');

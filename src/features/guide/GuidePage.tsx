@@ -9,6 +9,10 @@ import { GUIDE_GLOSSARY, GUIDE_STAGES, GUIDE_TABS } from './guideContent';
 
 const FLOW_STEPS: { title: string; body: string }[] = [
   {
+    title: 'Dari Mode Simpel (Ide → Video)',
+    body: 'Hasil dibagi dua langkah. Langkah 1: salin prompt gambar setiap aset, buat gambarnya di Flow, dan simpan sebagai aset dengan nama persis seperti di aplikasi. Langkah 2: untuk setiap klip, pilih model Omni, lampirkan aset yang disebut, tempel prompt, atur durasi, lalu generate. Centang "Sudah dibuat di Flow" agar tahu posisi Anda.',
+  },
+  {
     title: 'Buat aset dulu (bila memakai mode "Karakter & tempat dibuat di Flow")',
     body: 'Buka tab Karakter & Tempat. Salin prompt setiap karakter, tempat, dan produk, buat gambarnya di Flow, lalu simpan sebagai aset dengan nama yang sama seperti di aplikasi. Aset inilah yang membuat wajah dan produk tetap sama di semua klip.',
   },
@@ -79,8 +83,8 @@ export default function GuidePage() {
         description="Dari ide produk sampai video jadi, langkah demi langkah."
         actions={
           <Button asChild>
-            <Link to="/projects/quick">
-              <Sparkles /> Coba Brief cepat
+            <Link to="/simple/video">
+              <Sparkles /> Tulis ide video
             </Link>
           </Button>
         }
@@ -131,16 +135,27 @@ export default function GuidePage() {
             , klik "Siapkan vault", pilih "Tersimpan di akun" agar key ikut di semua device, lalu tempel key.
           </li>
           <li>
-            <strong>Buat project pertama</strong> dengan{' '}
+            <strong>Tulis ide video</strong> di{' '}
+            <Link to="/" className="text-primary underline">
+              Beranda
+            </Link>
+            , pilih durasi dan rasio, lalu klik "Buat prompt". Belum punya ide? Buka{' '}
+            <Link to="/simple/ideas" className="text-primary underline">
+              Ide Konten
+            </Link>
+            .
+          </li>
+          <li>
+            <strong>Untuk iklan yang butuh detail</strong> (naskah, storyboard, panduan CapCut, caption), pakai Studio lengkap lewat{' '}
             <Link to="/projects/quick" className="text-primary underline">
               Brief cepat
             </Link>
-            : ceritakan produk Anda dalam beberapa kalimat, AI mengisi brief lengkapnya. Anda tinggal memeriksa.
+            .
           </li>
         </ol>
       </Section>
 
-      <Section id="tahapan" icon={FileText} title="Tahapan project" description="Tab di bagian atas setiap project. Kerjakan dari kiri ke kanan; yang opsional boleh dilewati.">
+      <Section id="tahapan" icon={FileText} title="Tahapan project (Studio lengkap)" description="Tab di bagian atas setiap project. Kerjakan dari kiri ke kanan; yang opsional boleh dilewati.">
         <ul className="divide-y">
           {GUIDE_TABS.map((t) => (
             <li key={t.label} className="flex flex-col gap-1 py-2 sm:flex-row sm:items-start sm:gap-3">

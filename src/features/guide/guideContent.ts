@@ -1,8 +1,8 @@
 import { HUB_STEPS } from '@/config/hubSteps';
 
 export const GUIDE_STAGES = [
-  { title: 'Brief', where: 'di aplikasi', body: 'Ceritakan produk dan target pembeli. Brief cepat bisa mengisinya dengan AI.' },
-  { title: 'Prompt', where: 'di aplikasi', body: 'AI membuat konsep, naskah, storyboard, lalu prompt video per scene.' },
+  { title: 'Ide', where: 'di aplikasi', body: 'Tulis ide di Beranda, atau cari di Ide Konten bila belum punya.' },
+  { title: 'Prompt', where: 'di aplikasi', body: 'AI membagi ide menjadi klip maks 10 detik dan menulis prompt Omni untuk setiap klip.' },
   { title: 'Klip video', where: 'di Google Flow', body: 'Tempel prompt satu per satu di Flow (model Omni) dan unduh klipnya.' },
   { title: 'Video jadi', where: 'di CapCut', body: 'Rakit klip, tambah voice-over, musik, dan teks, lalu posting.' },
 ] as const;
